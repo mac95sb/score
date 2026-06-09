@@ -38,6 +38,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-distributed-tracing.git", from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-certificates.git", from: "1.0.0"),
         .package(url: "https://github.com/tuist/Noora.git", from: "0.56.0"),
+        .package(url: "https://github.com/apple/swift-openapi-runtime.git", from: "1.0.0"),
     ],
     targets: [
         // MARK: - System library (SQLite3)
@@ -76,6 +77,7 @@ let package = Package(
                 .product(name: "Metrics", package: "swift-metrics"),
                 .product(name: "ServiceLifecycle", package: "swift-service-lifecycle"),
                 .product(name: "AsyncHTTPClient", package: "async-http-client"),
+                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
             ]
         ),
 

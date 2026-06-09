@@ -32,6 +32,8 @@ public enum CSSCondition: Sendable, Hashable {
     case mediaQuery(String)
     /// A media query that also has a pseudo-class, e.g. dark-mode hover state.
     case combined(pseudo: String, media: String)
+    /// A child element selector for targeting `> *` within the component class.
+    case childSelector(String)
 
     /// The selector or at-rule string used in a native CSS nesting block.
     var selector: String {
@@ -39,6 +41,7 @@ public enum CSSCondition: Sendable, Hashable {
         case .pseudoClass(let p):          return "&\(p)"
         case .mediaQuery(let m):           return "@media \(m)"
         case .combined(_, let m):          return "@media \(m)"
+        case .childSelector(let s):        return s
         }
     }
 }

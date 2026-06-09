@@ -135,6 +135,7 @@ final class ScoreHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
 
             let h = handler
             let log = logger
+            let staticDir = staticDirectory
             let eventLoop = context.eventLoop
 
             // `ScoreHTTPHandler` is `@unchecked Sendable`; NIO guarantees all
@@ -143,6 +144,16 @@ final class ScoreHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
             // `eventLoop.execute`. The `context` capture is safe under these rules.
             let handler = self
             Task {
+                // Static file middleware — try before the application handler.
+                if let staticDir = staticDir, head.method == .GET {
+                    let urlPath = request.uri.path
+                    let relativePath = urlPath == "/" ? "index.html" : String(urlPath.drop(while: { $0 == "/" }))
+                    let fileURL = URL(fileURLWithPath: staticDir).appendingPathComponent(relativePath)
+                    if let staticResponse = handler.serveStaticFile(at: fileURL) {
+                        eventLoop.execute { handler.writeResponse(staticResponse, to: context) }
+                        return
+                    }
+                }
                 do {
                     let response = try await h(request)
                     eventLoop.execute { handler.writeResponse(response, to: context) }
@@ -206,6 +217,40 @@ final class ScoreHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
         }
 
         context.writeAndFlush(wrapOutboundOut(.end(nil)), promise: nil)
+    }
+
+    // MARK: - Static file serving
+
+    /// Try to serve a file from disk.  Returns `nil` when the file does not exist.
+    private func serveStaticFile(at url: URL) -> Response? {
+        guard FileManager.default.isReadableFile(atPath: url.path),
+              let data = try? Data(contentsOf: url) else { return nil }
+        let contentType = mimeType(for: url.pathExtension)
+        return Response(status: .ok, body: .data(data, contentType: contentType))
+    }
+
+    private func mimeType(for ext: String) -> String {
+        switch ext.lowercased() {
+        case "html", "htm": return "text/html; charset=utf-8"
+        case "css":         return "text/css; charset=utf-8"
+        case "js", "mjs":   return "application/javascript; charset=utf-8"
+        case "json":        return "application/json"
+        case "png":         return "image/png"
+        case "jpg", "jpeg": return "image/jpeg"
+        case "gif":         return "image/gif"
+        case "svg":         return "image/svg+xml"
+        case "ico":         return "image/x-icon"
+        case "woff":        return "font/woff"
+        case "woff2":       return "font/woff2"
+        case "ttf":         return "font/ttf"
+        case "webp":        return "image/webp"
+        case "mp4":         return "video/mp4"
+        case "webm":        return "video/webm"
+        case "pdf":         return "application/pdf"
+        case "txt":         return "text/plain; charset=utf-8"
+        case "xml":         return "application/xml"
+        default:            return "application/octet-stream"
+        }
     }
 
     func errorCaught(context: ChannelHandlerContext, error: Error) {
