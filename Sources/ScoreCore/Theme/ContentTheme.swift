@@ -41,6 +41,54 @@ public struct ContentTheme: Sendable {
         strikethrough: { v in v }
     )
 
+    /// A content theme tuned for long-form blog articles.
+    ///
+    /// Applies generous line height and spacing to body text, distinctive blockquote
+    /// styling, and comfortable heading sizes suited to article prose.
+    public static let blog = ContentTheme(
+        heading: { level, v in
+            let size: FontSize = level == 1 ? .fourXL : level == 2 ? .threeXL : level == 3 ? .twoXL : .xl
+            return AnyView(AnyView(v).modifier(FontModifier(size: size, weight: .bold)).margin(y: .rem(1)))
+        },
+        paragraph: { v in
+            AnyView(AnyView(v).modifier(FontModifier(leading: .relaxed)).margin(y: .rem(0.75)))
+        },
+        code: { v in
+            AnyView(AnyView(v).modifier(FontModifier(family: .systemMono)).padding(.px(2), .px(6)).border(radius: .sm).background(color: .surface))
+        },
+        codeBlock: { _, v in
+            AnyView(AnyView(v).modifier(FontModifier(family: .systemMono)).padding(.rem(1.5)).border(radius: .md).background(color: .surface).overflow(.scroll))
+        },
+        blockquote: { v in
+            AnyView(AnyView(v).border(color: .primary, width: 4, edge: .left).padding(x: .rem(1.5), y: .rem(1)).font(color: .muted).font(style: .italic))
+        },
+        list: { _, v in
+            AnyView(AnyView(v).margin(y: .rem(0.75)).padding(left: .rem(1.5)))
+        },
+        listItem: { v in
+            AnyView(AnyView(v).margin(y: .rem(0.25)))
+        },
+        table: { v in
+            AnyView(AnyView(v).overflow(.scroll))
+        },
+        link: { v in
+            AnyView(AnyView(v).font(color: .primary).font(decoration: .underline))
+        },
+        image: { v in
+            AnyView(AnyView(v).border(radius: .md).overflow(.hidden))
+        },
+        divider: { v in
+            AnyView(AnyView(v).margin(y: .rem(2)))
+        },
+        strong: { v in
+            AnyView(AnyView(v).font(weight: .semibold))
+        },
+        emphasis: { v in
+            AnyView(AnyView(v).font(style: .italic))
+        },
+        strikethrough: { v in v }
+    )
+
     public init(
         heading:       @escaping HeadingStyle                              = { _, v in v },
         paragraph:     @escaping ElementStyle                              = { v in v },

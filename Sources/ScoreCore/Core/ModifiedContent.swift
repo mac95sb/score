@@ -71,6 +71,60 @@ public struct ConditionGroupView<Content: View>: View, _HTMLRenderable {
     }
 }
 
+// MARK: - AnimateChildrenView
+
+/// Wraps a view and stagger-animates its direct children.
+///
+/// Created by `.animateChildren(_:duration:stagger:easing:)`.
+public struct AnimateChildrenView<Content: View>: View, _HTMLRenderable {
+    let animationName: String
+    let duration: AnimationDuration
+    let stagger: AnimationDuration
+    let easing: AnimationTiming
+    let content: Content
+
+    public typealias Body = Swift.Never
+    public var body: Swift.Never { fatalError() }
+
+    public func renderHTML(context: inout RenderContext) -> String {
+        let inner = content._renderInto(&context)
+        return "<div data-score-stagger=\"\(stagger.css)\">\(inner)</div>"
+    }
+
+    public func collectCSS(context: inout CSSCollectionContext) {
+        let animValue = "\(animationName) \(duration.css) \(easing.css) both"
+        let condition = CSSCondition.combined(
+            pseudo: " > *",
+            media: "(prefers-reduced-motion: no-preference)"
+        )
+        context.record(CSSDeclaration("animation", animValue), condition: condition)
+        content._collectCSSInto(&context)
+    }
+}
+
+// MARK: - AnimateOnScrollView
+
+/// Wraps a view and marks it for scroll-triggered animation via an Intersection Observer.
+///
+/// Created by `.animateOnScroll(_:threshold:)`.
+public struct AnimateOnScrollView<Content: View>: View, _HTMLRenderable {
+    let animationName: String
+    let threshold: Double
+    let content: Content
+
+    public typealias Body = Swift.Never
+    public var body: Swift.Never { fatalError() }
+
+    public func renderHTML(context: inout RenderContext) -> String {
+        let inner = content._renderInto(&context)
+        return "<div data-score-aos=\"\(attributeEscape(animationName))\" data-score-aos-threshold=\"\(threshold)\">\(inner)</div>"
+    }
+
+    public func collectCSS(context: inout CSSCollectionContext) {
+        content._collectCSSInto(&context)
+    }
+}
+
 // MARK: - View extension
 
 extension View {
