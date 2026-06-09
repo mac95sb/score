@@ -1,6 +1,7 @@
 import ArgumentParser
 import Foundation
 import Logging
+import Noora
 
 /// `score dev` — start the development server with hot-reload.
 ///
@@ -26,10 +27,12 @@ struct DevCommand: AsyncParsableCommand {
     var verbose: Bool = false
 
     mutating func run() async throws {
-        print("  score dev  →  http://\(host):\(port)")
-        print("  Press Ctrl-C to stop.\n")
+        let noora = Noora()
+        noora.info(.alert(
+            "score dev",
+            takeaways: ["http://\(host):\(port)", "Press Ctrl-C to stop"]
+        ))
 
-        // Initial build
         let built = try await buildPackage(configuration: "debug", verbose: verbose)
         guard built else { throw CLIError.buildFailed }
 
@@ -46,7 +49,6 @@ struct DevCommand: AsyncParsableCommand {
                 }
             }
 
-            // Cancel everything on first task completion
             try await group.next()
             group.cancelAll()
         }
@@ -62,7 +64,7 @@ struct DevCommand: AsyncParsableCommand {
             .merging(["SCORE_DEV_RELOAD": "1"]) { _, new in new }
         try process.run()
         process.waitUntilExit()
-        print("\n  Server exited with status \(process.terminationStatus).")
+        Noora().warning(.alert("Server exited with status \(process.terminationStatus)"))
     }
 
     // MARK: - File watcher
@@ -79,11 +81,12 @@ struct DevCommand: AsyncParsableCommand {
         while !Task.isCancelled {
             let changed = pollChanges(in: directories, lastDates: &lastModDates)
             if !changed.isEmpty {
+                let noora = Noora()
                 for url in changed {
-                    print("  ↻  \(url.lastPathComponent)")
+                    noora.passthrough("↻  \(url.lastPathComponent)")
                 }
                 if let _ = try? await buildPackage(configuration: "debug", verbose: verbose) {
-                    print("  ✓  Rebuilt — reload your browser.")
+                    noora.success(.alert("Rebuilt — reload your browser"))
                 }
             }
             try? await Task.sleep(for: .milliseconds(500))
@@ -108,11 +111,11 @@ struct DevCommand: AsyncParsableCommand {
                 guard let attrs = try? fileURL.resourceValues(forKeys: [.contentModificationDateKey]),
                       let modDate = attrs.contentModificationDate else { continue }
 
-                if let last = lastDates[fileURL], modDate > last {
-                    lastDates[fileURL] = modDate
+                if let last = lastModDates[fileURL], modDate > last {
+                    lastModDates[fileURL] = modDate
                     changed.append(fileURL)
-                } else if lastDates[fileURL] == nil {
-                    lastDates[fileURL] = modDate
+                } else if lastModDates[fileURL] == nil {
+                    lastModDates[fileURL] = modDate
                 }
             }
         }
@@ -146,8 +149,8 @@ struct BuildCommand: AsyncParsableCommand {
     var output: String = ".score/build"
 
     mutating func run() async throws {
+        let noora = Noora()
         let start = Date()
-        print("  score build  →  \(output)\n")
 
         let built = try await buildPackage(configuration: "release", verbose: verbose)
         guard built else { throw CLIError.buildFailed }
@@ -165,7 +168,7 @@ struct BuildCommand: AsyncParsableCommand {
 
         let elapsed = String(format: "%.2f", Date().timeIntervalSince(start))
         if process.terminationStatus == 0 {
-            print("\n  ✓  Built in \(elapsed)s → \(output)")
+            noora.success(.alert("Built in \(elapsed)s", takeaways: ["\(output)"]))
         } else {
             throw CLIError.buildFailed
         }
