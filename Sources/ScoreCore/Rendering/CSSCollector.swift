@@ -159,6 +159,9 @@ public struct CSSCollectionContext: Sendable {
     /// Active modifier stack — innermost modifier is last.
     public var modifierStack: [any ViewModifier] = []
 
+    /// Condition applied to all modifier CSS collected within an `.at()` / `.on()` group closure.
+    public var groupConditionOverride: ModifierCondition?
+
     public init() {}
 
     // MARK: - Modifier stack

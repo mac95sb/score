@@ -34,6 +34,9 @@ let package = Package(
         .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.21.0"),
         .package(url: "https://github.com/apple/swift-markdown.git", from: "0.4.0"),
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
+        .package(url: "https://github.com/apple/swift-nio-transport-services.git", from: "1.21.0"),
+        .package(url: "https://github.com/apple/swift-distributed-tracing.git", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-certificates.git", from: "1.0.0"),
         .package(url: "https://github.com/tuist/Noora.git", from: "0.56.0"),
     ],
     targets: [
@@ -66,6 +69,7 @@ let package = Package(
                 .product(name: "NIOHTTP1", package: "swift-nio"),
                 .product(name: "NIOHTTP2", package: "swift-nio-http2"),
                 .product(name: "NIOExtras", package: "swift-nio-extras"),
+                .product(name: "NIOWebSocket", package: "swift-nio"),
                 .product(name: "HTTPTypes", package: "swift-http-types"),
                 .product(name: "HTTPTypesFoundation", package: "swift-http-types"),
                 .product(name: "Logging", package: "swift-log"),
