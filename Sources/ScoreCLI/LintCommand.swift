@@ -1,5 +1,6 @@
 import ArgumentParser
 import Foundation
+import Noora
 
 /// `score lint` — lint Score views and flag common issues.
 ///
@@ -34,13 +35,14 @@ struct LintCommand: AsyncParsableCommand {
             allDiagnostics.append(contentsOf: diags)
         }
 
+        let noora = Noora()
         if json {
             let encoder = JSONEncoder()
             encoder.outputFormatting = .prettyPrinted
             let data = try encoder.encode(allDiagnostics)
-            print(String(data: data, encoding: .utf8) ?? "[]")
+            noora.passthrough(TerminalText(stringLiteral: String(data: data, encoding: .utf8) ?? "[]"))
         } else {
-            printDiagnostics(allDiagnostics)
+            printDiagnostics(allDiagnostics, noora: noora)
         }
 
         let errors = allDiagnostics.filter { $0.severity == .error || (strict && $0.severity == .warning) }
@@ -49,18 +51,24 @@ struct LintCommand: AsyncParsableCommand {
         }
     }
 
-    private func printDiagnostics(_ diagnostics: [LintDiagnostic]) {
+    private func printDiagnostics(_ diagnostics: [LintDiagnostic], noora: Noora) {
         if diagnostics.isEmpty {
-            print("  ✓  No issues found.")
+            noora.success(.alert("No issues found."))
             return
         }
-        for diag in diagnostics.sorted(by: { $0.file < $1.file }) {
-            let icon = diag.severity == .error ? "✗" : "⚠"
-            print("  \(icon)  \(diag.file):\(diag.line)  \(diag.message)")
+        let errors = diagnostics.filter { $0.severity == .error }
+        let warnings = diagnostics.filter { $0.severity == .warning }
+        if !errors.isEmpty {
+            noora.error(.alert(
+                "\(errors.count) error(s), \(warnings.count) warning(s)",
+                takeaways: errors.map { "\($0.file):\($0.line)  \($0.message)" }
+            ))
         }
-        let warnings = diagnostics.filter { $0.severity == .warning }.count
-        let errors = diagnostics.filter { $0.severity == .error }.count
-        print("\n  \(errors) error(s), \(warnings) warning(s)")
+        if !warnings.isEmpty {
+            noora.warning(warnings.map {
+                WarningAlert.alert("\($0.file):\($0.line)  \($0.message)")
+            })
+        }
     }
 }
 

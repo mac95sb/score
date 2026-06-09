@@ -1,5 +1,6 @@
 import ArgumentParser
 import Foundation
+import Noora
 
 /// `score new <name>` — scaffold a new Score project.
 ///
@@ -21,35 +22,36 @@ struct NewCommand: AsyncParsableCommand {
     var skipResolve: Bool = false
 
     mutating func run() async throws {
+        let noora = Noora()
         let projectDir = URL(fileURLWithPath: name)
 
         guard !FileManager.default.fileExists(atPath: projectDir.path) else {
             throw CLIError.directoryExists(name)
         }
 
-        print("  Creating \(name) (\(template.rawValue) template)…\n")
-
         let scaffold = ProjectScaffolder(template: template)
-        try scaffold.write(to: projectDir, projectName: name)
 
-        if !skipResolve {
-            print("  Resolving dependencies…")
-            let p = Process()
-            p.executableURL = URL(fileURLWithPath: "/usr/bin/swift")
-            p.arguments = ["package", "resolve"]
-            p.currentDirectoryURL = projectDir
-            try p.run()
-            p.waitUntilExit()
+        try await noora.progressStep(
+            message: "Creating \(name) (\(template.rawValue) template)…"
+        ) { _ in
+            try scaffold.write(to: projectDir, projectName: name)
         }
 
-        print("""
+        if !skipResolve {
+            try await noora.progressStep(message: "Resolving dependencies…") { _ in
+                let p = Process()
+                p.executableURL = URL(fileURLWithPath: "/usr/bin/swift")
+                p.arguments = ["package", "resolve"]
+                p.currentDirectoryURL = projectDir
+                try p.run()
+                p.waitUntilExit()
+            }
+        }
 
-  ✓  Created \(name)/
-
-  Next steps:
-    cd \(name)
-    score dev
-  """)
+        noora.success(.alert("Created \(name)/", takeaways: [
+            "cd \(name)",
+            "score dev",
+        ]))
     }
 }
 
@@ -78,6 +80,8 @@ struct ProjectScaffolder: Sendable {
         case .minimal:
             try writeMinimal(to: directory, name: projectName)
         }
+
+        try writeAgentsMD(to: directory, name: projectName)
     }
 
     // MARK: - Default template
@@ -235,6 +239,42 @@ struct ProjectScaffolder: Sendable {
         *.d
         """
         try write(gitignore, to: dir.appendingPathComponent(".gitignore"))
+    }
+
+    private func writeAgentsMD(to dir: URL, name: String) throws {
+        let content = """
+        # \(name)
+
+        A Score web application.
+
+        ## Development
+
+        ```bash
+        score dev       # start dev server with hot-reload on :8080
+        score build     # production build to .score/build/
+        score preview   # serve the build output locally on :4173
+        ```
+
+        ## Commands
+
+        ```bash
+        score generate page <Name>       # scaffold a new page
+        score generate component <Name>  # scaffold a reusable component
+        score generate record <Name>     # scaffold a database record
+        score lint                       # lint Score views
+        score routes                     # list all registered routes
+        ```
+
+        ## Project structure
+
+        ```
+        Sources/\(name)/
+          App.swift       # Application entry point and route table
+        Content/          # Markdown content files
+        Public/           # Static assets copied verbatim to build output
+        ```
+        """
+        try write(content, to: dir.appendingPathComponent("AGENTS.md"))
     }
 
     private func mkdir(_ url: URL) throws {
