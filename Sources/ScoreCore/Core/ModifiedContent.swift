@@ -24,9 +24,50 @@ public struct ModifiedContent<Base: View, Modifier: ViewModifier>: View, _HTMLRe
     }
 
     public func collectCSS(context: inout CSSCollectionContext) {
-        context.pushModifier(modifier)
+        if let themeAware = modifier as? any ThemeAwareModifier {
+            // Use per-declaration conditions from ThemeAwareModifier for accurate conditional CSS.
+            let condDecls = themeAware.declarations(theme: .default)
+            let overrideCondition = context.groupConditionOverride
+            for decl in condDecls {
+                let effectiveCondition = decl.condition ?? overrideCondition
+                context.record(
+                    CSSDeclaration(decl.property, decl.value),
+                    condition: effectiveCondition?.cssCondition(theme: .default)
+                )
+            }
+        } else {
+            let decls = modifier.cssDeclarations()
+            if !decls.isEmpty {
+                let explicit = modifier.cssCondition()
+                let effective = explicit ?? context.groupConditionOverride?.cssCondition(theme: .default)
+                context.record(decls, condition: effective)
+            }
+        }
         base._collectCSSInto(&context)
-        context.popModifier()
+    }
+}
+
+// MARK: - ConditionGroupView
+
+/// Wraps a view and applies a condition to all modifier CSS collected within it.
+///
+/// Created by `.at(_:content:)` and `.on(_:content:)` group helpers.
+public struct ConditionGroupView<Content: View>: View, _HTMLRenderable {
+    let condition: ModifierCondition
+    let content: Content
+
+    public typealias Body = Swift.Never
+    public var body: Swift.Never { fatalError() }
+
+    public func renderHTML(context: inout RenderContext) -> String {
+        content._renderInto(&context)
+    }
+
+    public func collectCSS(context: inout CSSCollectionContext) {
+        let saved = context.groupConditionOverride
+        context.groupConditionOverride = condition
+        content._collectCSSInto(&context)
+        context.groupConditionOverride = saved
     }
 }
 

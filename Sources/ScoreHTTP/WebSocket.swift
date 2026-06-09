@@ -1,5 +1,6 @@
 import Foundation
 import NIO
+import NIOWebSocket
 
 /// A WebSocket connection managed by a Score server.
 ///
@@ -12,23 +13,17 @@ public actor WebSocket {
 
     /// Send a UTF-8 text frame.
     public func send(_ text: String) async throws {
-        // WebSocket frame encoding is handled by the NIOWebSocket framer added
-        // to the channel pipeline during the HTTP → WS upgrade. The channel
-        // write here queues the already-framed bytes.
-        _ = try await channel.eventLoop.makeSucceededFuture(()).get()
-        // Placeholder: full implementation writes a WebSocketFrame to the channel.
-        // var buffer = channel.allocator.buffer(capacity: text.utf8.count)
-        // buffer.writeString(text)
-        // let frame = WebSocketFrame(fin: true, opcode: .text, data: buffer)
-        // try await channel.writeAndFlush(frame).get()
+        var buffer = channel.allocator.buffer(capacity: text.utf8.count)
+        buffer.writeString(text)
+        let frame = WebSocketFrame(fin: true, opcode: .text, data: buffer)
+        try await channel.writeAndFlush(frame).get()
     }
 
     /// Send a binary frame.
     public func send(_ data: [UInt8]) async throws {
-        _ = try await channel.eventLoop.makeSucceededFuture(()).get()
-        // var buffer = channel.allocator.buffer(bytes: data)
-        // let frame = WebSocketFrame(fin: true, opcode: .binary, data: buffer)
-        // try await channel.writeAndFlush(frame).get()
+        var buffer = channel.allocator.buffer(bytes: data)
+        let frame = WebSocketFrame(fin: true, opcode: .binary, data: buffer)
+        try await channel.writeAndFlush(frame).get()
     }
 
     /// Close the WebSocket connection with the given close code.
