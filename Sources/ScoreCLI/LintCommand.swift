@@ -214,6 +214,27 @@ struct ScoreLinter: Sendable {
                 ))
             }
 
+            // MARK: SC — Scoping
+
+            // SC001: Duplicate `id:` values across lines in the same file
+            if isEnabled("duplicate-id") {
+                let idMatches = trimmed.range(of: #"id:\s*"([^"]+)""#, options: .regularExpression)
+                if let range = idMatches {
+                    let idToken = String(trimmed[range])
+                    let idValue = idToken
+                        .replacingOccurrences(of: #"id:\s*""#, with: "", options: .regularExpression)
+                        .replacingOccurrences(of: "\"", with: "")
+                    let occurrences = lines.filter { $0.contains("id: \"\(idValue)\"") }.count
+                    if occurrences > 1 {
+                        diagnostics.append(LintDiagnostic(
+                            file: file, line: lineNumber, column: 1,
+                            message: "Duplicate element id \"\(idValue)\" found \(occurrences) times in this file.",
+                            severity: .warning, rule: "duplicate-id"
+                        ))
+                    }
+                }
+            }
+
             // MARK: P — Performance
 
             // P001: Deep nesting heuristic — very long indentation chains suggest over-nesting
