@@ -1,0 +1,30 @@
+# Swift build artifacts
+.build/
+
+# Score framework build / dev / cache directories
+.score/build/
+.score/dev/
+.score/cache/
+
+# Score SQLite database — commit this for content-only static sites
+# where the DB is the source of truth for generated pages.
+# For dynamic apps backed by a real database server, keep it ignored.
+.score/db.sqlite
+
+# Compiled object and dependency files
+*.o
+*.d
+
+# Vim swap files
+*.swp
+
+# macOS metadata
+.DS_Store
+
+# Xcode user-specific data
+xcuserdata/
+DerivedData/
+*.xcworkspace/xcuserdata/
+
+# NOTE: Package.resolved is intentionally NOT ignored so that
+# dependency versions are reproducible across all checkouts.
