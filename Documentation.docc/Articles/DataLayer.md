@@ -1,0 +1,170 @@
+# Data Layer
+
+Define models, query the database, and manage the key-value cache.
+
+## Overview
+
+Score's data layer provides a minimal ORM backed by SQLite (default),
+with a ``QueryBuilder`` for common operations and a raw SQL escape hatch
+for complex queries. The cache layer defaults to in-memory storage with
+Redis available as a drop-in.
+
+## Defining Models
+
+Conform a struct to ``Record`` to make it a database entity:
+
+```swift
+struct Post: Record {
+    var id: UUID = UUID()
+    var title: String
+    var slug: String
+    var excerpt: String
+    var body: String
+    var published: Bool = false
+    var authorId: UUID
+    var createdAt: Date = .now
+    var updatedAt: Date = .now
+}
+```
+
+Score derives the table name from the type name (`posts`), column names
+from property names, and creates the schema automatically on first run.
+UUID primary keys are the default.
+
+## Querying
+
+```swift
+// Fetch all matching records
+let posts = try await db.query(Post.self)
+    .filter(\.published == true)
+    .orderBy(\.createdAt, .descending)
+    .limit(10)
+    .offset(page * 10)
+    .all()
+
+// First matching record (nil if none)
+let post = try await db.query(Post.self)
+    .filter(\.slug == slug)
+    .first()
+
+// Lookup by primary key
+let post = try await db.find(Post.self, id: someUUID)
+
+// Count
+let count = try await db.query(Post.self)
+    .filter(\.published == true)
+    .count()
+
+// Existence check (more efficient than fetching the record)
+let exists = try await db.query(Post.self)
+    .filter(\.slug == slug)
+    .exists()
+```
+
+## Relations
+
+Eager-load related records to avoid N+1 queries:
+
+```swift
+let posts = try await db.query(Post.self)
+    .include(Author.self, on: \.authorId)
+    .filter(\.published == true)
+    .all()
+```
+
+## Mutations
+
+```swift
+// Insert — returns the saved record with any generated defaults
+let post = try await db.insert(
+    Post(title: "Hello", slug: "hello", excerpt: "...", body: "...", authorId: author.id)
+)
+
+// Update — modify and save in place
+var post = try await db.find(Post.self, id: id)!
+post.published = true
+try await db.update(post)
+
+// Delete by primary key
+try await db.delete(Post.self, id: id)
+
+// Bulk delete via query
+try await db.query(Post.self)
+    .filter(\.published == false)
+    .delete()
+```
+
+## Transactions
+
+Wrap multiple operations in an atomic transaction:
+
+```swift
+try await db.transaction { tx in
+    let author = try await tx.insert(
+        Author(name: "Mac", email: "mac@example.com")
+    )
+    _ = try await tx.insert(
+        Post(title: "First Post", slug: "first-post", authorId: author.id, ...)
+    )
+}
+```
+
+## Raw SQL
+
+For complex queries not covered by ``QueryBuilder``:
+
+```swift
+let rows = try await db.raw(
+    "SELECT * FROM posts WHERE slug = ?",
+    parameters: [slug]
+)
+```
+
+> Note: v1 does not support OR conditions, nested relations, aggregates beyond
+> count, upsert, or bulk insert. Use `.raw()` for these.
+
+## Key-Value Cache
+
+```swift
+// Set with expiry
+try await cache.set("featured-posts", value: posts, expiry: .minutes(5))
+
+// Get typed value
+let cached = try await cache.get("featured-posts", as: [Post].self)
+
+// Atomic increment (view counters, rate limiting)
+let views = try await cache.increment("views:\(post.slug)")
+let requests = try await cache.increment("ratelimit:\(ip)", expiry: .seconds(60))
+
+// Delete
+try await cache.delete("featured-posts")
+try await cache.flush(prefix: "featured-")
+```
+
+## Configuration
+
+Declare the database and cache on ``Application``:
+
+```swift
+@main
+struct MySite: Application {
+    var database: some DatabaseConfig {
+        SQLiteDatabase(path: ".score/db.sqlite")      // default
+        // PostgreSQLDatabase(url: Env.required("DATABASE_URL"))
+    }
+
+    var cache: some CacheConfig {
+        InMemoryCache()                               // default
+        // RedisCache(url: Env.required("REDIS_URL"))
+    }
+}
+```
+
+The SQLite database file is gitignored by default (`.score/db.sqlite`). For
+static sites driven entirely by content files, committing the database is safe
+and convenient — the `StaticPage.instances()` pattern loads records at build time.
+
+## Related Concepts
+
+- <doc:APIRoutes> — exposing records over HTTP endpoints
+- <doc:ReactiveState> — `@State` with ``Record`` types and CRDT sync
