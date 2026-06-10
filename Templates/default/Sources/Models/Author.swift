@@ -6,4 +6,5 @@ struct Author: Record {
     var email: String
     var bio: String = ""
     var createdAt: Date = .now
+    var updatedAt: Date = .now
 }

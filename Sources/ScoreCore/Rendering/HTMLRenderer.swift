@@ -21,8 +21,10 @@ extension View {
     ///
     /// If the view conforms to `_HTMLRenderable` the primitive path is taken
     /// directly; otherwise the renderer recurses through `body`.
+    /// Public so downstream modules (`ScoreSSG`, `ScoreBuild`) can drive
+    /// rendering; the underscore marks it as framework plumbing.
     @discardableResult
-    func _renderInto(_ context: inout RenderContext) -> String {
+    public func _renderInto(_ context: inout RenderContext) -> String {
         if let primitive = self as? any _HTMLRenderable {
             return primitive.renderHTML(context: &context)
         }
