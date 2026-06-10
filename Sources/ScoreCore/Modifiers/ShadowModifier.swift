@@ -1,5 +1,18 @@
 // MARK: - ShadowModifier
 
+/// A modifier that applies a CSS `box-shadow` or focus-ring to an element.
+///
+/// Use ``View/shadow(_:color:on:)`` and its overloads rather than constructing
+/// `ShadowModifier` directly.
+///
+/// ```swift
+/// Card { ... }
+///     .shadow(.md)
+///     .shadow(.lg, on: .hover)
+///     .shadow(ring: 2, color: .primary.opacity(0.5), on: .focus)
+/// ```
+///
+/// - SeeAlso: ``View/shadow(_:color:on:)``, ``ShadowToken``
 public struct ShadowModifier: ThemeAwareModifier {
     let token: ShadowToken?
     let customString: String?

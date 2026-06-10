@@ -1,5 +1,21 @@
 // MARK: - PaddingModifier
 
+/// A modifier that applies CSS `padding` to an element.
+///
+/// Create instances through the ``View/padding(_:on:)`` family of methods rather
+/// than constructing `PaddingModifier` directly.
+///
+/// ```swift
+/// Text { "Hello" }
+///     .padding(4)               // all sides — step 4 = 16px
+///     .padding(x: 6, y: 3)     // horizontal / vertical
+///     .padding(top: 2, left: 4) // individual edges
+/// ```
+///
+/// Values accept spacing-scale steps (`Int` or `Double`) or explicit
+/// ``SpacingValue`` variants such as `.px(n)`, `.rem(n)`, and `.auto`.
+///
+/// - SeeAlso: ``View/padding(_:on:)``, ``View/margin(_:on:)``
 public struct PaddingModifier: ThemeAwareModifier {
     let top: SpacingValue?
     let right: SpacingValue?

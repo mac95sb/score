@@ -1,5 +1,18 @@
 // MARK: - BorderModifier
 
+/// A modifier that applies CSS border properties to an element.
+///
+/// Use ``View/border(color:width:edge:style:on:)`` and its overloads rather
+/// than constructing `BorderModifier` directly.
+///
+/// ```swift
+/// Card { ... }
+///     .border(color: .muted.opacity(0.2))
+///     .border(color: .primary, width: 2, edge: .bottom)
+///     .border(radius: .lg)
+/// ```
+///
+/// - SeeAlso: ``View/border(color:width:edge:style:on:)``, ``BorderRadiusModifier``
 public struct BorderModifier: ThemeAwareModifier {
     let color: Color?
     let width: Double

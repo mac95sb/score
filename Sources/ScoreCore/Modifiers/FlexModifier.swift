@@ -1,5 +1,23 @@
 // MARK: - FlexModifier
 
+/// A modifier that applies CSS Flexbox properties to an element.
+///
+/// Use ``View/flex(direction:wrap:align:justify:gap:columnGap:rowGap:grow:shrink:basis:alignSelf:order:placeItems:at:)``
+/// rather than constructing `FlexModifier` directly. Multiple `.flex()` calls
+/// accumulate — each call only overrides the properties it specifies.
+///
+/// ```swift
+/// HStack {
+///     Label { "Name" }
+///     Spacer()
+///     Text { user.name }
+/// }
+/// .flex(align: .center)
+/// .flex(gap: 4)
+/// .flex(direction: .vertical, at: .tablet)
+/// ```
+///
+/// - SeeAlso: ``View/flex(direction:wrap:align:justify:gap:columnGap:rowGap:grow:shrink:basis:alignSelf:order:placeItems:at:)``, ``GridModifier``
 public struct FlexModifier: ThemeAwareModifier {
     let direction: FlexDirection?
     let wrap: FlexWrap?

@@ -1,5 +1,18 @@
 // MARK: - MarginModifier
 
+/// A modifier that applies CSS `margin` to an element.
+///
+/// Use ``View/margin(_:on:)`` and its overloads rather than constructing
+/// `MarginModifier` directly.
+///
+/// ```swift
+/// Section { ... }
+///     .margin(x: .auto)    // horizontal centering
+///     .margin(y: 8)        // 32px top and bottom
+///     .margin(top: 4)      // 16px top only
+/// ```
+///
+/// - SeeAlso: ``View/margin(_:on:)``, ``PaddingModifier``
 public struct MarginModifier: ThemeAwareModifier {
     let top: SpacingValue?
     let right: SpacingValue?
