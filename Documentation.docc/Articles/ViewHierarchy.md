@@ -96,7 +96,7 @@ text. Prefer interpolating strings directly in parent closures over explicit
 struct BlogPostPage: Page {
     let post: Post
 
-    var metadata: PageMetadata {
+    var metadata: PageMetadata? {
         PageMetadata(
             title: post.title,
             description: post.excerpt,

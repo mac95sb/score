@@ -23,11 +23,11 @@ struct StyledPage: Page {
         Stack {
             Heading(2) { "Styled" }
             Text { "With modifiers." }
-                .padding(.all, 4)
+                .padding(4)
                 .font(size: .lg)
         }
-        .background(.surface)
-        .padding(.all, 8)
+        .background(color: .surface)
+        .padding(8)
     }
 }
 

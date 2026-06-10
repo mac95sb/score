@@ -14,7 +14,7 @@ a ``View`` renders HTML; one returning ``Response`` serves data.
 ```swift
 // Sources/Controllers/PostsController.swift
 struct PostsController: RouteCollection {
-    var routes: some RouteCollection {
+    var routes: [Route] {
 
         RouteGroup("/blog") {
             Page("/") { BlogIndexPage() }
@@ -65,7 +65,7 @@ Extract handler logic to methods on the controller when inline closures grow:
 
 ```swift
 struct PostsController: RouteCollection {
-    var routes: some RouteCollection {
+    var routes: [Route] {
         RouteGroup(api: "/posts") {
             GET("/",      handle: list)
             GET("/:id",   handle: read)

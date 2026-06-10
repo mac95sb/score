@@ -88,7 +88,7 @@ Pages conform to ``Page``, which extends ``View`` with metadata:
 
 ```swift
 struct HomePage: Page {
-    var metadata: PageMetadata {
+    var metadata: PageMetadata? {
         PageMetadata(title: "Home", description: "Welcome to My Blog.")
     }
 
