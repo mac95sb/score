@@ -11,6 +11,11 @@ extension View {
         modifier(PaddingModifier(all: all, condition: condition))
     }
 
+    /// Apply equal padding on all sides at a responsive breakpoint.
+    public func padding(_ all: SpacingValue, at condition: ModifierCondition) -> ModifiedContent<Self, PaddingModifier> {
+        modifier(PaddingModifier(all: all, condition: condition))
+    }
+
     /// Apply vertical and horizontal padding.
     public func padding(_ vertical: SpacingValue, _ horizontal: SpacingValue, on condition: ModifierCondition? = nil) -> ModifiedContent<Self, PaddingModifier> {
         modifier(PaddingModifier(x: horizontal, y: vertical, condition: condition))
@@ -35,6 +40,11 @@ extension View {
 
     /// Apply equal margin on all sides.
     public func margin(_ all: SpacingValue, on condition: ModifierCondition? = nil) -> ModifiedContent<Self, MarginModifier> {
+        modifier(MarginModifier(all: all, condition: condition))
+    }
+
+    /// Apply equal margin on all sides at a responsive breakpoint.
+    public func margin(_ all: SpacingValue, at condition: ModifierCondition) -> ModifiedContent<Self, MarginModifier> {
         modifier(MarginModifier(all: all, condition: condition))
     }
 

@@ -66,3 +66,16 @@ extension HTTPFields {
         return self[fieldName]
     }
 }
+
+// MARK: - UUID path parameters
+
+/// Lets `UUID` be extracted directly with ``Request/pathParameter(_:)``:
+///
+/// ```swift
+/// let id: UUID = try req.pathParameter("id")
+/// ```
+extension UUID: @retroactive LosslessStringConvertible {
+    public init?(_ description: String) {
+        self.init(uuidString: description)
+    }
+}

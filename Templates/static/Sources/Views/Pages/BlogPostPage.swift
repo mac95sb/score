@@ -3,7 +3,7 @@ import Score
 struct BlogPostPage: Page {
     let post: ContentPost
 
-    var metadata: PageMetadata {
+    var metadata: PageMetadata? {
         PageMetadata(
             title: post.frontmatter.title,
             description: post.frontmatter.excerpt ?? "",

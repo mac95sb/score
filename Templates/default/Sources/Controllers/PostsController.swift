@@ -1,7 +1,7 @@
 import Score
 
 struct PostsController: RouteCollection {
-    var routes: some RouteCollection {
+    var routes: [Route] {
         RouteGroup("/blog") {
             Page("/") { req in
                 let posts = try await db.query(Post.self)

@@ -1,8 +1,8 @@
 import Score
 
 extension ContentTheme {
-    /// The content theme used for blog posts in __NAME__.
-    static var blog: ContentTheme {
+    /// A customised content theme for blog posts in __NAME__.
+    static var article: ContentTheme {
         ContentTheme(
             heading: { level, v in
                 let size: FontSize = level == 1 ? .fourXL : level == 2 ? .threeXL : level == 3 ? .twoXL : .xl

@@ -191,7 +191,7 @@ struct ProjectScaffolder: Sendable {
         import Score
 
         struct HomePage: Page {
-            var metadata: PageMetadata {
+            var metadata: PageMetadata? {
                 PageMetadata(
                     title: "Home",
                     description: "Welcome to \(name)."
@@ -229,7 +229,7 @@ struct ProjectScaffolder: Sendable {
         struct BlogIndexPage: Page {
             let posts: [Post]
 
-            var metadata: PageMetadata {
+            var metadata: PageMetadata? {
                 PageMetadata(title: "Blog", description: "Articles and updates.")
             }
 
@@ -262,7 +262,7 @@ struct ProjectScaffolder: Sendable {
         struct BlogPostPage: Page {
             let post: Post
 
-            var metadata: PageMetadata {
+            var metadata: PageMetadata? {
                 PageMetadata(
                     title: post.title,
                     description: post.excerpt,
@@ -271,7 +271,7 @@ struct ProjectScaffolder: Sendable {
                 )
             }
 
-            var contentTheme: ContentTheme { .blog }
+            var contentTheme: ContentTheme { .article }
 
             var body: some View {
                 Main {
@@ -385,8 +385,8 @@ struct ProjectScaffolder: Sendable {
         import Score
 
         extension ContentTheme {
-            /// The content theme used for blog posts in \\(name).
-            static var blog: ContentTheme {
+            /// A customised content theme for blog posts.
+            static var article: ContentTheme {
                 ContentTheme(
                     heading: { level, v in
                         let size: FontSize = level == 1 ? .fourXL : level == 2 ? .threeXL : level == 3 ? .twoXL : .xl
@@ -419,7 +419,7 @@ struct ProjectScaffolder: Sendable {
         import Score
 
         struct PostsController: RouteCollection {
-            var routes: some RouteCollection {
+            var routes: [Route] {
                 RouteGroup("/blog") {
                     Page("/") { req in
                         let posts = try await db.query(Post.self)
@@ -484,7 +484,7 @@ struct ProjectScaffolder: Sendable {
         import Score
 
         struct HomePage: Page {
-            var metadata: PageMetadata {
+            var metadata: PageMetadata? {
                 PageMetadata(title: "Home", description: "Welcome to \(name).")
             }
 
@@ -513,7 +513,7 @@ struct ProjectScaffolder: Sendable {
         import Score
 
         struct AboutPage: Page {
-            var metadata: PageMetadata {
+            var metadata: PageMetadata? {
                 PageMetadata(title: "About", description: "About this site.")
             }
 
@@ -542,7 +542,7 @@ struct ProjectScaffolder: Sendable {
         struct BlogPostPage: Page {
             let post: ContentPost
 
-            var metadata: PageMetadata {
+            var metadata: PageMetadata? {
                 PageMetadata(
                     title: post.frontmatter.title,
                     description: post.frontmatter.excerpt ?? "",
@@ -627,7 +627,7 @@ struct ProjectScaffolder: Sendable {
         }
 
         struct WelcomePage: Page {
-            var metadata: PageMetadata {
+            var metadata: PageMetadata? {
                 PageMetadata(title: "Welcome", description: "A Score site.")
             }
 

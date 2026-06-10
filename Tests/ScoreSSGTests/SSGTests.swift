@@ -33,7 +33,7 @@ struct AboutPage: Page {
 @Suite("SSG")
 struct SSGTests {
 
-    let site = SiteMetadata(title: "Test Site", baseURL: "https://example.com")
+    let site = SiteMetadata(siteName: "Test Site", baseURL: "https://example.com")
 
     // MARK: - PageRenderer
 

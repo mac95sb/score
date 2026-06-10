@@ -6,31 +6,31 @@ import Foundation
 
 struct TestApp: Application {
     var metadata: SiteMetadata {
-        SiteMetadata(title: "Integration Test App", baseURL: "https://test.example.com")
+        SiteMetadata(siteName: "Integration Test App", baseURL: "https://test.example.com")
     }
-    @RouteBuilder
+
     var routes: some RouteCollection {
-        Page(path: "/",      page: HomeView())
-        Page(path: "/about", page: AboutView())
+        Page("/") { HomeView() }
+        Page("/about") { AboutView() }
     }
 }
 
 struct HomeView: Page {
     var metadata: PageMetadata? {
-        PageMetadata(title: "Home | Integration")
+        PageMetadata(title: "Home")
     }
     var body: some View {
         Main {
             Heading(1) { "Home" }
             Text { "Integration test home page." }
-            Link(href: "/about") { "About" }
+            Link(to: "/about") { "About" }
         }
     }
 }
 
 struct AboutView: Page {
     var metadata: PageMetadata? {
-        PageMetadata(title: "About | Integration")
+        PageMetadata(title: "About")
     }
     var body: some View {
         Main {
@@ -59,14 +59,14 @@ struct StyledView: Page {
 @Suite("Integration")
 struct IntegrationTests {
 
-    let site = SiteMetadata(title: "Integration Test App", baseURL: "https://test.example.com")
+    let site = SiteMetadata(siteName: "Integration Test App", baseURL: "https://test.example.com")
 
-    // MARK: - Application → HTML
+    // MARK: - Application configuration
 
     @Test("Application metadata is accessible")
     func applicationMetadata() {
         let app = TestApp()
-        #expect(app.metadata.title == "Integration Test App")
+        #expect(app.metadata.siteName == "Integration Test App")
         #expect(app.metadata.baseURL == "https://test.example.com")
     }
 
@@ -85,6 +85,31 @@ struct IntegrationTests {
         #expect(paths.contains("/about"))
     }
 
+    @Test("Application defaults are applied")
+    func applicationDefaults() {
+        let app = TestApp()
+        #expect(app.includeBaseReset)
+        #expect(app.apiPrefix.prefix == "/api/v1")
+        #expect(app.database is NoDatabase)
+    }
+
+    // MARK: - Route handling
+
+    @Test("Router serves the home route end-to-end")
+    func routerServesHome() async throws {
+        let app = TestApp()
+        let router = Router()
+        await router.register(app.routes.routes)
+
+        let response = try await router.handle(Request(method: .get, uri: URI(path: "/")))
+        #expect(response.status == .ok)
+        guard case .html(let html) = response.body else {
+            Issue.record("Expected HTML body")
+            return
+        }
+        #expect(html.contains("Integration test home page"))
+    }
+
     // MARK: - Page rendering
 
     @Test("home page renders full HTML document")
@@ -101,14 +126,15 @@ struct IntegrationTests {
         let renderer = PageRenderer(siteMetadata: site)
         let html = try renderer.render(AboutView())
         #expect(html.contains("About"))
-        #expect(html.contains("integration test app"))
+        #expect(html.contains("About the integration test app"))
     }
 
     @Test("page title from metadata appears in rendered HTML")
     func pageTitleInHead() throws {
         let renderer = PageRenderer(siteMetadata: site)
         let html = try renderer.render(HomeView())
-        #expect(html.contains("Home | Integration"))
+        #expect(html.contains("Home"))
+        #expect(html.contains("Integration Test App"))
     }
 
     @Test("link renders correct href")
@@ -120,13 +146,11 @@ struct IntegrationTests {
 
     // MARK: - CSS pipeline
 
-    @Test("styled page collects non-empty CSS")
+    @Test("styled page collects CSS without crashing")
     func styledPageCSS() throws {
         let renderer = PageRenderer(siteMetadata: site)
         let css = renderer.collectCSS(from: StyledView())
-        // StyledView uses padding + font + background modifiers
-        #expect(!css.isEmpty || css.isEmpty) // No crash is the minimum; CSS may be emitted
-        _ = css
+        #expect(css.contains("padding") || css.isEmpty == false)
     }
 
     @Test("rendered HTML from styled page is valid")
@@ -143,7 +167,7 @@ struct IntegrationTests {
     @Test("custom theme CSS variables appear in rendered HTML")
     func themeVariablesInHTML() throws {
         let customTheme = SiteTheme(tokens: [
-            ThemeToken(name: "--brand", value: "oklch(0.6 0.2 270)"),
+            ThemeToken("--brand", "oklch(0.6 0.2 270)"),
         ])
         let renderer = PageRenderer(theme: customTheme, siteMetadata: site)
         let html = try renderer.render(HomeView())
