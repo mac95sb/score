@@ -35,7 +35,7 @@ struct StyledPage: Page {
 
 @Suite("Render Pipeline")
 struct RenderPipelineTests {
-    let site = SiteMetadata(title: "Test Site", baseURL: "https://example.com")
+    let site = SiteMetadata(siteName: "Test Site", baseURL: "https://example.com")
 
     @Test("renders simple page to valid HTML document")
     func simplePageRendersHTML() throws {

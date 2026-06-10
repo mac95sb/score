@@ -3,7 +3,7 @@ import Score
 struct BlogPostPage: Page {
     let post: Post
 
-    var metadata: PageMetadata {
+    var metadata: PageMetadata? {
         PageMetadata(
             title: post.title,
             description: post.excerpt,
@@ -12,7 +12,7 @@ struct BlogPostPage: Page {
         )
     }
 
-    var contentTheme: ContentTheme { .blog }
+    var contentTheme: ContentTheme { .article }
 
     var body: some View {
         Main {

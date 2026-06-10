@@ -15,7 +15,7 @@ struct __NAME__: Application {
 }
 
 struct WelcomePage: Page {
-    var metadata: PageMetadata {
+    var metadata: PageMetadata? {
         PageMetadata(title: "Welcome", description: "A Score site.")
     }
 

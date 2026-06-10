@@ -1,7 +1,7 @@
 import Score
 
 struct AboutPage: Page {
-    var metadata: PageMetadata {
+    var metadata: PageMetadata? {
         PageMetadata(title: "About", description: "About __NAME__.")
     }
 

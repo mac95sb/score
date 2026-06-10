@@ -132,6 +132,8 @@ let package = Package(
                 "ScoreData",
                 "ScoreSSG",
                 "ScoreBuild",
+                .product(name: "Logging", package: "swift-log"),
+                .product(name: "ServiceLifecycle", package: "swift-service-lifecycle"),
             ]
         ),
 

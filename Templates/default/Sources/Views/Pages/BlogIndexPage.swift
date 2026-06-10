@@ -3,7 +3,7 @@ import Score
 struct BlogIndexPage: Page {
     let posts: [Post]
 
-    var metadata: PageMetadata {
+    var metadata: PageMetadata? {
         PageMetadata(
             title: "Blog",
             description: "Articles and updates from __NAME__."

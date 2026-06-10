@@ -20,6 +20,21 @@ public struct RouteBuilder {
         collection.routes
     }
 
+    /// Register a ``StaticPage`` type directly (e.g. `BlogPostPage.self`).
+    ///
+    /// The page's concrete paths are resolved at build/startup time by calling
+    /// `StaticPage.instances()`; until then the route is a placeholder carrying
+    /// the page type in ``Route/staticPageType``.
+    public static func buildExpression<P: StaticPage>(_ pageType: P.Type) -> [Route] {
+        [Route(
+            method: .GET,
+            pathPattern: "/__score/static/\(String(describing: P.self))",
+            renderMode: .static,
+            staticPageType: pageType,
+            handler: { _ in Response(status: .notFound) }
+        )]
+    }
+
     public static func buildOptional(_ component: [Route]?) -> [Route] { component ?? [] }
 
     public static func buildEither(first: [Route]) -> [Route] { first }
@@ -110,10 +125,14 @@ public func WS(
     _ path: String,
     handler: @escaping @Sendable (WebSocket, Request) async throws -> Void
 ) -> Route {
-    Route(method: nil, pathPattern: path, renderMode: .serverRendered) { req in
-        // WebSocket upgrade is handled at the NIO pipeline level.
-        // This handler is a routing placeholder; the real upgrade is wired
-        // when NIOServer detects an `Upgrade: websocket` request on a matched path.
-        Response(status: .ok)
+    Route(
+        method: nil,
+        pathPattern: path,
+        renderMode: .serverRendered,
+        webSocketHandler: handler
+    ) { req in
+        // The stored `webSocketHandler` is invoked by the server after the
+        // HTTP → WebSocket upgrade; a plain HTTP request to this path gets 426.
+        Response(status: .upgradeRequired)
     }
 }
