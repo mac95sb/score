@@ -95,6 +95,45 @@ theme.components.button?.variantOverrides[.primary] = [
 Overridden properties replace the generated value inside the same rule, so
 specificity never fights you; unknown properties are appended.
 
+### Conflicts with modifiers
+
+Per-usage modifiers always beat theme defaults. Component-theme rules are
+emitted as zero-specificity `:where()` selectors and placed before the
+collected modifier CSS, so this works exactly as you'd expect:
+
+```swift
+theme.components.button = .default            // theme says padding: 0.5rem 1rem
+// …
+Button(.primary) { "Save" }.padding(8)        // this button gets padding 32px
+```
+
+The theme provides the baseline; any modifier on the element wins on both
+specificity and source order — no `!important`, ever.
+
+### Palettes and presets
+
+Coordinated light + dark palettes built from the built-in colour scales, and
+whole-theme presets that configure radii, shadows, and component styles while
+inheriting whichever palette you pick:
+
+```swift
+var theme: SiteTheme { .preset(.modern, palette: .indigo) }
+var theme: SiteTheme { .preset(.neoBrutalism, palette: .emerald) }
+var theme: SiteTheme { .preset(.minimal, palette: .mono) }
+var theme: SiteTheme { .preset(.soft, palette: .rose) }
+```
+
+Palettes: `.violet` (default), `.indigo`, `.blue`, `.emerald`, `.teal`,
+`.rose`, `.mono` — or build your own from any scales:
+`ThemePalette(primary: Color.purple, accent: Color.lime)`. Every palette
+includes a matching dark variant, applied automatically.
+
+Presets: `.minimal` (hairline shadows, quiet components), `.modern` (soft
+layered shadows, generous radii, blurred dialog backdrops), `.soft`
+(extra-round, pill buttons), `.neoBrutalism` (square corners, thick black
+borders, hard offset shadows, bold type). A preset is just a configured
+`SiteTheme` — tweak anything afterwards.
+
 ## Native packaging
 
 ```bash

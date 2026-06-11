@@ -59,6 +59,35 @@ theme.components.button?.variantOverrides[.primary] = [
 Override keys that match a generated declaration replace it inside the same
 rule; new keys are appended — no specificity battles.
 
+### Conflicts with per-usage modifiers
+
+Modifiers on a component instance always win over its theme defaults.
+Component-theme rules are emitted as zero-specificity `:where()` selectors
+(class-based modifier CSS is `0,1,0`; theme rules are `0,0,0`) and placed
+before the collected modifier CSS, so both specificity and source order
+resolve in the modifier's favour:
+
+```swift
+theme.components.button = .default      // theme baseline: padding 0.5rem 1rem
+Button(.primary) { "Save" }.padding(8)  // this instance: padding 32px wins
+```
+
+### Palettes and presets
+
+``ThemePalette`` pairs light and dark ``ThemeColors`` built from the built-in
+colour scales (`.violet`, `.indigo`, `.blue`, `.emerald`, `.teal`, `.rose`,
+`.mono`, or custom via `ThemePalette(primary:accent:neutral:)`).
+``ThemePreset`` configures everything else — radii, shadows, and component
+styles — while inheriting the palette:
+
+```swift
+var theme: SiteTheme { .preset(.neoBrutalism, palette: .emerald) }
+```
+
+Available presets: `.minimal`, `.modern`, `.soft`, `.neoBrutalism`.
+
 > Important: There is intentionally no raw `customCSS`, `customJS`, or
 > `customHTML` escape hatch while Score is dogfooded pre-launch. Express
-> styling through the structured overrides above.
+> styling through the structured overrides above. Theme strings are sanitised
+> so a value can never escape its CSS declaration, and markdown link URLs are
+> restricted to safe schemes.

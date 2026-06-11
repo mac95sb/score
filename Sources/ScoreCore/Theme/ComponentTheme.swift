@@ -159,10 +159,10 @@ public struct ButtonTheme: Sendable {
             ("transition", "background-color .15s ease,color .15s ease,border-color .15s ease,opacity .15s ease,filter .15s ease"),
         ]
 
-        var out = "button[data-variant]{\(mergeDeclarations(base, overrides))}"
-        out += "button[data-variant]:disabled{opacity:0.5;cursor:not-allowed}"
-        out += "button[data-variant]:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}"
-        out += "button[data-variant]:hover:not(:disabled){filter:brightness(0.95)}"
+        var out = ":where(button[data-variant]){\(mergeDeclarations(base, overrides))}"
+        out += ":where(button[data-variant]:disabled){opacity:0.5;cursor:not-allowed}"
+        out += ":where(button[data-variant]:focus-visible){outline:2px solid var(--color-accent);outline-offset:2px}"
+        out += ":where(button[data-variant]:hover:not(:disabled)){filter:brightness(0.95)}"
 
         let variants: [(ButtonVariant, [(String, String)])] = [
             (.primary, [
@@ -195,9 +195,9 @@ public struct ButtonTheme: Sendable {
 
         for (variant, declarations) in variants {
             let merged = mergeDeclarations(declarations, variantOverrides[variant] ?? [:])
-            out += "button[data-variant=\"\(variant.rawValue)\"]{\(merged)}"
+            out += ":where(button[data-variant=\"\(variant.rawValue)\"]){\(merged)}"
         }
-        out += "button[data-variant=\"ghost\"]:hover:not(:disabled){background:var(--color-secondary)}"
+        out += ":where(button[data-variant=\"ghost\"]:hover:not(:disabled)){background:var(--color-secondary)}"
         return out
     }
 }
@@ -241,11 +241,11 @@ public struct LinkTheme: Sendable {
             ("text-underline-offset", "0.2em"),
             ("transition", "color .15s ease"),
         ]
-        var out = "a{\(mergeDeclarations(base, overrides))}"
+        var out = ":where(a){\(mergeDeclarations(base, overrides))}"
         if underline == .hover {
-            out += "a:hover{text-decoration:underline}"
+            out += ":where(a:hover){text-decoration:underline}"
         }
-        out += "a[data-navlink][data-active=\"true\"]{color:var(--color-primary);font-weight:600}"
+        out += ":where(a[data-navlink][data-active=\"true\"]){color:var(--color-primary);font-weight:600}"
         return out
     }
 }
@@ -300,12 +300,12 @@ public struct DialogTheme: Sendable {
             ("max-width", maxWidth),
             ("width", "calc(100% - 2rem)"),
         ]
-        var out = "dialog[data-score-dialog]{\(mergeDeclarations(base, overrides))}"
-        var backdropDecls = "background:\(backdrop)"
+        var out = ":where(dialog[data-score-dialog]){\(mergeDeclarations(base, overrides))}"
+        var backdropDecls = "background:\(cssValueSanitize(backdrop))"
         if let blur = backdropBlur {
             backdropDecls += ";backdrop-filter:blur(\(blur.cssStr)px)"
         }
-        out += "dialog[data-score-dialog]::backdrop{\(backdropDecls)}"
+        out += ":where(dialog[data-score-dialog])::backdrop{\(backdropDecls)}"
         return out
     }
 }
@@ -353,7 +353,7 @@ public struct InputTheme: Sendable {
     }
 
     static let selector =
-        "input:not([type=\"checkbox\"]):not([type=\"radio\"]):not([type=\"range\"]):not([type=\"hidden\"]),select,textarea"
+        ":where(input:not([type=\"checkbox\"]):not([type=\"radio\"]):not([type=\"range\"]):not([type=\"hidden\"]),select,textarea)"
 
     public func css() -> String {
         let base: [(String, String)] = [
@@ -361,13 +361,13 @@ public struct InputTheme: Sendable {
             ("font-size", "1rem"),
             ("color", "var(--color-text)"),
             ("background", background),
-            ("border", "1px solid \(borderColor)"),
+            ("border", "1px solid \(cssValueSanitize(borderColor))"),
             ("border-radius", "var(--radius-\(radius.cssName))"),
             ("padding", padding),
         ]
         var out = "\(Self.selector){\(mergeDeclarations(base, overrides))}"
-        out += "input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid \(focusColor);outline-offset:1px}"
-        out += "input:disabled,select:disabled,textarea:disabled{opacity:0.5;cursor:not-allowed}"
+        out += ":where(input:focus-visible,select:focus-visible,textarea:focus-visible){outline:2px solid \(cssValueSanitize(focusColor));outline-offset:1px}"
+        out += ":where(input:disabled,select:disabled,textarea:disabled){opacity:0.5;cursor:not-allowed}"
         return out
     }
 }
@@ -422,7 +422,7 @@ public struct BadgeTheme: Sendable {
             ("border", border),
             ("border-radius", "var(--radius-\(radius.cssName))"),
         ]
-        return ".badge{\(mergeDeclarations(base, overrides))}"
+        return ":where(.badge){\(mergeDeclarations(base, overrides))}"
     }
 }
 
@@ -432,7 +432,8 @@ public struct BadgeTheme: Sendable {
 ///
 /// Overrides replace base declarations with the same property in place;
 /// properties not present in the base are appended in sorted order so the
-/// output is deterministic.
+/// output is deterministic. All properties and values are sanitised so a
+/// value can never escape its declaration context (no raw-CSS injection).
 func mergeDeclarations(_ base: [(String, String)], _ overrides: [String: String]) -> String {
     var pairs = base
     var remaining = overrides
@@ -442,6 +443,22 @@ func mergeDeclarations(_ base: [(String, String)], _ overrides: [String: String]
         }
     }
     let extras = remaining.sorted { $0.key < $1.key }
-    let all = pairs.map { "\($0.0):\($0.1)" } + extras.map { "\($0.key):\($0.value)" }
-    return all.joined(separator: ";")
+    let all = pairs.map { ($0.0, $0.1) } + extras.map { ($0.key, $0.value) }
+    return all
+        .map { "\(cssPropertySanitize($0.0)):\(cssValueSanitize($0.1))" }
+        .joined(separator: ";")
+}
+
+// MARK: - CSS sanitisation
+
+/// Strip characters that would let a CSS value escape its declaration
+/// (`{`, `}`, `;`). Part of the pre-launch "no customCSS" guarantee: theme
+/// strings can only ever express a single declaration value.
+func cssValueSanitize(_ value: String) -> String {
+    value.filter { $0 != "{" && $0 != "}" && $0 != ";" }
+}
+
+/// Restrict a CSS property or custom-property name to identifier characters.
+func cssPropertySanitize(_ name: String) -> String {
+    name.filter { ($0.isLetter && $0.isASCII) || $0.isNumber || $0 == "-" || $0 == "_" }
 }
