@@ -1,6 +1,7 @@
 import ArgumentParser
 import Foundation
 import Logging
+import ScorePackaging
 
 /// `score dev` — start the development server with hot-reload.
 ///
@@ -28,6 +29,8 @@ struct DevCommand: AsyncParsableCommand {
     mutating func run() async throws {
         print("  score dev  →  http://\(host):\(port)")
         print("  Press Ctrl-C to stop.\n")
+
+        regenerateEmbeddedKits()
 
         // Initial build
         let built = try await buildPackage(configuration: "debug", verbose: verbose)
@@ -82,6 +85,7 @@ struct DevCommand: AsyncParsableCommand {
                 for url in changed {
                     print("  ↻  \(url.lastPathComponent)")
                 }
+                regenerateEmbeddedKits()
                 if let _ = try? await buildPackage(configuration: "debug", verbose: verbose) {
                     print("  ✓  Rebuilt — reload your browser.")
                 }
@@ -120,6 +124,17 @@ struct DevCommand: AsyncParsableCommand {
     }
 }
 
+// MARK: - Embedded kit regeneration
+
+/// Regenerate any `score package swiftui` kit targets before compiling, so
+/// exported models and endpoints always match the application's current API.
+func regenerateEmbeddedKits() {
+    let regenerated = KitRegenerator.regenerateEmbeddedKits()
+    for kit in regenerated {
+        print("  ↻  Regenerated \(kit) (Records + API endpoints)")
+    }
+}
+
 // MARK: - BuildCommand
 
 /// `score build` — generate a static site from all `StaticPage` routes.
@@ -148,6 +163,8 @@ struct BuildCommand: AsyncParsableCommand {
     mutating func run() async throws {
         let start = Date()
         print("  score build  →  \(output)\n")
+
+        regenerateEmbeddedKits()
 
         let built = try await buildPackage(configuration: "release", verbose: verbose)
         guard built else { throw CLIError.buildFailed }

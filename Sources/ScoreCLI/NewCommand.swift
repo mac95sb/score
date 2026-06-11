@@ -231,6 +231,7 @@ struct ProjectScaffolder: Sendable {
         .score/build/
         .score/dev/
         .score/cache/
+        dist/
         *.o
         *.d
         """

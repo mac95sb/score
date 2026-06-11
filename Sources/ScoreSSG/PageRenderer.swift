@@ -59,6 +59,13 @@ public struct PageRenderer: Sendable {
             headParts.append("<style>\(themeCSS)</style>")
         }
 
+        // Component default styles (opt-in via theme.components). Emitted before
+        // the collected per-component CSS so user styles win the cascade.
+        let componentCSS = theme.components.css()
+        if !componentCSS.isEmpty {
+            headParts.append("<style>\(componentCSS)</style>")
+        }
+
         // Inline collected CSS
         if !inlineCSS.isEmpty {
             headParts.append("<style>\(inlineCSS)</style>")

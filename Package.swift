@@ -15,6 +15,7 @@ let package = Package(
         .library(name: "ScoreData", targets: ["ScoreData"]),
         .library(name: "ScoreSSG", targets: ["ScoreSSG"]),
         .library(name: "ScoreBuild", targets: ["ScoreBuild"]),
+        .library(name: "ScorePackaging", targets: ["ScorePackaging"]),
         .executable(name: "score", targets: ["ScoreCLI"]),
     ],
     dependencies: [
@@ -117,6 +118,11 @@ let package = Package(
             ]
         ),
 
+        // MARK: - ScorePackaging
+        .target(
+            name: "ScorePackaging"
+        ),
+
         // MARK: - Score (umbrella)
         .target(
             name: "Score",
@@ -135,6 +141,7 @@ let package = Package(
             name: "ScoreCLI",
             dependencies: [
                 "Score",
+                "ScorePackaging",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Logging", package: "swift-log"),
             ]
@@ -164,6 +171,10 @@ let package = Package(
         .testTarget(
             name: "ScoreBuildTests",
             dependencies: ["ScoreBuild"]
+        ),
+        .testTarget(
+            name: "ScorePackagingTests",
+            dependencies: ["ScorePackaging"]
         ),
         .testTarget(
             name: "ScoreIntegrationTests",
