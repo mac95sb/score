@@ -26,6 +26,45 @@ The package requires Swift 6 / macOS 15 (Linux is supported; SQLite via
 - Generated-code templates live next to their generators as Swift string
   literals; keep generated output deterministic (sort dictionary keys).
 
+## Theming architecture
+
+All theming lives in `Sources/ScoreCore/Theme/`:
+
+- `SiteTheme.swift` — `SiteTheme` (colors, fonts, spacing, radii, shadows,
+  breakpoints, tokens, `darkColors`, `customThemes`) and its CSS-variable
+  emission (`cssVariables()`). Custom `ThemeToken`s are sanitised on emission.
+- `ComponentTheme.swift` — opt-in default styles for Button/Link/Dialog/
+  Input/Badge with presets, design knobs, and structured `overrides` /
+  `variantOverrides` dictionaries. Defaults to `.none` (no CSS emitted).
+- `ThemePresets.swift` — `ThemePalette` (light+dark `ThemeColors` pairs built
+  from the colour scales in `Color/ColorPalette.swift`) and `ThemePreset`
+  (`.minimal`, `.modern`, `.soft`, `.neoBrutalism`) with the
+  `SiteTheme.preset(_:palette:)` factory.
+- `ContentTheme.swift` — markdown content styling (closure-based wrappers).
+
+Rules when extending:
+
+- **Palettes**: hue palettes are named after their primary colour; thematic
+  palettes are named after a mood and combine multiple scales (primary +
+  accent hues, a `tint` scale that washes secondary/tertiary surfaces, warm
+  `stone` or cool `slate`/`zinc` neutrals). Every palette must provide a dark
+  variant. Add new ones in `ThemePresets.swift` and list them in `README.md`
+  and `Documentation.docc`.
+- **Presets**: a preset configures radii, shadows, and `components`, and must
+  inherit whatever palette it is given (never hard-code colours other than
+  true black/white accents like neo-brutalism borders). Presets must enable
+  component styles and remain fully tweakable afterwards.
+- **Component CSS**: all rules zero-specificity via `:where()` and emitted
+  before collected modifier CSS, so per-usage modifiers always win. All
+  values/properties route through `cssValueSanitize`/`cssPropertySanitize`
+  (single choke point: `mergeDeclarations`). Output must be deterministic.
+- `SiteTheme.default` must stay visually unchanged: `components` defaults to
+  `.none` so existing sites opt in explicitly.
+
+Tests live in `Tests/ScoreCoreTests/ComponentThemeTests.swift` and
+`ThemePresetTests.swift` (including the zero-specificity and sanitisation
+guarantees — keep those green when touching emission).
+
 ## Pre-launch constraints (do not violate)
 
 Score is being dogfooded ahead of launch. The following features are
