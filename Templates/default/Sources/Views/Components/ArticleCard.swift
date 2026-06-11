@@ -7,11 +7,9 @@ struct ArticleCard: View {
         Link(to: "/blog/\(post.slug)") {
             VStack {
                 Heading(3) { post.title }
-                    .font(size: .xl)
-                    .font(weight: .semibold)
+                    .font(size: .xl, weight: .semibold)
                 Text { post.excerpt }
-                    .font(size: .sm)
-                    .font(color: .muted)
+                    .font(size: .sm, color: .muted)
                     .margin(top: 2)
             }
             .padding(6)

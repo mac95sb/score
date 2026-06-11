@@ -5,14 +5,11 @@ struct SiteFooter: View {
         Footer {
             HStack {
                 Text { "© 2026 __NAME__. Built with " }
-                    .font(size: .sm)
-                    .font(color: .muted)
+                    .font(size: .sm, color: .muted)
                 Link(to: "https://github.com/mac95sb/score") { "Score" }
-                    .font(size: .sm)
-                    .font(color: .primary)
+                    .font(size: .sm, color: .primary)
                 Text { "." }
-                    .font(size: .sm)
-                    .font(color: .muted)
+                    .font(size: .sm, color: .muted)
             }
             .flex(justify: .center)
             .padding(8)

@@ -14,8 +14,7 @@ struct BlogIndexPage: Page {
         Main {
             Section {
                 Heading(1) { "Blog" }
-                    .font(size: .threeXL)
-                    .font(weight: .bold)
+                    .font(size: .threeXL, weight: .bold)
                 VStack {
                     for post in posts {
                         ArticleCard(post: post)

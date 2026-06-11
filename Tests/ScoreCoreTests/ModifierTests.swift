@@ -43,7 +43,7 @@ struct ModifierTests {
 
     @Test("font modifier applies size and weight")
     func fontModifier() throws {
-        let view = Text { "styled" }.font(size: .lg).font(weight: .bold)
+        let view = Text { "styled" }.font(size: .lg, weight: .bold)
         var ctx = RenderContext()
         _ = view._renderInto(&ctx)
     }
