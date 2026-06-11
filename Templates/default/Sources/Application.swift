@@ -13,8 +13,12 @@ struct __NAME__: Application {
 
     var theme: SiteTheme { .default }
 
+    // localFirst persists Codable @State (e.g. LikedPosts) to IndexedDB across sessions.
+    var stateMode: StateMode { .localFirst }
+
     var routes: some RouteCollection {
         PostsController()
+        LikesController()
     }
 
     var database: some DatabaseConfig {

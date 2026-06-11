@@ -29,13 +29,12 @@ cd MyBlog
 score dev
 ```
 
-Three templates are available:
+Two templates are available:
 
 | Template | Description |
 |----------|-------------|
-| `default` | Hybrid app — pages, API routes, and SQLite database |
-| `static` | Static-only site with Markdown content support |
-| `minimal` | Single-page hello-world starting point |
+| `default` | Full-featured app — pages, API routes, and Markdown content |
+| `static` | Static site — Markdown content with no server-side logic |
 
 ## Project Structure
 
