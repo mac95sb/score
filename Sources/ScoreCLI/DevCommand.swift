@@ -1,6 +1,7 @@
 import ArgumentParser
 import Foundation
 import Logging
+import Noora
 import ScorePackaging
 
 /// `score dev` — start the development server with hot-reload.
@@ -27,14 +28,26 @@ struct DevCommand: AsyncParsableCommand {
     var verbose: Bool = false
 
     mutating func run() async throws {
-        print("  score dev  →  http://\(host):\(port)")
-        print("  Press Ctrl-C to stop.\n")
+        let ui = Noora()
+        ui.info(.alert(
+            "score dev → http://\(host):\(port)",
+            takeaways: ["Press Ctrl-C to stop"]
+        ))
 
         regenerateEmbeddedKits()
 
         // Initial build
-        let built = try await buildPackage(configuration: "debug", verbose: verbose)
-        guard built else { throw CLIError.buildFailed }
+        let verbose = self.verbose
+        try await ui.progressStep(
+            message: "Compiling (debug)",
+            successMessage: "Compiled",
+            errorMessage: "Build failed",
+            showSpinner: !verbose
+        ) { _ in
+            guard try await buildPackage(configuration: "debug", verbose: verbose) else {
+                throw CLIError.buildFailed
+            }
+        }
 
         let binaryURL = try locateExecutable()
 
@@ -65,7 +78,7 @@ struct DevCommand: AsyncParsableCommand {
             .merging(["SCORE_DEV_RELOAD": "1"]) { _, new in new }
         try process.run()
         process.waitUntilExit()
-        print("\n  Server exited with status \(process.terminationStatus).")
+        Noora().warning(.alert("Server exited with status \(process.terminationStatus)"))
     }
 
     // MARK: - File watcher
@@ -82,12 +95,19 @@ struct DevCommand: AsyncParsableCommand {
         while !Task.isCancelled {
             let changed = pollChanges(in: directories, lastDates: &lastModDates)
             if !changed.isEmpty {
-                for url in changed {
-                    print("  ↻  \(url.lastPathComponent)")
-                }
+                let ui = Noora()
+                let files = changed.map(\.lastPathComponent).joined(separator: ", ")
                 regenerateEmbeddedKits()
-                if let _ = try? await buildPackage(configuration: "debug", verbose: verbose) {
-                    print("  ✓  Rebuilt — reload your browser.")
+                let verbose = self.verbose
+                _ = try? await ui.progressStep(
+                    message: "Rebuilding (\(files))",
+                    successMessage: "Rebuilt — reload your browser",
+                    errorMessage: "Rebuild failed",
+                    showSpinner: !verbose
+                ) { _ in
+                    guard try await buildPackage(configuration: "debug", verbose: verbose) else {
+                        throw CLIError.buildFailed
+                    }
                 }
             }
             try? await Task.sleep(for: .milliseconds(500))
@@ -130,8 +150,10 @@ struct DevCommand: AsyncParsableCommand {
 /// exported models and endpoints always match the application's current API.
 func regenerateEmbeddedKits() {
     let regenerated = KitRegenerator.regenerateEmbeddedKits()
-    for kit in regenerated {
-        print("  ↻  Regenerated \(kit) (Records + API endpoints)")
+    if !regenerated.isEmpty {
+        Noora().info(.alert(
+            "Regenerated \(regenerated.joined(separator: ", ")) (Records + API endpoints)"
+        ))
     }
 }
 
@@ -161,30 +183,44 @@ struct BuildCommand: AsyncParsableCommand {
     var output: String = ".score/build"
 
     mutating func run() async throws {
+        let ui = Noora()
         let start = Date()
-        print("  score build  →  \(output)\n")
 
         regenerateEmbeddedKits()
 
-        let built = try await buildPackage(configuration: "release", verbose: verbose)
-        guard built else { throw CLIError.buildFailed }
+        let verbose = self.verbose
+        try await ui.progressStep(
+            message: "Compiling (release)",
+            successMessage: "Compiled",
+            errorMessage: "Build failed",
+            showSpinner: !verbose
+        ) { _ in
+            guard try await buildPackage(configuration: "release", verbose: verbose) else {
+                throw CLIError.buildFailed
+            }
+        }
 
         let binaryURL = try locateExecutable()
         var args = ["--build-only", "--output", output]
         if noMinify { args.append("--no-minify") }
         if noFingerprint { args.append("--no-fingerprint") }
 
-        let process = Process()
-        process.executableURL = binaryURL
-        process.arguments = args
-        try process.run()
-        process.waitUntilExit()
+        let arguments = args
+        try await ui.progressStep(
+            message: "Generating static site",
+            successMessage: "Static site generated",
+            errorMessage: "Static generation failed",
+            showSpinner: true
+        ) { _ in
+            let process = Process()
+            process.executableURL = binaryURL
+            process.arguments = arguments
+            try process.run()
+            process.waitUntilExit()
+            guard process.terminationStatus == 0 else { throw CLIError.buildFailed }
+        }
 
         let elapsed = String(format: "%.2f", Date().timeIntervalSince(start))
-        if process.terminationStatus == 0 {
-            print("\n  ✓  Built in \(elapsed)s → \(output)")
-        } else {
-            throw CLIError.buildFailed
-        }
+        ui.success(.alert("Built in \(elapsed)s → \(output)"))
     }
 }

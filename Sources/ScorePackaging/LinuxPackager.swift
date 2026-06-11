@@ -17,6 +17,7 @@ public struct LinuxPackager: WebViewPackager {
 
         try writer.write(mainC(config: config), to: "main.c")
         try writer.write(makefile(config: config), to: "Makefile")
+        try writer.write(containerfile(config: config), to: "Containerfile")
         try writer.write(desktopEntry(config: config), to: "\(binary).desktop")
 
         if case .staticExport(let path) = config.source {
@@ -24,11 +25,16 @@ public struct LinuxPackager: WebViewPackager {
         }
 
         let nextSteps = """
-        Build (requires GTK 4 and WebKitGTK 6.0 development packages —
+        Build natively (requires GTK 4 and WebKitGTK 6.0 development packages —
         on Debian/Ubuntu: sudo apt install libgtk-4-dev libwebkitgtk-6.0-dev):
           cd \(outputDirectory.path)
           make
           ./\(binary)
+
+        Or build in a container (no local GTK toolchain needed):
+          make container-build                       # uses \(config.containerTool)
+          make container-build CONTAINER=container   # apple/container
+        Artifacts land in dist/.
         """
         try writer.write(readme(config: config, nextSteps: nextSteps), to: "README.md")
 
@@ -100,6 +106,7 @@ public struct LinuxPackager: WebViewPackager {
     private func makefile(config: PackagingConfig) -> String {
         """
         APP := \(config.binaryName)
+        CONTAINER ?= \(config.containerTool)
         WEBKIT_PKG ?= webkitgtk-6.0
         CFLAGS += $(shell pkg-config --cflags gtk4 $(WEBKIT_PKG))
         LIBS := $(shell pkg-config --libs gtk4 $(WEBKIT_PKG))
@@ -110,10 +117,36 @@ public struct LinuxPackager: WebViewPackager {
         run: $(APP)
         \t./$(APP)
 
+        container-build: ## Build via $(CONTAINER) into dist/ (no local GTK toolchain needed)
+        \t$(CONTAINER) build -t $(APP)-linux-build -f Containerfile .
+        \tmkdir -p dist
+        \t$(CONTAINER) run --rm -v "$$(pwd)/dist:/dist" $(APP)-linux-build
+
         clean:
         \trm -f $(APP)
+        \trm -rf dist
 
-        .PHONY: run clean
+        .PHONY: run container-build clean
+        """
+    }
+
+    private func containerfile(config: PackagingConfig) -> String {
+        let exportArtifacts: String
+        if case .staticExport = config.source {
+            exportArtifacts = #"CMD ["sh", "-c", "cp \#(config.binaryName) /dist/ && cp -r www /dist/"]"#
+        } else {
+            exportArtifacts = #"CMD ["sh", "-c", "cp \#(config.binaryName) /dist/"]"#
+        }
+        return """
+        # Builds the Linux WebKitGTK shell without a local GTK toolchain.
+        FROM ubuntu:24.04
+        RUN apt-get update && apt-get install -y --no-install-recommends \\
+            build-essential pkg-config libgtk-4-dev libwebkitgtk-6.0-dev \\
+            && rm -rf /var/lib/apt/lists/*
+        WORKDIR /src
+        COPY . .
+        RUN make \(config.binaryName)
+        \(exportArtifacts)
         """
     }
 
@@ -142,6 +175,17 @@ public struct LinuxPackager: WebViewPackager {
         Note: the project targets the GTK 4 API (webkitgtk-6.0). Distributions
         that only ship the GTK 3-based webkit2gtk-4.x API are not supported by
         this template without porting the window code to GTK 3.
+
+        ## Container builds
+
+        `make container-build` compiles the shell inside an Ubuntu 24.04 image
+        with the GTK 4/WebKitGTK toolchain preinstalled and copies the binary
+        (plus `www/` when bundling a static export) to `dist/`. The `CONTAINER`
+        variable selects the tool — `docker` (default), `container`
+        (apple/container), or `podman` all work, as they share the same
+        `build`/`run` CLI for the operations used here. The binary links
+        against the image's glibc/GTK, so run it on a comparable distribution
+        (Ubuntu 24.04+).
 
         ## Updating the bundled site
 

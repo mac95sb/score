@@ -35,6 +35,7 @@ let package = Package(
         .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.21.0"),
         .package(url: "https://github.com/apple/swift-markdown.git", from: "0.4.0"),
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
+        .package(url: "https://github.com/tuist/Noora", from: "0.15.0"),
     ],
     targets: [
         // MARK: - System library (SQLite3 on Linux)
@@ -144,6 +145,7 @@ let package = Package(
                 "ScorePackaging",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Logging", package: "swift-log"),
+                .product(name: "Noora", package: "Noora"),
             ]
         ),
 

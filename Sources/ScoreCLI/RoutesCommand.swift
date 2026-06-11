@@ -1,5 +1,6 @@
 import ArgumentParser
 import Foundation
+import Noora
 
 /// `score routes` — print all registered routes in a tabular format.
 ///
@@ -18,8 +19,16 @@ struct RoutesCommand: AsyncParsableCommand {
     var showMiddleware: Bool = false
 
     mutating func run() async throws {
-        let built = try await buildPackage(configuration: "debug", verbose: false)
-        guard built else { throw CLIError.buildFailed }
+        try await Noora().progressStep(
+            message: "Compiling (debug)",
+            successMessage: nil,
+            errorMessage: "Build failed",
+            showSpinner: true
+        ) { _ in
+            guard try await buildPackage(configuration: "debug", verbose: false) else {
+                throw CLIError.buildFailed
+            }
+        }
 
         let binaryURL = try locateExecutable()
         var args = ["--list-routes"]
@@ -34,6 +43,7 @@ struct RoutesCommand: AsyncParsableCommand {
         try process.run()
         process.waitUntilExit()
 
+        // Route-table data (possibly JSON) — written to stdout verbatim by design.
         let output = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
         print(output.trimmingCharacters(in: .newlines))
     }

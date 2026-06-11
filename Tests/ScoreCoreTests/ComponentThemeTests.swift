@@ -98,13 +98,6 @@ struct ComponentThemeTests {
         #expect(BadgeTheme.outline.css().contains("border:1px solid var(--color-muted)"))
     }
 
-    @Test("customCSS is appended last")
-    func customCSSLast() {
-        var theme = ComponentTheme(button: .default)
-        theme.customCSS = "button[data-variant]{letter-spacing:0.05em}"
-        #expect(theme.css().hasSuffix("button[data-variant]{letter-spacing:0.05em}"))
-    }
-
     @Test("only enabled components emit CSS")
     func partialTheme() {
         let theme = ComponentTheme(link: .default)

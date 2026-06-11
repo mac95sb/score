@@ -26,6 +26,12 @@ public struct PackagingConfig: Sendable {
     public var windowWidth: Int
     /// Initial window height in logical pixels (desktop platforms).
     public var windowHeight: Int
+    /// Default container CLI baked into generated Makefiles for container
+    /// builds (`docker`, `container` from apple/container, `podman`, …).
+    /// Both apple/container and podman are docker-CLI-compatible for the
+    /// `build`/`run` subcommands the generated projects use, so any of them
+    /// can also be swapped in at invocation time via `make … CONTAINER=<tool>`.
+    public var containerTool: String
 
     public init(
         appName: String,
@@ -33,7 +39,8 @@ public struct PackagingConfig: Sendable {
         version: String = "1.0.0",
         source: AppSource,
         windowWidth: Int = 1024,
-        windowHeight: Int = 768
+        windowHeight: Int = 768,
+        containerTool: String = "docker"
     ) throws {
         let trimmedName = appName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedName.isEmpty else {
@@ -60,6 +67,9 @@ public struct PackagingConfig: Sendable {
         self.version      = version
         self.windowWidth  = windowWidth
         self.windowHeight = windowHeight
+
+        let trimmedTool = containerTool.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.containerTool = trimmedTool.isEmpty ? "docker" : trimmedTool
     }
 
     // MARK: - Derived names
