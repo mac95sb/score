@@ -5,7 +5,7 @@ import Testing
 struct ModifierTests {
     @Test("padding modifier produces CSS declaration")
     func paddingModifier() throws {
-        let modified = Text { "hi" }.padding(.all, 4)
+        let modified = Text { "hi" }.padding(4)
         var cssCtx = CSSCollectionContext()
         modified._collectCSSInto(&cssCtx)
         // Modifiers attach to the component's CSS block
@@ -18,9 +18,9 @@ struct ModifierTests {
     @Test("chaining multiple modifiers works")
     func chainedModifiers() throws {
         let view = Stack { Text { "layered" } }
-            .padding(.all, 4)
-            .margin(.horizontal, 2)
-            .background(.primary)
+            .padding(4)
+            .margin(x: 2)
+            .background(color: .primary)
         var ctx = RenderContext()
         let html = view._renderInto(&ctx)
         #expect(html.contains("<div"))
@@ -50,7 +50,7 @@ struct ModifierTests {
 
     @Test("border modifier renders without crash")
     func borderModifier() throws {
-        let view = Stack { EmptyView() }.border(.all, color: .primary, width: 1)
+        let view = Stack { EmptyView() }.border(color: .primary, width: 1)
         var ctx = RenderContext()
         _ = view._renderInto(&ctx)
     }

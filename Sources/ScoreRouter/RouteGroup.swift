@@ -33,6 +33,8 @@ public struct RouteGroup: RouteCollection {
                 pathPattern: prefix + route.pathPattern,
                 renderMode: route.renderMode,
                 middleware: route.middleware,
+                staticPageType: route.staticPageType,
+                webSocketHandler: route.webSocketHandler,
                 handler: route.handler
             )
         }
@@ -56,7 +58,9 @@ public struct RouteGroup: RouteCollection {
 
     // MARK: - RouteCollection
 
-    public var routes: [Route] { children }
+    // The explicit `return` suppresses the result-builder transform applied to
+    // witnesses of the `@RouteBuilder` protocol requirement.
+    public var routes: [Route] { return children }
 
     // MARK: - Middleware attachment
 
@@ -70,6 +74,8 @@ public struct RouteGroup: RouteCollection {
                 pathPattern: route.pathPattern,
                 renderMode: route.renderMode,
                 middleware: Array(middleware) + route.middleware,
+                staticPageType: route.staticPageType,
+                webSocketHandler: route.webSocketHandler,
                 handler: route.handler
             )
         }

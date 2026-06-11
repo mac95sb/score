@@ -1,5 +1,16 @@
 // MARK: - BackgroundColorModifier
 
+/// A modifier that sets the CSS `background-color` of an element.
+///
+/// Use ``View/background(color:on:)`` rather than constructing this type directly.
+///
+/// ```swift
+/// Card { ... }
+///     .background(color: .surface)
+///     .background(color: .primary(50), on: .dark)
+/// ```
+///
+/// - SeeAlso: ``View/background(color:on:)``, ``BackgroundGradientModifier``
 public struct BackgroundColorModifier: ThemeAwareModifier {
     let color: Color
     let condition: ModifierCondition?

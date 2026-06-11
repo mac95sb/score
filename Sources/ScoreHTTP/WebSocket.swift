@@ -1,39 +1,72 @@
 import Foundation
 import NIO
+import NIOWebSocket
 
 /// A WebSocket connection managed by a Score server.
 ///
-/// Instances are vended by the WebSocket upgrade machinery in `NIOServer`.
-/// Send text or binary frames, or close the connection gracefully.
+/// Vended by the WS upgrade machinery in `NIOServer`. Send text or binary
+/// frames via `send(_:)`, iterate incoming messages via `messages`, and close
+/// gracefully with `close(code:)`.
+///
+/// ```swift
+/// WS("/chat") { ws, req in
+///     for await message in ws.messages {
+///         if case .text(let t) = message { try await ws.send(t) }
+///     }
+/// }
+/// ```
 public actor WebSocket {
     private let channel: Channel
+    private let messageContinuation: AsyncStream<Message>.Continuation
 
-    init(channel: Channel) { self.channel = channel }
+    /// Async sequence of frames received from the client.
+    public let messages: AsyncStream<Message>
+
+    init(channel: Channel) {
+        self.channel = channel
+        var cont: AsyncStream<Message>.Continuation!
+        self.messages = AsyncStream { cont = $0 }
+        self.messageContinuation = cont
+    }
+
+    // MARK: - Called by WebSocketFrameHandler
+
+    func yield(_ message: Message) {
+        messageContinuation.yield(message)
+    }
+
+    func finish() {
+        messageContinuation.finish()
+    }
+
+    // MARK: - Public send API
 
     /// Send a UTF-8 text frame.
     public func send(_ text: String) async throws {
-        // WebSocket frame encoding is handled by the NIOWebSocket framer added
-        // to the channel pipeline during the HTTP → WS upgrade. The channel
-        // write here queues the already-framed bytes.
-        _ = try await channel.eventLoop.makeSucceededFuture(()).get()
-        // Placeholder: full implementation writes a WebSocketFrame to the channel.
-        // var buffer = channel.allocator.buffer(capacity: text.utf8.count)
-        // buffer.writeString(text)
-        // let frame = WebSocketFrame(fin: true, opcode: .text, data: buffer)
-        // try await channel.writeAndFlush(frame).get()
+        var buffer = channel.allocator.buffer(capacity: text.utf8.count)
+        buffer.writeString(text)
+        let frame = WebSocketFrame(fin: true, opcode: .text, data: buffer)
+        try await channel.writeAndFlush(frame).get()
     }
 
     /// Send a binary frame.
     public func send(_ data: [UInt8]) async throws {
-        _ = try await channel.eventLoop.makeSucceededFuture(()).get()
-        // var buffer = channel.allocator.buffer(bytes: data)
-        // let frame = WebSocketFrame(fin: true, opcode: .binary, data: buffer)
-        // try await channel.writeAndFlush(frame).get()
+        let buffer = channel.allocator.buffer(bytes: data)
+        let frame = WebSocketFrame(fin: true, opcode: .binary, data: buffer)
+        try await channel.writeAndFlush(frame).get()
     }
 
     /// Close the WebSocket connection with the given close code.
     public func close(code: CloseCode = .normalClosure) async throws {
         try await channel.close().get()
+    }
+
+    // MARK: - Nested types
+
+    /// A message received from the browser.
+    public enum Message: Sendable {
+        case text(String)
+        case binary([UInt8])
     }
 
     /// WebSocket close codes (RFC 6455 §7.4).

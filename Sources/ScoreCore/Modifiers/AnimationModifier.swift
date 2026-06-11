@@ -41,6 +41,18 @@ public struct AnimationModifier: ThemeAwareModifier {
     }
 }
 
+// MARK: - ViewTransitionModifier
+
+/// Applies a CSS `view-transition-name` to an element for View Transitions API support.
+public struct ViewTransitionModifier: ViewModifier {
+    let name: String
+    public init(name: String) { self.name = name }
+    public func cssDeclarations() -> [CSSDeclaration] {
+        [CSSDeclaration("view-transition-name", name)]
+    }
+    public func cssCondition() -> CSSCondition? { nil }
+}
+
 // MARK: - TransitionModifier
 
 /// Applies a CSS transition to an element, optionally gated by a condition.

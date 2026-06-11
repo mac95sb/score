@@ -1,5 +1,6 @@
 import ArgumentParser
 import Foundation
+import Noora
 
 /// `score generate <type> <name>` — generate Score boilerplate code.
 ///
@@ -45,7 +46,7 @@ struct GenerateCommand: AsyncParsableCommand {
         }
 
         try source.write(to: outputURL, atomically: true, encoding: .utf8)
-        print("  ✓  Generated \(outputURL.path)")
+        Noora().success(.alert("Generated \(outputURL.path)"))
     }
 
     private func defaultOutputDirectory(for type: GeneratorType) -> URL {
@@ -143,7 +144,7 @@ struct CodeGenerator: Sendable {
         struct \(name) {
             static func run(_ input: \(inputName), context: RequestContext) async throws -> Response {
                 // TODO: Implement
-                .ok(json: input)
+                try Response.json(input)
             }
         }
         """
@@ -179,7 +180,10 @@ struct CodeGenerator: Sendable {
 
         /// A middleware that runs on every matched route.
         struct \(name): Middleware {
-            func handle(_ request: Request, next: RequestHandler) async throws -> Response {
+            func handle(
+                _ request: Request,
+                next: @Sendable (Request) async throws -> Response
+            ) async throws -> Response {
                 // Pre-processing
                 let response = try await next(request)
                 // Post-processing

@@ -11,6 +11,11 @@ extension View {
         modifier(PaddingModifier(all: all, condition: condition))
     }
 
+    /// Apply equal padding on all sides at a responsive breakpoint.
+    public func padding(_ all: SpacingValue, at condition: ModifierCondition) -> ModifiedContent<Self, PaddingModifier> {
+        modifier(PaddingModifier(all: all, condition: condition))
+    }
+
     /// Apply vertical and horizontal padding.
     public func padding(_ vertical: SpacingValue, _ horizontal: SpacingValue, on condition: ModifierCondition? = nil) -> ModifiedContent<Self, PaddingModifier> {
         modifier(PaddingModifier(x: horizontal, y: vertical, condition: condition))
@@ -35,6 +40,11 @@ extension View {
 
     /// Apply equal margin on all sides.
     public func margin(_ all: SpacingValue, on condition: ModifierCondition? = nil) -> ModifiedContent<Self, MarginModifier> {
+        modifier(MarginModifier(all: all, condition: condition))
+    }
+
+    /// Apply equal margin on all sides at a responsive breakpoint.
+    public func margin(_ all: SpacingValue, at condition: ModifierCondition) -> ModifiedContent<Self, MarginModifier> {
         modifier(MarginModifier(all: all, condition: condition))
     }
 
@@ -231,7 +241,7 @@ extension View {
 
     // MARK: Border
 
-    /// Apply a border with optional color, width, edge, and style.
+    /// Apply a border stroke with optional color, width, edge, and style.
     public func border(
         color: Color? = nil,
         width: Double = 1,
@@ -243,13 +253,30 @@ extension View {
     }
 
     /// Apply a border radius using a semantic token.
-    public func border(radius: RadiusToken, on condition: ModifierCondition? = nil) -> ModifiedContent<Self, BorderRadiusModifier> {
-        modifier(BorderRadiusModifier(radius: radius, condition: condition))
+    public func border(radius: RadiusToken, on condition: ModifierCondition? = nil) -> ModifiedContent<Self, BorderModifier> {
+        modifier(BorderModifier(radius: radius, condition: condition))
     }
 
     /// Apply a border radius as a raw pixel value.
-    public func border(radius px: Double) -> ModifiedContent<Self, BorderRadiusModifier> {
-        modifier(BorderRadiusModifier(radiusPx: px))
+    public func border(radius px: Double) -> ModifiedContent<Self, BorderModifier> {
+        modifier(BorderModifier(radiusPx: px))
+    }
+
+    /// Apply border stroke and radius in one call.
+    ///
+    /// ```swift
+    /// Card { ... }
+    ///     .border(color: .muted.opacity(0.2), radius: .lg)
+    /// ```
+    public func border(
+        color: Color? = nil,
+        width: Double = 1,
+        edge: Edge? = nil,
+        style: BorderStyle = .solid,
+        radius: RadiusToken,
+        on condition: ModifierCondition? = nil
+    ) -> ModifiedContent<Self, BorderModifier> {
+        modifier(BorderModifier(color: color, width: width, edge: edge, style: style, radius: radius, condition: condition))
     }
 
     // MARK: Shadow
@@ -336,6 +363,44 @@ extension View {
         modifier(EffectModifier(backdropBlur: backdropBlur, condition: condition))
     }
 
+    /// Apply multiple visual effects in one call.
+    ///
+    /// Use this overload when you need two or more effect properties at once.
+    /// Single-property calls (e.g. `.effect(opacity: 0.5)`) resolve to the
+    /// more specific single-parameter overloads above.
+    ///
+    /// ```swift
+    /// Image(src: url, alt: "Hero")
+    ///     .effect(opacity: 0.8, objectFit: .cover)
+    ///
+    /// DisabledButton { "Submit" }
+    ///     .effect(opacity: 0.4, cursor: .notAllowed, pointerEvents: false)
+    /// ```
+    public func effect(
+        opacity: Double? = nil,
+        blur: SpacingValue? = nil,
+        saturate: Double? = nil,
+        brightness: Double? = nil,
+        grayscale: Bool? = nil,
+        objectFit: ObjectFit? = nil,
+        cursor: CursorValue? = nil,
+        userSelect: UserSelect? = nil,
+        pointerEvents: Bool? = nil,
+        fill: Color? = nil,
+        blendMode: BlendMode? = nil,
+        backdropBlur: SpacingValue? = nil,
+        on condition: ModifierCondition? = nil
+    ) -> ModifiedContent<Self, EffectModifier> {
+        modifier(EffectModifier(
+            opacity: opacity, blur: blur, saturate: saturate,
+            brightness: brightness, grayscale: grayscale,
+            blendMode: blendMode, objectFit: objectFit,
+            cursor: cursor, userSelect: userSelect,
+            pointerEvents: pointerEvents, fill: fill,
+            backdropBlur: backdropBlur, condition: condition
+        ))
+    }
+
     // MARK: Font
 
     /// Set font size.
@@ -408,7 +473,40 @@ extension View {
         modifier(FontModifier(smoothing: smoothing))
     }
 
-    // MARK: Animation
+    /// Set multiple typography properties in one call.
+    ///
+    /// Use this overload when you need two or more font properties at once.
+    /// Single-property calls (e.g. `.font(size: .lg)`) resolve to the more
+    /// specific single-parameter overloads above.
+    ///
+    /// ```swift
+    /// Heading(1) { "Title" }
+    ///     .font(size: .fourXL, weight: .bold, wrap: .balance)
+    /// Text { "Subtitle" }
+    ///     .font(size: .xl, color: .muted)
+    /// ```
+    public func font(
+        size: FontSize? = nil,
+        weight: FontWeight? = nil,
+        color: Color? = nil,
+        family: FontFamily? = nil,
+        style: FontStyle? = nil,
+        align: TextAlign? = nil,
+        leading: LineHeight? = nil,
+        tracking: LetterSpacing? = nil,
+        wrap: TextWrap? = nil,
+        decoration: TextDecoration? = nil,
+        transform: TextTransform? = nil,
+        smoothing: FontSmoothing? = nil,
+        on condition: ModifierCondition? = nil
+    ) -> ModifiedContent<Self, FontModifier> {
+        modifier(FontModifier(
+            size: size, weight: weight, family: family, color: color,
+            leading: leading, tracking: tracking, align: align, transform: transform,
+            decoration: decoration, style: style, wrap: wrap, smoothing: smoothing,
+            condition: condition
+        ))
+    }
 
     /// Apply a CSS animation.
     public func animate(
@@ -439,6 +537,57 @@ extension View {
         modifier(TransitionModifier(property: transition, duration: duration, easing: easing, delay: delay))
     }
 
+    /// Stagger-animate all direct children on entry with a CSS animation.
+    ///
+    /// The container receives `data-score-stagger` for runtime JS hookup; the CSS
+    /// emits `& > * { animation: … }` inside a `prefers-reduced-motion` guard.
+    ///
+    /// ```swift
+    /// List { ... }.animateChildren(.fadeIn, duration: 300.ms, stagger: 80.ms)
+    /// ```
+    public func animateChildren(
+        _ animation: Animation,
+        duration: AnimationDuration = 300.ms,
+        stagger: AnimationDuration = 100.ms,
+        easing: AnimationTiming = .easeOut
+    ) -> AnimateChildrenView<Self> {
+        AnimateChildrenView(
+            animationName: animation.css,
+            duration: duration,
+            stagger: stagger,
+            easing: easing,
+            content: self
+        )
+    }
+
+    /// Mark a view for scroll-triggered animation using an Intersection Observer.
+    ///
+    /// Adds `data-score-aos` and `data-score-aos-threshold` HTML attributes so the
+    /// Score JS runtime can apply the animation when the element enters the viewport.
+    ///
+    /// ```swift
+    /// Card().animateOnScroll(.fadeUp, threshold: 0.15)
+    /// ```
+    public func animateOnScroll(
+        _ animation: Animation,
+        threshold: Double = 0.1
+    ) -> AnimateOnScrollView<Self> {
+        AnimateOnScrollView(
+            animationName: animation.css,
+            threshold: threshold,
+            content: self
+        )
+    }
+
+    /// Apply a CSS `view-transition-name` for the View Transitions API.
+    ///
+    /// ```swift
+    /// heroImage.viewTransition("hero-image")
+    /// ```
+    public func viewTransition(_ name: String) -> ModifiedContent<Self, ViewTransitionModifier> {
+        modifier(ViewTransitionModifier(name: name))
+    }
+
     // MARK: - Conditional variant helpers
 
     /// Apply modifiers only under the given state condition (e.g. `.hover`, `.focus`).
@@ -448,7 +597,7 @@ extension View {
     /// Button { "Click" }.on(.hover) { $0.background(color: .violet(700)) }
     /// ```
     public func on(_ condition: ModifierCondition, @ViewBuilder content: (Self) -> some View) -> some View {
-        content(self)
+        ConditionGroupView(condition: condition, content: content(self))
     }
 
     /// Apply modifiers at the given responsive breakpoint.
@@ -457,7 +606,7 @@ extension View {
     /// Card().at(.tablet) { $0.frame(width: .full) }
     /// ```
     public func at(_ breakpoint: ModifierCondition, @ViewBuilder content: (Self) -> some View) -> some View {
-        content(self)
+        ConditionGroupView(condition: breakpoint, content: content(self))
     }
 }
 

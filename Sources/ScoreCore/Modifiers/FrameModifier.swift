@@ -1,5 +1,23 @@
 // MARK: - FrameModifier
 
+/// A modifier that constrains an element's width, height, or aspect ratio.
+///
+/// Use ``View/frame(width:height:on:)`` and its overloads rather than
+/// constructing `FrameModifier` directly.
+///
+/// ```swift
+/// Image(src, alt: "Cover")
+///     .frame(width: .full, height: .px(400))
+///     .frame(maxWidth: .px(1200))
+///     .frame(aspectRatio: 16/9)
+///     .frame(maxWidth: 10, at: .desktop)  // responsive
+/// ```
+///
+/// Values accept spacing-scale steps, ``SpacingValue`` variants such as
+/// `.px(n)`, `.rem(n)`, `.percent(n)`, `.screen`, `.full`, `.auto`, and
+/// `.dvh(n)`.
+///
+/// - SeeAlso: ``View/frame(width:height:on:)``, ``SpacingValue``
 public struct FrameModifier: ThemeAwareModifier {
     let width: SpacingValue?
     let minWidth: SpacingValue?

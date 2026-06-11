@@ -1,22 +1,24 @@
 /// The scroll axis of a `ScrollView`.
 public enum ScrollAxis: Sendable {
-    case vertical
-    case horizontal
+    case x
+    case y
     case both
 }
 
 /// A scrollable container.
 ///
+/// Scrolls in both directions by default. Restrict to one axis with `axis:`:
+///
 /// ```swift
-/// ScrollView {
-///     ForEach(items) { item in ItemRow(item: item) }
-/// }
+/// ScrollView { … }               // x and y (default)
+/// ScrollView(axis: .x) { … }    // horizontal only
+/// ScrollView(axis: .y) { … }    // vertical only
 /// ```
 public struct ScrollView: View, _HTMLRenderable {
     let axis: ScrollAxis
     let content: AnyView
 
-    public init(axis: ScrollAxis = .vertical, @ViewBuilder content: () -> some View) {
+    public init(axis: ScrollAxis = .both, @ViewBuilder content: () -> some View) {
         self.axis = axis
         self.content = AnyView(content())
     }
@@ -27,9 +29,9 @@ public struct ScrollView: View, _HTMLRenderable {
     public func renderHTML(context: inout RenderContext) -> String {
         let overflow: String
         switch axis {
-        case .vertical:   overflow = "overflow-y:auto"
-        case .horizontal: overflow = "overflow-x:auto"
-        case .both:       overflow = "overflow:auto"
+        case .y:    overflow = "overflow-y:auto"
+        case .x:    overflow = "overflow-x:auto"
+        case .both: overflow = "overflow:auto"
         }
         return "<div style=\"\(overflow)\">\(content.renderHTML(context: &context))</div>"
     }
