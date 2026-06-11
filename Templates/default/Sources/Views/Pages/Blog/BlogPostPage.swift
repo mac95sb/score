@@ -2,6 +2,7 @@ import Score
 
 struct BlogPostPage: Page {
     let post: ContentPost
+    let likeCount: Int
 
     var metadata: PageMetadata? {
         PageMetadata(
@@ -27,6 +28,8 @@ struct BlogPostPage: Page {
                 Divider()
                     .margin(y: 8)
                 RichText(markdown: post.content)
+                LikeButton(slug: post.slug, count: likeCount)
+                    .margin(top: 8)
             }
             .frame(maxWidth: .px(720))
             .margin(x: .auto)

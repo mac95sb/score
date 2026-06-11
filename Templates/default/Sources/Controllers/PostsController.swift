@@ -14,7 +14,10 @@ struct PostsController: RouteCollection {
                 guard let post = try await ContentStore.posts()
                     .first(where: { $0.slug == req.pathParameters["slug"]! })
                 else { throw HTTPError.notFound }
-                return BlogPostPage(post: post)
+                let likeCount = try await db.query(PostLike.self)
+                    .filter(\.slug == post.slug)
+                    .count()
+                return BlogPostPage(post: post, likeCount: likeCount)
             }
         }
 
