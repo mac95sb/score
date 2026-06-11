@@ -39,3 +39,6 @@ struct ArticleCard: View {
 - <doc:ReactiveState>
 - <doc:DataLayer>
 - <doc:APIRoutes>
+
+### Community
+- <doc:Showcase>

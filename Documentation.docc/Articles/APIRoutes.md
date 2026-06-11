@@ -104,7 +104,51 @@ struct PostsController: RouteCollection {
 }
 ```
 
+## Typed API Endpoints
+
+Define endpoints as static constants so the path string lives in exactly one place,
+and callers reference the descriptor instead of a literal string:
+
+```swift
+// Sources/API/Endpoints.swift
+import Score
+
+enum Posts {
+    static let list   = APIEndpoint<Void, [Post]>(   .GET,    "/posts")
+    static let create = APIEndpoint<CreatePost, Post>(.POST,   "/posts")
+    static let update = APIEndpoint<UpdatePost, Post>(.PATCH,  "/posts/:id")
+    static let delete = APIEndpoint<Void, Void>(      .DELETE, "/posts/:id")
+}
+```
+
+Register using the typed descriptor — the method and path come from the descriptor:
+
+```swift
+RouteGroup(api: "/") {
+    GET(Posts.list,   handle: list)
+    POST(Posts.create, handle: create)
+}
+```
+
+Reference the same descriptor in reactive views for client-side fetching:
+
+```swift
+struct BlogIndex: Page {
+    @Fetch(Posts.list) var posts: [Post]
+
+    var body: some View {
+        ForEach(posts) { post in ArticleCard(post: post) }
+    }
+}
+```
+
+The type parameters on `APIEndpoint<Body, Response>` enforce that the request
+body and expected response match between the route declaration and any `@Fetch`
+usage — mismatches are compiler errors.
+
 ## API Versioning
+
+### Single Active Version
 
 Declare the prefix once on ``Application``; all `RouteGroup(api:)` groups
 resolve it automatically:
@@ -116,8 +160,60 @@ struct MySite: Application {
 }
 ```
 
-Upgrading from `.v1` to `.v2` is a one-line change. Every controller updates
-with no further edits.
+### Multiple Simultaneous Versions
+
+Run v1 and v2 side by side during a migration window:
+
+```swift
+@main
+struct MySite: Application {
+    // Default prefix used by RouteGroup(api:) helpers
+    var apiPrefix: APIPrefix { .v2 }
+
+    var routes: some RouteCollection {
+        // v2 controllers (use the default api: prefix)
+        PostsV2Controller()
+
+        // v1 — explicitly namespaced, kept for clients still on the old version
+        RouteGroup("/api/v1") {
+            PostsV1Controller()
+        }
+    }
+}
+```
+
+### Committable API Manifest
+
+Score generates a machine-readable manifest of every registered route at
+build time, written to `.score/api-manifest.json`. Commit this file to give
+you a diff-visible record of every breaking change across versions:
+
+```bash
+# .gitignore should NOT ignore this file
+.score/api-manifest.json   ← commit this
+```
+
+The manifest records method, path, version tag, and parameter names:
+
+```json
+{
+  "version": "2",
+  "generated": "2025-06-11T08:00:00Z",
+  "routes": [
+    { "method": "GET",    "path": "/api/v2/posts",     "version": "v2" },
+    { "method": "POST",   "path": "/api/v2/posts",     "version": "v2" },
+    { "method": "GET",    "path": "/api/v1/posts",     "version": "v1" },
+    { "method": "DELETE", "path": "/api/v1/posts/:id", "version": "v1" }
+  ]
+}
+```
+
+Generate or update it manually:
+
+```bash
+score manifest          # writes .score/api-manifest.json
+score manifest --diff   # shows what changed since last generation
+```
 
 ## Request
 

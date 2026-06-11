@@ -112,16 +112,23 @@ struct DevCommand: AsyncParsableCommand {
     // MARK: - File watcher
 
     private func watchForChanges(box: ServerProcessBox) async {
+        // All paths that should trigger a rebuild when modified.
+        // Localizable.xcstrings is a single file so we check it directly.
         let directories = [
             URL(fileURLWithPath: "Sources"),
             URL(fileURLWithPath: "Content"),
             URL(fileURLWithPath: "Public"),
         ].filter { FileManager.default.fileExists(atPath: $0.path) }
 
+        let singleFiles = [
+            URL(fileURLWithPath: "Localizable.xcstrings"),
+        ].filter { FileManager.default.fileExists(atPath: $0.path) }
+
         var lastModDates: [URL: Date] = [:]
 
         while !Task.isCancelled {
-            let changed = pollChanges(in: directories, lastDates: &lastModDates)
+            var changed = pollChanges(in: directories, lastDates: &lastModDates)
+            changed += pollFiles(singleFiles, lastDates: &lastModDates)
             if !changed.isEmpty {
                 let noora = Noora()
                 for url in changed {
@@ -160,6 +167,24 @@ struct DevCommand: AsyncParsableCommand {
                 } else if lastModDates[fileURL] == nil {
                     lastModDates[fileURL] = modDate
                 }
+            }
+        }
+        return changed
+    }
+
+    private func pollFiles(
+        _ files: [URL],
+        lastDates: inout [URL: Date]
+    ) -> [URL] {
+        var changed: [URL] = []
+        for fileURL in files {
+            guard let attrs = try? fileURL.resourceValues(forKeys: [.contentModificationDateKey]),
+                  let modDate = attrs.contentModificationDate else { continue }
+            if let last = lastModDates[fileURL], modDate > last {
+                lastModDates[fileURL] = modDate
+                changed.append(fileURL)
+            } else if lastModDates[fileURL] == nil {
+                lastModDates[fileURL] = modDate
             }
         }
         return changed

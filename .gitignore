@@ -28,6 +28,3 @@ DerivedData/
 
 # Claude Code agent worktrees (ephemeral — not project files)
 .claude/
-
-# NOTE: Package.resolved is intentionally NOT ignored so that
-# dependency versions are reproducible across all checkouts.

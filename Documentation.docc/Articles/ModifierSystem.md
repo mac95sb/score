@@ -188,13 +188,59 @@ Breakpoints: `phone` 480pt, `tablet` 768pt, `desktop` 1024pt, `wide` 1280pt, `ul
 
 ## Animations
 
+Score has two distinct animation systems with different purposes.
+
+### Transitions — `animate(_:TransitionProperty, …)`
+
+Transitions interpolate between CSS property states when a value changes
+(e.g. on hover, after a state update). They answer *"how does this change?"*
+
 ```swift
+// Smooth out all property changes
 .animate(.all, duration: 200.ms)
+
+// Only animate the transform property
 .animate(.transform, duration: 300.ms, easing: .easeOut)
-.animate(.transform, duration: 300.ms, easing: .spring(stiffness: 300, damping: 30))
+
+// Physics-based spring easing
+.animate(.transform, duration: 400.ms, easing: .spring(stiffness: 300, damping: 30))
 ```
 
-All `.animate()` output is wrapped in `@media (prefers-reduced-motion: no-preference)`.
+### Keyframe Animations — `animate(_:KeyframeAnimation, …)`
+
+Keyframe animations play a named `@keyframes` sequence. They answer
+*"what does this element do on entry / on loop?"*
+
+```swift
+// Use a built-in keyframe sequence
+.animate(KeyframeAnimation.fadeUp, duration: 600.ms, easing: .easeOut)
+.animate(KeyframeAnimation.slideInLeft, duration: 400.ms)
+.animate(KeyframeAnimation.bounce, duration: 800.ms, iterations: .infinite)
+
+// Define a custom keyframe sequence
+let heroReveal = KeyframeAnimation("hero-reveal") {
+    KeyFrame(0)   { [AnimOpacity(0), AnimScale(0.95), AnimTranslateY(.px(12))] }
+    KeyFrame(100) { [AnimOpacity(1), AnimScale(1.0),  AnimTranslateY(.px(0))]  }
+}
+
+Heading(1) { "Welcome" }
+    .animate(heroReveal, duration: 500.ms, easing: .easeOut)
+```
+
+### Scroll-triggered Animations
+
+Play a keyframe animation when the element enters the viewport:
+
+```swift
+Card { … }
+    .animateOnScroll(KeyframeAnimation.fadeUp, threshold: 0.15)
+
+// Stagger children with increasing delays
+Grid(columns: 3) { … }
+    .animateChildren(KeyframeAnimation.fadeUp, duration: 400.ms, stagger: 80.ms)
+```
+
+All animation output is wrapped in `@media (prefers-reduced-motion: no-preference)` — users who prefer reduced motion see no animations.
 
 ## Conditional Modifiers
 

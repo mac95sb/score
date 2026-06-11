@@ -11,12 +11,15 @@ then run `score dev` to start a live-reloading development server.
 
 ## Installation
 
-Install the Score CLI via Homebrew:
+Download the latest CLI binary directly to `~/.local/bin`:
 
 ```bash
-brew install mac95sb/tap/score
+curl -fsSL https://github.com/mac95sb/score/releases/latest/download/score \
+  -o ~/.local/bin/score && chmod +x ~/.local/bin/score
 score --version
 ```
+
+> Note: Make sure `~/.local/bin` is on your `PATH`. Add `export PATH="$HOME/.local/bin:$PATH"` to your shell profile if needed.
 
 ## Creating a Project
 
@@ -96,8 +99,7 @@ struct HomePage: Page {
         Main {
             Section {
                 Heading(1) { "Welcome to My Blog" }
-                    .font(size: .fourXL)
-                    .font(weight: .bold)
+                    .font(size: .fourXL, weight: .bold)
             }
             .frame(maxWidth: .px(720))
             .margin(x: .auto)
@@ -113,10 +115,9 @@ struct HomePage: Page {
 score dev
 ```
 
-- Watches `Sources/` and `Content/` for changes
-- Rebuilds incrementally — only changed pages are re-rendered
-- Serves output at `http://localhost:3000`
-- Injects a live-reload event source so the browser refreshes automatically
+- Watches `Sources/`, `Content/`, `Public/`, and `Localizable.xcstrings` for changes
+- Rebuilds and restarts the server on any change
+- Injects a Server-Sent Events live-reload script so the browser refreshes automatically
 
 ## Building for Production
 
