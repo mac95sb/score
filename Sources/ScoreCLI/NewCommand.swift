@@ -89,6 +89,7 @@ struct ProjectScaffolder: Sendable {
     private func writeDefault(to dir: URL, name: String) throws {
         try mkdir(dir, "Sources/Models")
         try mkdir(dir, "Sources/Views/Pages")
+        try mkdir(dir, "Sources/Views/Pages/Blog")
         try mkdir(dir, "Sources/Views/Components")
         try mkdir(dir, "Sources/Controllers")
         try mkdir(dir, "Content/posts")
@@ -98,8 +99,8 @@ struct ProjectScaffolder: Sendable {
         try write(defaultPostModel, to: dir, "Sources/Models/Post.swift")
         try write(defaultAuthorModel, to: dir, "Sources/Models/Author.swift")
         try write(defaultHomePage(name), to: dir, "Sources/Views/Pages/HomePage.swift")
-        try write(defaultBlogIndexPage, to: dir, "Sources/Views/Pages/BlogIndexPage.swift")
-        try write(defaultBlogPostPage, to: dir, "Sources/Views/Pages/BlogPostPage.swift")
+        try write(defaultBlogIndexPage, to: dir, "Sources/Views/Pages/Blog/BlogIndexPage.swift")
+        try write(defaultBlogPostPage, to: dir, "Sources/Views/Pages/Blog/BlogPostPage.swift")
         try write(defaultSiteNavigation(name), to: dir, "Sources/Views/Components/SiteNavigation.swift")
         try write(defaultArticleCard, to: dir, "Sources/Views/Components/ArticleCard.swift")
         try write(defaultSiteFooter(name), to: dir, "Sources/Views/Components/SiteFooter.swift")
@@ -112,6 +113,7 @@ struct ProjectScaffolder: Sendable {
 
     private func writeStatic(to dir: URL, name: String) throws {
         try mkdir(dir, "Sources/Views/Pages")
+        try mkdir(dir, "Sources/Views/Pages/Blog")
         try mkdir(dir, "Sources/Views/Components")
         try mkdir(dir, "Content/posts")
         try mkdir(dir, "Public")
@@ -119,7 +121,7 @@ struct ProjectScaffolder: Sendable {
         try write(staticApplication(name), to: dir, "Sources/Application.swift")
         try write(staticHomePage(name), to: dir, "Sources/Views/Pages/HomePage.swift")
         try write(staticAboutPage, to: dir, "Sources/Views/Pages/AboutPage.swift")
-        try write(staticBlogPostPage, to: dir, "Sources/Views/Pages/BlogPostPage.swift")
+        try write(staticBlogPostPage, to: dir, "Sources/Views/Pages/Blog/BlogPostPage.swift")
         try write(staticSiteNavigation(name), to: dir, "Sources/Views/Components/SiteNavigation.swift")
         try write(helloWorldPost(name), to: dir, "Content/posts/hello-world.md")
     }
@@ -378,26 +380,26 @@ struct ProjectScaffolder: Sendable {
                 ContentTheme(
                     heading: { level, v in
                         let size: FontSize = level == 1 ? .fourXL : level == 2 ? .threeXL : level == 3 ? .twoXL : .xl
-                        return AnyView(AnyView(v).modifier(FontModifier(size: size, weight: .bold)).margin(y: .rem(1)))
+                        return v.erased().font(size: size, weight: .bold).margin(y: .rem(1))
                     },
                     paragraph: { v in
-                        AnyView(AnyView(v).modifier(FontModifier(size: .lg, leading: .relaxed)).margin(y: .rem(0.75)))
+                        v.erased().font(size: .lg, leading: .relaxed).margin(y: .rem(0.75))
                     },
                     code: { v in
-                        AnyView(AnyView(v).modifier(FontModifier(family: .systemMono)).padding(.px(2), .px(6)).border(radius: .sm).background(color: .surface))
+                        v.erased().font(family: .systemMono).padding(.px(2), .px(6)).border(radius: .sm).background(color: .surface)
                     },
                     blockquote: { v in
-                        AnyView(AnyView(v).border(color: .primary, width: 4, edge: .left).padding(left: 4).margin(y: .rem(1)))
+                        v.erased().border(color: .primary, width: 4, edge: .left).padding(left: 4).margin(y: .rem(1))
                     },
-                    list: { _, v in AnyView(AnyView(v).margin(y: .rem(0.75)).padding(left: 6)) },
-                    listItem: { v in AnyView(v) },
-                    table: { v in AnyView(AnyView(v).margin(y: .rem(1))) },
-                    link: { v in AnyView(AnyView(v).font(color: .primary, decoration: .underline)) },
-                    image: { v in AnyView(AnyView(v).border(radius: .lg).margin(y: .rem(1.5))) },
-                    divider: { v in AnyView(AnyView(v).margin(y: .rem(2))) },
-                    strong: { v in AnyView(AnyView(v).font(weight: .semibold)) },
-                    emphasis: { v in AnyView(AnyView(v).font(style: .italic)) },
-                    strikethrough: { v in AnyView(AnyView(v).font(decoration: .lineThrough)) }
+                    list: { _, v in v.erased().margin(y: .rem(0.75)).padding(left: 6) },
+                    listItem: { v in v },
+                    table: { v in v.erased().margin(y: .rem(1)) },
+                    link: { v in v.erased().font(color: .primary, decoration: .underline) },
+                    image: { v in v.erased().border(radius: .lg).margin(y: .rem(1.5)) },
+                    divider: { v in v.erased().margin(y: .rem(2)) },
+                    strong: { v in v.erased().font(weight: .semibold) },
+                    emphasis: { v in v.erased().font(style: .italic) },
+                    strikethrough: { v in v.erased().font(decoration: .lineThrough) }
                 )
             }
         }

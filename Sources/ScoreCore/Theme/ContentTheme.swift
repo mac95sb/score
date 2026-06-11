@@ -48,43 +48,43 @@ public struct ContentTheme: Sendable {
     public static let blog = ContentTheme(
         heading: { level, v in
             let size: FontSize = level == 1 ? .fourXL : level == 2 ? .threeXL : level == 3 ? .twoXL : .xl
-            return AnyView(AnyView(v).modifier(FontModifier(size: size, weight: .bold)).margin(y: .rem(1)))
+            return v.erased().font(size: size, weight: .bold).margin(y: .rem(1))
         },
         paragraph: { v in
-            AnyView(AnyView(v).modifier(FontModifier(leading: .relaxed)).margin(y: .rem(0.75)))
+            v.erased().font(leading: .relaxed).margin(y: .rem(0.75))
         },
         code: { v in
-            AnyView(AnyView(v).modifier(FontModifier(family: .systemMono)).padding(.px(2), .px(6)).border(radius: .sm).background(color: .surface))
+            v.erased().font(family: .systemMono).padding(.px(2), .px(6)).border(radius: .sm).background(color: .surface)
         },
         codeBlock: { _, v in
-            AnyView(AnyView(v).modifier(FontModifier(family: .systemMono)).padding(.rem(1.5)).border(radius: .md).background(color: .surface).overflow(.scroll))
+            v.erased().font(family: .systemMono).padding(.rem(1.5)).border(radius: .md).background(color: .surface).overflow(.scroll)
         },
         blockquote: { v in
-            AnyView(AnyView(v).border(color: .primary, width: 4, edge: .left).padding(x: .rem(1.5), y: .rem(1)).font(color: .muted).font(style: .italic))
+            v.erased().border(color: .primary, width: 4, edge: .left).padding(x: .rem(1.5), y: .rem(1)).font(color: .muted, style: .italic)
         },
         list: { _, v in
-            AnyView(AnyView(v).margin(y: .rem(0.75)).padding(left: .rem(1.5)))
+            v.erased().margin(y: .rem(0.75)).padding(left: .rem(1.5))
         },
         listItem: { v in
-            AnyView(AnyView(v).margin(y: .rem(0.25)))
+            v.erased().margin(y: .rem(0.25))
         },
         table: { v in
-            AnyView(AnyView(v).overflow(.scroll))
+            v.erased().overflow(.scroll)
         },
         link: { v in
-            AnyView(AnyView(v).font(color: .primary).font(decoration: .underline))
+            v.erased().font(color: .primary, decoration: .underline)
         },
         image: { v in
-            AnyView(AnyView(v).border(radius: .md).overflow(.hidden))
+            v.erased().border(radius: .md).overflow(.hidden)
         },
         divider: { v in
-            AnyView(AnyView(v).margin(y: .rem(2)))
+            v.erased().margin(y: .rem(2))
         },
         strong: { v in
-            AnyView(AnyView(v).font(weight: .semibold))
+            v.erased().font(weight: .semibold)
         },
         emphasis: { v in
-            AnyView(AnyView(v).font(style: .italic))
+            v.erased().font(style: .italic)
         },
         strikethrough: { v in v }
     )
