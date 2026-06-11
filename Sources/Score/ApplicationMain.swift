@@ -52,18 +52,45 @@ enum ScoreRuntime {
 
         let host = value(of: "--host", in: arguments) ?? "127.0.0.1"
         let port = value(of: "--port", in: arguments).flatMap(Int.init) ?? 8080
+        let isDev = arguments.contains("--dev")
+            || ProcessInfo.processInfo.environment["SCORE_DEV_RELOAD"] == "1"
         let logger = Logger(label: "score.app")
 
-        let routes = try await expandStaticPageRoutes(app: app)
+        // In dev mode, inject the hot-reload EventSource snippet into every page.
+        let devJS: String
+        if isDev {
+            devJS = RuntimeBundleAssembler().assemble(flags: FeatureFlags(devReload: true))
+        } else {
+            devJS = ""
+        }
+
+        let renderer = PageRenderer(
+            theme: app.theme,
+            siteMetadata: app.metadata,
+            defaultInlineScripts: devJS.isEmpty ? [] : [devJS]
+        )
+
+        let routes = try await expandStaticPageRoutes(app: app, renderer: renderer)
         let router = Router()
         await router.register(routes)
+
+        // Extract WebSocket routes so NIOServer can wire up the NIO upgrade machinery.
+        let wsRoutes: [WebSocketRoute] = app.routes.routes.compactMap { route in
+            guard let wsHandler = route.webSocketHandler else { return nil }
+            return WebSocketRoute(path: route.pathPattern, handler: wsHandler)
+        }
+
+        // SSE broadcaster — nil in production; dev mode keeps browser connections alive.
+        let sseBroadcaster: SSEBroadcaster? = isDev ? SSEBroadcaster() : nil
 
         let staticDirectory = FileManager.default.fileExists(atPath: "Public") ? "Public" : nil
         let server = NIOServer(
             host: host,
             port: port,
             staticDirectory: staticDirectory,
-            logger: logger
+            logger: logger,
+            sseBroadcaster: sseBroadcaster,
+            webSocketRoutes: wsRoutes
         ) { request in
             try await router.handle(request)
         }
@@ -153,8 +180,11 @@ enum ScoreRuntime {
 
     /// Replace ``StaticPage`` placeholder routes with one pre-rendered GET route
     /// per page instance.
-    private static func expandStaticPageRoutes<A: Application>(app: A) async throws -> [Route] {
-        let renderer = PageRenderer(theme: app.theme, siteMetadata: app.metadata)
+    private static func expandStaticPageRoutes<A: Application>(
+        app: A,
+        renderer: PageRenderer? = nil
+    ) async throws -> [Route] {
+        let renderer = renderer ?? PageRenderer(theme: app.theme, siteMetadata: app.metadata)
         var expanded: [Route] = []
 
         for route in app.routes.routes {
