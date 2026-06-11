@@ -26,11 +26,17 @@ import Foundation
 public protocol Page: View {
     /// Page-specific metadata that overrides the application default.
     var metadata: PageMetadata? { get }
+
+    /// The content theme applied to ``RichText`` blocks rendered on this page.
+    var contentTheme: ContentTheme { get }
 }
 
 extension Page {
     /// Returns `nil` by default, falling back to the application-level metadata.
     public var metadata: PageMetadata? { nil }
+
+    /// Uses ``ContentTheme/default`` unless the page overrides it.
+    public var contentTheme: ContentTheme { .default }
 }
 
 // MARK: - StaticPage

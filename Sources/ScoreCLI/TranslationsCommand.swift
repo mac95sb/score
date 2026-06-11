@@ -1,5 +1,6 @@
 import ArgumentParser
 import Foundation
+import Noora
 
 /// `score translations` — manage i18n/l10n translation files.
 ///
@@ -36,14 +37,18 @@ struct TranslationsExtractCommand: AsyncParsableCommand {
     var locale: String = "en"
 
     mutating func run() async throws {
-        print("  Extracting translatable strings from \(source)…")
+        let noora = Noora()
         let extractor = TranslationExtractor()
-        let keys = try extractor.extract(from: URL(fileURLWithPath: source))
+
+        let keys = try await noora.progressStep(
+            message: "Extracting translatable strings from \(source)…"
+        ) { _ in
+            try extractor.extract(from: URL(fileURLWithPath: source))
+        }
 
         let outputDir = URL(fileURLWithPath: output)
         try FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
 
-        // Write YAML translation file for the base locale
         let outputFile = outputDir.appendingPathComponent("\(locale).yaml")
         let yaml = keys
             .sorted()
@@ -51,7 +56,7 @@ struct TranslationsExtractCommand: AsyncParsableCommand {
             .joined(separator: "\n")
         try yaml.write(to: outputFile, atomically: true, encoding: .utf8)
 
-        print("  ✓  Extracted \(keys.count) key(s) → \(outputFile.path)")
+        noora.success(.alert("Extracted \(keys.count) key(s)", takeaways: ["\(outputFile.path)"]))
     }
 }
 
@@ -74,12 +79,11 @@ struct TranslationsValidateCommand: AsyncParsableCommand {
         let validator = TranslationValidator()
         let issues = try validator.validate(in: dir, base: base)
 
+        let noora = Noora()
         if issues.isEmpty {
-            print("  ✓  All translations are complete.")
+            noora.success(.alert("All translations are complete."))
         } else {
-            for issue in issues {
-                print("  ⚠  \(issue)")
-            }
+            noora.warning(issues.map { WarningAlert.alert("\($0)") })
             throw CLIError.translationsMissing(issues.count)
         }
     }
@@ -113,7 +117,7 @@ struct TranslationsGenerateCommand: AsyncParsableCommand {
             withIntermediateDirectories: true
         )
         try swiftCode.write(to: outputURL, atomically: true, encoding: .utf8)
-        print("  ✓  Generated typed accessors → \(output)")
+        Noora().success(.alert("Generated typed accessors", takeaways: ["\(output)"]))
     }
 }
 

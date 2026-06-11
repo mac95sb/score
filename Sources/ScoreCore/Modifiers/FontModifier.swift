@@ -1,5 +1,24 @@
 // MARK: - FontModifier
 
+/// A modifier that applies CSS typography properties to an element.
+///
+/// Create instances through the ``View/font(size:at:)`` family of methods rather
+/// than constructing `FontModifier` directly. Multiple `.font()` calls on the
+/// same view accumulate — each call sets only the properties it specifies.
+///
+/// ```swift
+/// Heading(1) { "Title" }
+///     .font(size: .fourXL)
+///     .font(weight: .bold)
+///     .font(wrap: .balance)
+///
+/// Text { "Body copy" }
+///     .font(size: .lg)
+///     .font(leading: .relaxed)
+///     .font(color: .muted)
+/// ```
+///
+/// - SeeAlso: ``View/font(size:at:)``, ``FontSize``, ``FontWeight``, ``LineHeight``
 public struct FontModifier: ThemeAwareModifier {
     let size: FontSize?
     let weight: FontWeight?

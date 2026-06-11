@@ -1,10 +1,5 @@
 import Foundation
-
-#if canImport(SQLite3)
-import SQLite3
-#else
 import CSQLite
-#endif
 
 // MARK: - SQLValue
 

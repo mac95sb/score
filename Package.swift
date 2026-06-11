@@ -34,15 +34,27 @@ let package = Package(
         .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.21.0"),
         .package(url: "https://github.com/apple/swift-markdown.git", from: "0.4.0"),
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
+        .package(url: "https://github.com/apple/swift-nio-transport-services.git", from: "1.21.0"),
+        .package(url: "https://github.com/apple/swift-distributed-tracing.git", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-certificates.git", from: "1.0.0"),
+        .package(url: "https://github.com/tuist/Noora.git", from: "0.56.0"),
+        .package(url: "https://github.com/apple/swift-openapi-runtime.git", from: "1.0.0"),
     ],
     targets: [
-        // MARK: - System library (SQLite3 on Linux)
-        .systemLibrary(
+        // MARK: - Embedded SQLite amalgamation
+        // Self-contained C target — no system sqlite3 dependency required.
+        // To update: replace Sources/CSQLite/sqlite3.c and Sources/CSQLite/include/sqlite3.h
+        // with the latest amalgamation from https://sqlite.org/download.html (or `make update-sqlite`).
+        .target(
             name: "CSQLite",
-            pkgConfig: "sqlite3",
-            providers: [
-                .brew(["sqlite"]),
-                .apt(["libsqlite3-dev"]),
+            path: "Sources/CSQLite",
+            sources: ["sqlite3.c"],
+            publicHeadersPath: "include",
+            cSettings: [
+                .define("SQLITE_THREADSAFE", to: "2"),
+                .define("SQLITE_ENABLE_FTS5"),
+                .define("SQLITE_ENABLE_JSON1"),
+                .define("SQLITE_ENABLE_RTREE"),
             ]
         ),
 
@@ -67,12 +79,14 @@ let package = Package(
                 .product(name: "NIOHTTP1", package: "swift-nio"),
                 .product(name: "NIOHTTP2", package: "swift-nio-http2"),
                 .product(name: "NIOExtras", package: "swift-nio-extras"),
+                .product(name: "NIOWebSocket", package: "swift-nio"),
                 .product(name: "HTTPTypes", package: "swift-http-types"),
                 .product(name: "HTTPTypesFoundation", package: "swift-http-types"),
                 .product(name: "Logging", package: "swift-log"),
                 .product(name: "Metrics", package: "swift-metrics"),
                 .product(name: "ServiceLifecycle", package: "swift-service-lifecycle"),
                 .product(name: "AsyncHTTPClient", package: "async-http-client"),
+                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
             ]
         ),
 
@@ -127,6 +141,8 @@ let package = Package(
                 "ScoreData",
                 "ScoreSSG",
                 "ScoreBuild",
+                .product(name: "Logging", package: "swift-log"),
+                .product(name: "ServiceLifecycle", package: "swift-service-lifecycle"),
             ]
         ),
 
@@ -137,6 +153,7 @@ let package = Package(
                 "Score",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Logging", package: "swift-log"),
+                .product(name: "Noora", package: "Noora"),
             ]
         ),
 
