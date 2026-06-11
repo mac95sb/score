@@ -24,4 +24,4 @@ jobs:
         run: swift test --parallel
 
       - name: Format lint
-        run: swift format lint --recursive Sources Tests
+        run: swift format lint --recursive Sources Tests Package.swift

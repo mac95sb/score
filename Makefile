@@ -50,11 +50,11 @@ test-verbose:
 
 .PHONY: format
 format:
-	$(SWIFT) format --recursive Sources Tests
+	$(SWIFT) format --recursive Sources Tests Package.swift
 
 .PHONY: format-check
 format-check:
-	$(SWIFT) format lint --recursive Sources Tests
+	$(SWIFT) format lint --recursive Sources Tests Package.swift
 
 # ─── Documentation ────────────────────────────────────────────────────────────
 
