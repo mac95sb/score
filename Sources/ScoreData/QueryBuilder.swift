@@ -35,7 +35,7 @@ public struct QueryBuilder<R: Record>: Sendable {
     /// ```
     public func filter<V: Codable & Sendable & Equatable>(_ condition: KeyPathCondition<R, V>) -> QueryBuilder<R> {
         var copy = self
-        copy.filters.append("json_extract(data, '$.\(condition.keyName)') = ?")
+        copy.filters.append("json_extract(data, \(jsonExtractPath(forKey: condition.keyName))) = ?")
         // Encode value to a JSON-compatible SQLValue
         if let strVal = condition.value as? String {
             copy.filterParams.append(strVal)
@@ -101,7 +101,7 @@ public struct QueryBuilder<R: Record>: Sendable {
         var copy = self
         let field = keyPathName(keyPath)
         let dir = order == .ascending ? "ASC" : "DESC"
-        copy.orderByClause = "json_extract(data, '$.\(field)') \(dir)"
+        copy.orderByClause = "json_extract(data, \(jsonExtractPath(forKey: field))) \(dir)"
         return copy
     }
 
@@ -143,14 +143,14 @@ public struct QueryBuilder<R: Record>: Sendable {
     /// Delete all records matching the current filters.
     public func delete() async throws {
         let whereClause = filters.isEmpty ? "" : " WHERE \(filters.joined(separator: " AND "))"
-        let sql = "DELETE FROM \(R.tableName)\(whereClause)"
+        let sql = "DELETE FROM \(R.quotedTableName)\(whereClause)"
         _ = try await connection.execute(sql, parameters: filterParams)
     }
 
     // MARK: - SQL Construction
 
     private func buildSQL() -> String {
-        var sql = "SELECT * FROM \(R.tableName)"
+        var sql = "SELECT * FROM \(R.quotedTableName)"
         if !filters.isEmpty {
             sql += " WHERE \(filters.joined(separator: " AND "))"
         }
@@ -167,7 +167,7 @@ public struct QueryBuilder<R: Record>: Sendable {
     }
 
     private func buildCountSQL() -> String {
-        var sql = "SELECT COUNT(*) AS count FROM \(R.tableName)"
+        var sql = "SELECT COUNT(*) AS count FROM \(R.quotedTableName)"
         if !filters.isEmpty {
             sql += " WHERE \(filters.joined(separator: " AND "))"
         }

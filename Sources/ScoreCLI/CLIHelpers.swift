@@ -10,9 +10,15 @@ enum CLIError: Error, CustomStringConvertible {
     case lintFailed(Int)
     case translationsMissing(Int)
     case executableNotFound
+    case invalidName(String)
 
     var description: String {
         switch self {
+        case .invalidName(let name):
+            return """
+            Invalid name '\(name)'. Names must start with a letter and contain \
+            only letters, numbers, hyphens, or underscores.
+            """
         case .buildFailed:
             return "Swift build failed. Check compiler output above."
         case .buildNotFound(let dir):
@@ -29,6 +35,25 @@ enum CLIError: Error, CustomStringConvertible {
             return "Built executable not found. Run `swift build` first."
         }
     }
+}
+
+// MARK: - Name validation
+
+/// Validate a user-supplied project/kit/file name before it is interpolated
+/// into generated source, package manifests, or filesystem paths.
+///
+/// Restricting to `^[A-Za-z][A-Za-z0-9_-]*$` blocks:
+/// - path traversal (`..`, `/`, `\`) when the name becomes a directory/file,
+/// - code injection (`"`, `)`, `;`, newlines) into generated `Package.swift`
+///   and other templates.
+func validateName(_ name: String) throws {
+    guard let first = name.first, first.isLetter, first.isASCII else {
+        throw CLIError.invalidName(name)
+    }
+    let isValid = name.allSatisfy { ch in
+        (ch.isASCII && ch.isLetter) || ch.isNumber || ch == "-" || ch == "_"
+    }
+    guard isValid else { throw CLIError.invalidName(name) }
 }
 
 // MARK: - Build helper

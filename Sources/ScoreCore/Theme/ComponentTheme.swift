@@ -462,3 +462,10 @@ func cssValueSanitize(_ value: String) -> String {
 func cssPropertySanitize(_ name: String) -> String {
     name.filter { ($0.isLetter && $0.isASCII) || $0.isNumber || $0 == "-" || $0 == "_" }
 }
+
+/// Restrict a string that is interpolated into a CSS *selector* (e.g. a
+/// `[data-theme="…"]` attribute value) to identifier characters, so it cannot
+/// close the attribute/selector and inject new rules.
+func cssIdentifierSanitize(_ name: String) -> String {
+    cssPropertySanitize(name)
+}

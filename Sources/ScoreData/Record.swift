@@ -31,4 +31,32 @@ extension Record {
         }
         return result + "s"
     }
+
+    /// The table name wrapped in SQLite identifier quotes for safe interpolation
+    /// into SQL. Embedded double-quotes are doubled per the SQLite grammar so a
+    /// pathological type name can never break out of the identifier.
+    public static var quotedTableName: String {
+        "\"" + tableName.replacingOccurrences(of: "\"", with: "\"\"") + "\""
+    }
+
+    /// A quoted index identifier (`"idx_<table>_<suffix>"`) safe for DDL.
+    public static func quotedIndexName(_ suffix: String) -> String {
+        let raw = "idx_\(tableName)_\(suffix)"
+        return "\"" + raw.replacingOccurrences(of: "\"", with: "\"\"") + "\""
+    }
+}
+
+/// Escape a JSON document key for safe interpolation into a single-quoted
+/// SQLite `json_extract` path such as `'$."<key>"'`.
+///
+/// Two layers are escaped: the SQL string literal (single quotes are doubled)
+/// and the JSON path (the key is wrapped in double quotes so characters like
+/// `.`, `[`, or `]` in a property name are treated as a literal key rather than
+/// path syntax). This is defence-in-depth — keys today come from compile-time
+/// key paths — but keeps the builder safe if that ever changes.
+func jsonExtractPath(forKey key: String) -> String {
+    let escaped = key
+        .replacingOccurrences(of: "\"", with: "\\\"")
+        .replacingOccurrences(of: "'", with: "''")
+    return "'$.\"\(escaped)\"'"
 }
