@@ -4,7 +4,7 @@
 
 # Score
 
-Like a musical score is a complete, structured description of a composition, Score lets you describe your entire web application in Swift — rendered to vanilla HTML, CSS, and JavaScript.
+Compose web apps in Swift — rendered to vanilla HTML, CSS, and JavaScript.
 
 **[Documentation](https://mac95sb.github.io/score/documentation/score)** · **[Tutorials](https://mac95sb.github.io/score/tutorials/score)** · **[Showcase](#showcase)**
 
