@@ -7,24 +7,146 @@ with no WASM and no JS build step.
 ## Quick start
 
 ```bash
+git clone https://github.com/mac95sb/score.git && cd score
+swift build -c release            # builds the `score` CLI
 score new MySite
 cd MySite
-score dev          # or: make dev
+score dev                          # → http://localhost:8080, hot-reload
 ```
 
-Every scaffolded project ships with a `Makefile` for the common tasks:
+## Building an app — the full flow
+
+### 1. Create a project
 
 ```bash
-make dev               # dev server with hot-reload
-make build             # static build to .score/build/
-make preview           # serve the static build locally
-make test              # swift test
-make lint              # lint Score views
-make package-windows   # native Windows WebView2 app
-make package-android   # native Android WebView app
-make package-linux     # native Linux WebKitGTK app
-make package-swiftui   # export Records + API client for SwiftUI apps
+score new MySite                   # --template default | static | minimal
 ```
+
+This scaffolds a ready-to-run package:
+
+```
+MySite/
+├── Package.swift          # depends on Score
+├── Makefile               # common tasks (see below)
+├── Sources/MySite/
+│   └── App.swift          # @main Application with routes
+├── Content/               # markdown content
+└── Public/                # static assets, copied verbatim
+```
+
+### 2. Pages and routes
+
+Your `@main` type conforms to `Application` and declares metadata, theme,
+and routes:
+
+```swift
+@main
+struct MySiteApp: Application {
+    var metadata: SiteMetadata {
+        SiteMetadata(title: "MySite", baseURL: "https://mysite.com")
+    }
+
+    var theme: SiteTheme { .preset(.modern, palette: .indigo) }
+
+    @RouteBuilder
+    var routes: some RouteCollection {
+        Page(path: "/", page: HomePage())
+    }
+}
+
+struct HomePage: Page {
+    var body: some View {
+        Main {
+            Heading(1) { "Welcome" }
+            Text { "Built with Score." }
+        }
+    }
+}
+```
+
+Scaffold new pieces with `score generate page|component|action|record|middleware <Name>`.
+
+### 3. Data — records and controllers
+
+`Record` types map to SQLite tables; `RouteCollection` controllers expose
+them as API routes (under `/api/v1` by default):
+
+```swift
+struct Post: Record {
+    var id: UUID = UUID()
+    var title: String
+    var published: Bool = false
+    var createdAt: Date = .now
+    var updatedAt: Date = .now
+}
+
+struct PostsController: RouteCollection {
+    var routes: [Route] {
+        [
+            Route(method: .GET,  pathPattern: "/posts",     handler: list),
+            Route(method: .GET,  pathPattern: "/posts/:id", handler: show),
+            Route(method: .POST, pathPattern: "/posts",     handler: create),
+        ]
+    }
+}
+```
+
+### 4. Content
+
+Drop markdown files in `Content/` and render them with `RichText`; style the
+output via `ContentTheme`. Raw HTML in markdown is escaped, and link URLs are
+restricted to safe schemes.
+
+### 5. Theme it
+
+One line gets a complete design system — palette, dark mode, component
+styles:
+
+```swift
+var theme: SiteTheme { .preset(.soft, palette: .ocean) }
+```
+
+See [Component theming](#component-theming) below for variants, overrides,
+and the palette catalogue.
+
+### 6. Develop, build, preview
+
+```bash
+score dev          # hot-reload dev server
+score build        # static build → .score/build/ (minified, fingerprinted)
+score preview      # serve the static build exactly as a CDN would
+```
+
+### 7. Go native
+
+```bash
+score package windows|android|linux   # WebView shells (see Native packaging)
+score package swiftui                 # Records + API client for SwiftUI apps
+```
+
+### Makefile
+
+Every scaffolded project ships with a `Makefile` wrapping all of the above:
+
+```bash
+make dev / build / preview / test / lint / routes
+make package-windows / package-android / package-linux / package-swiftui
+make clean / help
+```
+
+## CLI reference
+
+| Command | Purpose |
+| --- | --- |
+| `score new <Name>` | Scaffold a project (`--template default\|static\|minimal`) |
+| `score dev` | Dev server with hot-reload (regenerates SwiftUI kits) |
+| `score build` | Static build to `.score/build/` |
+| `score preview` | Serve the static build locally |
+| `score generate <type> <Name>` | Boilerplate: page, component, action, record, middleware |
+| `score routes` | Print the route table |
+| `score lint` | Lint Score views (`--json` for machine output) |
+| `score translations` | Extract / validate / generate i18n keys |
+| `score package <platform>` | Native shells + SwiftUI kit export |
 
 ## Component theming
 
