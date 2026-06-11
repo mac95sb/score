@@ -116,6 +116,54 @@ public func DELETE(
     Route(method: .DELETE, pathPattern: path, renderMode: .serverRendered, handler: handler)
 }
 
+// MARK: - Typed endpoint overloads
+
+/// A GET route bound to a typed ``APIEndpoint`` descriptor.
+///
+/// The method and path are taken from the descriptor — no string duplication:
+///
+/// ```swift
+/// GET(Posts.list, handle: list)
+/// ```
+public func GET<B: Sendable, R: Sendable>(
+    _ endpoint: APIEndpoint<B, R>,
+    handle handler: @escaping @Sendable (Request) async throws -> Response
+) -> Route {
+    Route(method: .GET, pathPattern: endpoint.path, renderMode: .serverRendered, handler: handler)
+}
+
+/// A POST route bound to a typed ``APIEndpoint`` descriptor.
+public func POST<B: Sendable, R: Sendable>(
+    _ endpoint: APIEndpoint<B, R>,
+    handle handler: @escaping @Sendable (Request) async throws -> Response
+) -> Route {
+    Route(method: .POST, pathPattern: endpoint.path, renderMode: .serverRendered, handler: handler)
+}
+
+/// A PUT route bound to a typed ``APIEndpoint`` descriptor.
+public func PUT<B: Sendable, R: Sendable>(
+    _ endpoint: APIEndpoint<B, R>,
+    handle handler: @escaping @Sendable (Request) async throws -> Response
+) -> Route {
+    Route(method: .PUT, pathPattern: endpoint.path, renderMode: .serverRendered, handler: handler)
+}
+
+/// A PATCH route bound to a typed ``APIEndpoint`` descriptor.
+public func PATCH<B: Sendable, R: Sendable>(
+    _ endpoint: APIEndpoint<B, R>,
+    handle handler: @escaping @Sendable (Request) async throws -> Response
+) -> Route {
+    Route(method: .PATCH, pathPattern: endpoint.path, renderMode: .serverRendered, handler: handler)
+}
+
+/// A DELETE route bound to a typed ``APIEndpoint`` descriptor.
+public func DELETE<B: Sendable, R: Sendable>(
+    _ endpoint: APIEndpoint<B, R>,
+    handle handler: @escaping @Sendable (Request) async throws -> Response
+) -> Route {
+    Route(method: .DELETE, pathPattern: endpoint.path, renderMode: .serverRendered, handler: handler)
+}
+
 /// A WebSocket upgrade route.
 ///
 /// The handler is invoked after a successful HTTP → WebSocket upgrade.
