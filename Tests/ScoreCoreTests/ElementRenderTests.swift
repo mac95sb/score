@@ -55,7 +55,7 @@ struct ElementRenderTests {
     @Test("Link renders href attribute")
     func linkElement() throws {
         var ctx = RenderContext()
-        let html = Link(href: "/about") { "About" }._renderInto(&ctx)
+        let html = Link(to: "/about") { "About" }._renderInto(&ctx)
         #expect(html.contains("href=\"/about\""))
         #expect(html.contains("About"))
     }
@@ -63,7 +63,7 @@ struct ElementRenderTests {
     @Test("Link escapes href attribute")
     func linkHrefEscaping() throws {
         var ctx = RenderContext()
-        let html = Link(href: "/search?q=hello&lang=en") { "Search" }._renderInto(&ctx)
+        let html = Link(to: "/search?q=hello&lang=en") { "Search" }._renderInto(&ctx)
         #expect(html.contains("&amp;") || html.contains("hello"))
     }
 

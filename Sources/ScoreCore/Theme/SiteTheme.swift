@@ -16,9 +16,6 @@ public struct SiteTheme: Sendable {
     public var darkColors: ThemeColors?
     public var customThemes: [String: ThemeColors]
     public var tokens: [ThemeToken]
-    /// Opt-in default styles for built-in components (buttons, links, dialogs, …).
-    /// Defaults to ``ComponentTheme/none`` — no component CSS is emitted.
-    public var components: ComponentTheme
 
     public static let `default` = SiteTheme()
 
@@ -32,8 +29,7 @@ public struct SiteTheme: Sendable {
         syntaxTheme: any SyntaxTheme = ScoreDarkSyntaxTheme(),
         darkColors: ThemeColors? = nil,
         customThemes: [String: ThemeColors] = [:],
-        tokens: [ThemeToken] = [],
-        components: ComponentTheme = .none
+        tokens: [ThemeToken] = []
     ) {
         self.colors       = colors
         self.fonts        = fonts
@@ -45,7 +41,6 @@ public struct SiteTheme: Sendable {
         self.darkColors   = darkColors
         self.customThemes = customThemes
         self.tokens       = tokens
-        self.components   = components
     }
 
     // MARK: - CSS variable emission
@@ -76,10 +71,9 @@ public struct SiteTheme: Sendable {
         out += "--radius-xl:\(radii.xl.cssStr)px;"
         out += "--radius-2xl:\(radii.twoXL.cssStr)px;"
         out += "--radius-full:\(radii.full.cssStr)px;"
-        // Custom tokens — sanitised so a token can only ever contribute a
-        // single declaration (no raw-CSS escape hatch pre-launch).
+        // Custom tokens
         for token in tokens {
-            out += "\(cssPropertySanitize(token.name)):\(cssValueSanitize(token.value));"
+            out += "\(token.name):\(token.value);"
         }
         out += "}"
 

@@ -1,3 +1,15 @@
+extension View {
+    /// Erase the static type, returning an `AnyView` suitable for use in
+    /// `ContentTheme` closures and other contexts that work with `any View`.
+    ///
+    /// ```swift
+    /// paragraph: { v in
+    ///     v.erased().font(leading: .relaxed).margin(y: .rem(0.75))
+    /// }
+    /// ```
+    public func erased() -> AnyView { AnyView(self) }
+}
+
 /// A type-erased wrapper around any `View`.
 ///
 /// Stores render and CSS closures capturing the concrete view so the concrete

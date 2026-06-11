@@ -37,34 +37,26 @@ struct TranslationsExtractCommand: AsyncParsableCommand {
     var locale: String = "en"
 
     mutating func run() async throws {
-        let ui = Noora()
-        let source = self.source
-        let output = self.output
-        let locale = self.locale
+        let noora = Noora()
+        let extractor = TranslationExtractor()
 
-        let (count, path) = try await ui.progressStep(
-            message: "Extracting translatable strings from \(source)",
-            successMessage: nil,
-            errorMessage: "Extraction failed",
-            showSpinner: true
+        let keys = try await noora.progressStep(
+            message: "Extracting translatable strings from \(source)…"
         ) { _ in
-            let extractor = TranslationExtractor()
-            let keys = try extractor.extract(from: URL(fileURLWithPath: source))
-
-            let outputDir = URL(fileURLWithPath: output)
-            try FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
-
-            // Write YAML translation file for the base locale
-            let outputFile = outputDir.appendingPathComponent("\(locale).yaml")
-            let yaml = keys
-                .sorted()
-                .map { key in "\"\(key)\": \"\(key)\"" }
-                .joined(separator: "\n")
-            try yaml.write(to: outputFile, atomically: true, encoding: .utf8)
-            return (keys.count, outputFile.path)
+            try extractor.extract(from: URL(fileURLWithPath: source))
         }
 
-        ui.success(.alert("Extracted \(count) key(s) → \(path)"))
+        let outputDir = URL(fileURLWithPath: output)
+        try FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
+
+        let outputFile = outputDir.appendingPathComponent("\(locale).yaml")
+        let yaml = keys
+            .sorted()
+            .map { key in "\"\(key)\": \"\(key)\"" }
+            .joined(separator: "\n")
+        try yaml.write(to: outputFile, atomically: true, encoding: .utf8)
+
+        noora.success(.alert("Extracted \(keys.count) key(s)", takeaways: ["\(outputFile.path)"]))
     }
 }
 
@@ -87,11 +79,11 @@ struct TranslationsValidateCommand: AsyncParsableCommand {
         let validator = TranslationValidator()
         let issues = try validator.validate(in: dir, base: base)
 
-        let ui = Noora()
+        let noora = Noora()
         if issues.isEmpty {
-            ui.success(.alert("All translations are complete"))
+            noora.success(.alert("All translations are complete."))
         } else {
-            ui.warning(issues.map { .alert("\($0)") })
+            noora.warning(issues.map { WarningAlert.alert("\($0)") })
             throw CLIError.translationsMissing(issues.count)
         }
     }
@@ -125,7 +117,7 @@ struct TranslationsGenerateCommand: AsyncParsableCommand {
             withIntermediateDirectories: true
         )
         try swiftCode.write(to: outputURL, atomically: true, encoding: .utf8)
-        Noora().success(.alert("Generated typed accessors → \(output)"))
+        Noora().success(.alert("Generated typed accessors", takeaways: ["\(output)"]))
     }
 }
 

@@ -150,11 +150,12 @@ public enum MarkdownRenderer {
             with: "<code>$1</code>",
             options: .regularExpression
         )
-        // Links [text](url) — only safe URL schemes become anchors; anything
-        // else (javascript:, data:, …) renders as plain text. This is part of
-        // the pre-launch "no customJS/customHTML" guarantee: markdown content
-        // cannot smuggle script execution through link URLs.
-        result = replaceLinks(in: result)
+        // Links [text](url)
+        result = result.replacingOccurrences(
+            of: "\\[(.+?)\\]\\((.+?)\\)",
+            with: "<a href=\"$2\">$1</a>",
+            options: .regularExpression
+        )
         // Strikethrough ~~text~~
         result = result.replacingOccurrences(
             of: "~~(.+?)~~",
@@ -162,47 +163,5 @@ public enum MarkdownRenderer {
             options: .regularExpression
         )
         return result
-    }
-
-    // MARK: - Link safety
-
-    static func replaceLinks(in text: String) -> String {
-        guard let regex = try? NSRegularExpression(pattern: #"\[(.+?)\]\((.+?)\)"#) else {
-            return text
-        }
-        let nsText = text as NSString
-        var out = ""
-        var cursor = 0
-        for match in regex.matches(in: text, range: NSRange(location: 0, length: nsText.length)) {
-            out += nsText.substring(with: NSRange(location: cursor, length: match.range.location - cursor))
-            let label = nsText.substring(with: match.range(at: 1))
-            let url = nsText.substring(with: match.range(at: 2))
-            if isSafeLinkURL(url) {
-                out += "<a href=\"\(url)\">\(label)</a>"
-            } else {
-                out += label
-            }
-            cursor = match.range.location + match.range.length
-        }
-        out += nsText.substring(from: cursor)
-        return out
-    }
-
-    /// Allow relative URLs, fragments, and the http/https/mailto/tel schemes.
-    static func isSafeLinkURL(_ url: String) -> Bool {
-        let lower = url.lowercased().trimmingCharacters(in: .whitespaces)
-        if lower.hasPrefix("/") || lower.hasPrefix("#") || lower.hasPrefix("./") || lower.hasPrefix("../") {
-            return true
-        }
-        for scheme in ["http://", "https://", "mailto:", "tel:"] where lower.hasPrefix(scheme) {
-            return true
-        }
-        // Scheme-less relative URLs ("page.html", "docs/page?q=1") are fine as
-        // long as no scheme delimiter appears before the first path separator.
-        if let colon = lower.firstIndex(of: ":") {
-            if let slash = lower.firstIndex(of: "/"), slash < colon { return true }
-            return false
-        }
-        return true
     }
 }

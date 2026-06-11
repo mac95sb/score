@@ -16,10 +16,17 @@ import ScoreRouter
 public struct PageRenderer: Sendable {
     public let theme: SiteTheme
     public let siteMetadata: SiteMetadata
+    /// Inline `<script>` tags injected into every rendered page (e.g. dev hot-reload JS).
+    public let defaultInlineScripts: [String]
 
-    public init(theme: SiteTheme = .default, siteMetadata: SiteMetadata) {
+    public init(
+        theme: SiteTheme = .default,
+        siteMetadata: SiteMetadata,
+        defaultInlineScripts: [String] = []
+    ) {
         self.theme = theme
         self.siteMetadata = siteMetadata
+        self.defaultInlineScripts = defaultInlineScripts
     }
 
     // MARK: - Full page render
@@ -36,7 +43,8 @@ public struct PageRenderer: Sendable {
         _ page: P,
         cssLinks: [String] = [],
         scriptSrcs: [String] = [],
-        inlineCSS: String = ""
+        inlineCSS: String = "",
+        inlineScripts: [String] = []
     ) throws -> String {
         // 1. Render the view body to HTML
         var ctx = RenderContext()
@@ -59,13 +67,6 @@ public struct PageRenderer: Sendable {
             headParts.append("<style>\(themeCSS)</style>")
         }
 
-        // Component default styles (opt-in via theme.components). Emitted before
-        // the collected per-component CSS so user styles win the cascade.
-        let componentCSS = theme.components.css()
-        if !componentCSS.isEmpty {
-            headParts.append("<style>\(componentCSS)</style>")
-        }
-
         // Inline collected CSS
         if !inlineCSS.isEmpty {
             headParts.append("<style>\(inlineCSS)</style>")
@@ -79,6 +80,11 @@ public struct PageRenderer: Sendable {
         // Script modules
         for src in scriptSrcs {
             headParts.append("<script type=\"module\" src=\"\(attributeEscape(src))\"></script>")
+        }
+
+        // Inline scripts (e.g. dev hot-reload)
+        for script in (defaultInlineScripts + inlineScripts) {
+            headParts.append("<script>\(script)</script>")
         }
 
         let headHTML = headParts.joined()

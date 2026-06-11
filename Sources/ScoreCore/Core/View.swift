@@ -2,9 +2,9 @@ import Foundation
 
 /// The fundamental building block of Score's view hierarchy.
 ///
-/// Conform types to `View` to describe web content and layout using Swift.
-/// Score renders the view tree to HTML, CSS, and JavaScript — nothing Swift
-/// runs in the browser.
+/// Conform any struct to `View` to create a reusable component. Score renders
+/// the view tree to HTML, CSS, and JavaScript at build time (static) or
+/// request time (server-rendered). Nothing Swift runs in the browser.
 ///
 /// ```swift
 /// struct ArticleCard: View {
@@ -16,9 +16,42 @@ import Foundation
 ///         }
 ///         .padding(6)
 ///         .border(radius: .lg)
+///         .on(.hover) { $0.shadow(.md).translate(y: .px(-2)) }
 ///     }
 /// }
 /// ```
+///
+/// ## Conforming to View
+///
+/// Declare a `body` property that returns `some View`:
+///
+/// ```swift
+/// struct MyComponent: View {
+///     let title: String
+///     var body: some View {
+///         Heading(2) { title }.font(weight: .semibold)
+///     }
+/// }
+/// ```
+///
+/// ## String Literals as Views
+///
+/// `String` conforms to `View` — pass string literals directly inside any
+/// ``ViewBuilder`` closure without a wrapping element:
+///
+/// ```swift
+/// Heading(1) { "Hello World" }
+/// Text { "Welcome, \(user.name)" }
+/// ```
+///
+/// ## CSS Scoping
+///
+/// Score derives a CSS class from the Swift type name using kebab-case.
+/// `ArticleCard` → `.article-card`. Every modifier call on the view nests
+/// inside that class block in the generated CSS. Child components (separate
+/// `View` structs) are their own scope.
+///
+/// - SeeAlso: ``Page``, ``ViewModifier``, ``ModifiedContent``
 public protocol View: Sendable {
     associatedtype Body: View
     @ViewBuilder var body: Body { get }
