@@ -62,7 +62,7 @@ paragraph: { v in v.erased().font(leading: .relaxed) }
 
 | View | HTML | Notes |
 |------|------|-------|
-| `Text { … }` | `<p>` or `<span>` | Pass `inline: true` for `<span>` |
+| `Text { … }` | `<p>` or `<span>` | Renders `<p>` for block/paragraph content, `<span>` for inline runs. Infers the correct tag from grammatical context automatically; override with `inline: true` / `inline: false`. |
 | `Heading(_ level: Int) { … }` | `<h1>`…`<h6>` | level 1–6 |
 | `RichText(markdown: String, theme:?)` | `<div class="rich-text">` | Renders markdown |
 | `Code(_ value: String)` | `<code>` | Inline code |
