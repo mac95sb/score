@@ -335,8 +335,7 @@ struct ProjectScaffolder: Sendable {
                             .margin(top: 2)
                     }
                     .padding(6)
-                    .border(color: .muted.opacity(0.2))
-                    .border(radius: .lg)
+                    .border(color: .muted.opacity(0.2), radius: .lg)
                     .background(color: .surface)
                     .on(.hover) {
                         $0.shadow(.md)
