@@ -150,12 +150,9 @@ public enum MarkdownRenderer {
             with: "<code>$1</code>",
             options: .regularExpression
         )
-        // Links [text](url)
-        result = result.replacingOccurrences(
-            of: "\\[(.+?)\\]\\((.+?)\\)",
-            with: "<a href=\"$2\">$1</a>",
-            options: .regularExpression
-        )
+        // Links [text](url) — the URL lands in an href, so reject dangerous
+        // schemes (javascript:, data:, vbscript:) to prevent XSS on click.
+        result = replaceLinks(in: result)
         // Strikethrough ~~text~~
         result = result.replacingOccurrences(
             of: "~~(.+?)~~",
@@ -163,5 +160,50 @@ public enum MarkdownRenderer {
             options: .regularExpression
         )
         return result
+    }
+
+    /// Replace `[text](url)` with anchors. URLs whose scheme is not on the safe
+    /// allowlist are rendered as plain text instead of links, so a
+    /// `javascript:`/`data:`/`vbscript:` payload can never reach an `href`.
+    /// Operates on already-HTML-escaped text.
+    static func replaceLinks(in input: String) -> String {
+        guard let regex = try? NSRegularExpression(pattern: "\\[(.+?)\\]\\((.+?)\\)") else {
+            return input
+        }
+        let ns = input as NSString
+        var output = ""
+        var lastEnd = 0
+        for match in regex.matches(in: input, range: NSRange(location: 0, length: ns.length)) {
+            output += ns.substring(with: NSRange(location: lastEnd, length: match.range.location - lastEnd))
+            let text = ns.substring(with: match.range(at: 1))
+            let url = ns.substring(with: match.range(at: 2))
+            if isSafeLinkURL(url) {
+                output += "<a href=\"\(url)\">\(text)</a>"
+            } else {
+                output += text
+            }
+            lastEnd = match.range.location + match.range.length
+        }
+        output += ns.substring(from: lastEnd)
+        return output
+    }
+
+    /// Whether `url` is safe to place in an `href`: either a relative reference
+    /// (no scheme) or one using an allow-listed, non-script scheme. Accepts both
+    /// raw and HTML-escaped input — only the scheme is inspected.
+    public static func isSafeLinkURL(_ url: String) -> Bool {
+        let trimmed = url.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let colon = trimmed.firstIndex(of: ":") else {
+            // No colon → relative URL / anchor / query — always safe.
+            return true
+        }
+        let scheme = trimmed[trimmed.startIndex..<colon]
+        // A "scheme" containing /, ?, or # is really a path segment (e.g.
+        // "foo/bar:baz"), so the reference is relative and safe.
+        if scheme.contains("/") || scheme.contains("?") || scheme.contains("#") {
+            return true
+        }
+        let allowed: Set<String> = ["http", "https", "mailto", "tel"]
+        return allowed.contains(scheme.lowercased())
     }
 }

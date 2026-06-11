@@ -39,15 +39,16 @@ public actor SQLiteConnection {
     /// needs to be reflected at the SQL level.  Indexed on `id`,
     /// `created_at`, and `updated_at` for common query patterns.
     public func createTable<R: Record>(for type: R.Type) async throws {
+        let table = R.quotedTableName
         let sql = """
-        CREATE TABLE IF NOT EXISTS \(R.tableName) (
+        CREATE TABLE IF NOT EXISTS \(table) (
             id         TEXT PRIMARY KEY NOT NULL,
             created_at TEXT NOT NULL DEFAULT (datetime('now')),
             updated_at TEXT NOT NULL DEFAULT (datetime('now')),
             data       TEXT NOT NULL
         );
-        CREATE INDEX IF NOT EXISTS idx_\(R.tableName)_created_at ON \(R.tableName)(created_at);
-        CREATE INDEX IF NOT EXISTS idx_\(R.tableName)_updated_at ON \(R.tableName)(updated_at);
+        CREATE INDEX IF NOT EXISTS \(R.quotedIndexName("created_at")) ON \(table)(created_at);
+        CREATE INDEX IF NOT EXISTS \(R.quotedIndexName("updated_at")) ON \(table)(updated_at);
         """
         // sqlite3_exec can run multiple statements
         guard let db = db else { throw SQLiteError.notConnected }
@@ -68,7 +69,7 @@ public actor SQLiteConnection {
             throw SQLiteError.encodingFailed("UTF-8 conversion failed for \(R.tableName)")
         }
         let sql = """
-        INSERT OR REPLACE INTO \(R.tableName) (id, created_at, updated_at, data)
+        INSERT OR REPLACE INTO \(R.quotedTableName) (id, created_at, updated_at, data)
         VALUES (?, ?, ?, ?)
         """
         let params: [SQLValue] = [
@@ -89,7 +90,7 @@ public actor SQLiteConnection {
             throw SQLiteError.encodingFailed("UTF-8 conversion failed for \(R.tableName)")
         }
         let sql = """
-        UPDATE \(R.tableName)
+        UPDATE \(R.quotedTableName)
         SET updated_at = ?, data = ?
         WHERE id = ?
         """
@@ -104,7 +105,7 @@ public actor SQLiteConnection {
     /// Delete a record by type and UUID.
     public func delete<R: Record>(_ type: R.Type, id: UUID) async throws {
         _ = try await _execute(
-            "DELETE FROM \(R.tableName) WHERE id = ?",
+            "DELETE FROM \(R.quotedTableName) WHERE id = ?",
             parameters: [id.uuidString]
         )
     }

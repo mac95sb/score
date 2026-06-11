@@ -23,6 +23,7 @@ struct NewCommand: AsyncParsableCommand {
 
     mutating func run() async throws {
         let noora = Noora()
+        try validateName(name)
         let projectDir = URL(fileURLWithPath: name)
 
         guard !FileManager.default.fileExists(atPath: projectDir.path) else {

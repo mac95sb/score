@@ -32,6 +32,13 @@ struct ResponseTests {
         #expect(r.status.rawValue == 301)
     }
 
+    @Test("redirect with CRLF in location is rejected (no response splitting)")
+    func redirectRejectsCRLF() throws {
+        let r = Response.redirect(to: "/ok\r\nSet-Cookie: admin=true")
+        #expect(r.status == .badRequest)
+        #expect(r.headers["Location"] == nil)
+    }
+
     @Test("notFound response has status .notFound")
     func notFoundStatus() throws {
         let r = Response.notFound()

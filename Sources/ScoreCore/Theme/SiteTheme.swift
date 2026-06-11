@@ -71,9 +71,11 @@ public struct SiteTheme: Sendable {
         out += "--radius-xl:\(radii.xl.cssStr)px;"
         out += "--radius-2xl:\(radii.twoXL.cssStr)px;"
         out += "--radius-full:\(radii.full.cssStr)px;"
-        // Custom tokens
+        // Custom tokens — names and values are sanitised so a token can only
+        // ever express a single custom-property declaration and never break out
+        // of the `:root{}` block (part of the "no customCSS" guarantee).
         for token in tokens {
-            out += "\(token.name):\(token.value);"
+            out += "\(cssPropertySanitize(token.name)):\(cssValueSanitize(token.value));"
         }
         out += "}"
 
@@ -100,9 +102,10 @@ public struct SiteTheme: Sendable {
             out += "--color-destructive:\(dark.destructive.cssValue);}"
         }
 
-        // Custom named themes
+        // Custom named themes — the theme name lands in a CSS selector, so
+        // restrict it to identifier characters to prevent selector breakout.
         for (themeName, themeColors) in customThemes {
-            out += "[data-theme=\"\(themeName)\"]{--color-primary:\(themeColors.primary.cssValue);"
+            out += "[data-theme=\"\(cssIdentifierSanitize(themeName))\"]{--color-primary:\(themeColors.primary.cssValue);"
             out += "--color-accent:\(themeColors.accent.cssValue);"
             out += "--color-surface:\(themeColors.surface.cssValue);"
             out += "--color-secondary:\(themeColors.secondary.cssValue);"
