@@ -76,9 +76,10 @@ public struct SiteTheme: Sendable {
         out += "--radius-xl:\(radii.xl.cssStr)px;"
         out += "--radius-2xl:\(radii.twoXL.cssStr)px;"
         out += "--radius-full:\(radii.full.cssStr)px;"
-        // Custom tokens
+        // Custom tokens — sanitised so a token can only ever contribute a
+        // single declaration (no raw-CSS escape hatch pre-launch).
         for token in tokens {
-            out += "\(token.name):\(token.value);"
+            out += "\(cssPropertySanitize(token.name)):\(cssValueSanitize(token.value));"
         }
         out += "}"
 

@@ -42,3 +42,16 @@ and the structured `overrides` dictionaries; behaviour through Score's element
 and state APIs. If a task seems to require one of these escape hatches, treat
 it as a framework gap: extend the structured API instead, or flag it — do not
 add a raw passthrough.
+
+Two invariants enforce this in code — preserve them:
+
+- Theme strings (token values, override values, colour/padding knobs) pass
+  through `cssValueSanitize`/`cssPropertySanitize` so a value can never escape
+  its CSS declaration (`{`, `}`, `;` are stripped). Route any new raw-string
+  CSS emission through these helpers.
+- Markdown link URLs go through `RichText.isSafeLinkURL` (http/https/mailto/
+  tel/relative only); `javascript:`/`data:` URLs render as plain text. All
+  other HTML output is escaped via `htmlEscape`/`attributeEscape`.
+
+Component-theme CSS must stay zero-specificity (`:where()` selectors) so
+per-usage modifiers always win over theme defaults.
