@@ -16,6 +16,9 @@ public struct SiteTheme: Sendable {
     public var darkColors: ThemeColors?
     public var customThemes: [String: ThemeColors]
     public var tokens: [ThemeToken]
+    /// Opt-in default styles for built-in components (buttons, links, dialogs, …).
+    /// Defaults to ``ComponentTheme/none`` — no component CSS is emitted.
+    public var components: ComponentTheme
 
     public static let `default` = SiteTheme()
 
@@ -29,7 +32,8 @@ public struct SiteTheme: Sendable {
         syntaxTheme: any SyntaxTheme = ScoreDarkSyntaxTheme(),
         darkColors: ThemeColors? = nil,
         customThemes: [String: ThemeColors] = [:],
-        tokens: [ThemeToken] = []
+        tokens: [ThemeToken] = [],
+        components: ComponentTheme = .none
     ) {
         self.colors       = colors
         self.fonts        = fonts
@@ -41,6 +45,7 @@ public struct SiteTheme: Sendable {
         self.darkColors   = darkColors
         self.customThemes = customThemes
         self.tokens       = tokens
+        self.components   = components
     }
 
     // MARK: - CSS variable emission
