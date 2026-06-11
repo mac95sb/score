@@ -132,6 +132,13 @@ final class ScoreHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
 
     private var requestHead: HTTPRequestHead?
     private var bodyBuffer: ByteBuffer?
+    private var bodyBytesReceived: Int = 0
+    private var bodyTooLarge = false
+
+    /// Maximum accepted request body size (16 MB). Bodies larger than this are
+    /// rejected with 413 instead of being buffered, preventing a single client
+    /// from exhausting server memory.
+    private let maxBodySize = 16 * 1024 * 1024
 
     init(
         handler: @escaping @Sendable (Request) async throws -> Response,
@@ -152,12 +159,27 @@ final class ScoreHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
         case .head(let head):
             requestHead = head
             bodyBuffer = context.channel.allocator.buffer(capacity: 256)
+            bodyBytesReceived = 0
+            bodyTooLarge = false
 
         case .body(var buf):
+            bodyBytesReceived += buf.readableBytes
+            if bodyBytesReceived > maxBodySize {
+                bodyTooLarge = true
+                bodyBuffer = nil  // drop what we've buffered so far
+                return
+            }
             bodyBuffer?.writeBuffer(&buf)
 
         case .end:
             guard let head = requestHead else { return }
+            if bodyTooLarge {
+                requestHead = nil
+                bodyBuffer = nil
+                let tooLarge = Response(status: .payloadTooLarge, body: .text("Payload Too Large"))
+                writeResponse(tooLarge, to: context)
+                return
+            }
             let bodyBytes = bodyBuffer.map { Array($0.readableBytesView) } ?? []
             let request = buildRequest(from: head, bodyBytes: bodyBytes)
             requestHead = nil
@@ -177,10 +199,8 @@ final class ScoreHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
 
             Task {
                 if let staticDir, head.method == .GET {
-                    let urlPath = request.uri.path
-                    let rel = urlPath == "/" ? "index.html" : String(urlPath.drop(while: { $0 == "/" }))
-                    let fileURL = URL(fileURLWithPath: staticDir).appendingPathComponent(rel)
-                    if let staticResponse = httpHandler.serveStaticFile(at: fileURL) {
+                    if let fileURL = httpHandler.resolveStaticFile(path: request.uri.path, in: staticDir),
+                       let staticResponse = httpHandler.serveStaticFile(at: fileURL) {
                         eventLoop.execute { httpHandler.writeResponse(staticResponse, to: context) }
                         return
                     }
@@ -249,6 +269,13 @@ final class ScoreHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
         headers.add(name: "Content-Length", value: "\(bodyData.count)")
         headers.add(name: "Server", value: "Score")
         for (name, value) in response.headers {
+            // Defend against HTTP response splitting / header injection: a CR or
+            // LF in an attacker-influenced header name or value (e.g. a redirect
+            // `Location`) could inject extra headers or a second response.
+            guard !containsControlCharacters(name), !containsControlCharacters(value) else {
+                logger.warning("Dropping response header with control characters: \(name)")
+                continue
+            }
             headers.add(name: name, value: value)
         }
 
@@ -269,10 +296,45 @@ final class ScoreHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
         context.writeAndFlush(wrapOutboundOut(.end(nil)), promise: nil)
     }
 
+    /// Resolve a request path to a file inside `staticDir`, rejecting any path
+    /// that escapes the root via `..`, absolute paths, or symlinks.
+    ///
+    /// `URI.path` is already percent-decoded by `URLComponents`, so encoded
+    /// traversal sequences such as `%2e%2e%2f` arrive here as literal `../`.
+    /// We canonicalise both the requested path and the root and require the
+    /// resolved file to remain within the root directory.
+    func resolveStaticFile(path: String, in staticDir: String) -> URL? {
+        let rel = path == "/" ? "index.html" : String(path.drop(while: { $0 == "/" }))
+
+        // Reject obvious traversal/absolute markers before touching the filesystem.
+        guard !rel.isEmpty, !rel.hasPrefix("/"), rel != ".." else { return nil }
+        for component in rel.split(separator: "/") where component == ".." {
+            return nil
+        }
+
+        let rootURL = URL(fileURLWithPath: staticDir).standardizedFileURL.resolvingSymlinksInPath()
+        let candidate = rootURL.appendingPathComponent(rel).standardizedFileURL.resolvingSymlinksInPath()
+
+        // Final containment check: the resolved path must live under the root.
+        let rootPath = rootURL.path.hasSuffix("/") ? rootURL.path : rootURL.path + "/"
+        guard candidate.path == rootURL.path || candidate.path.hasPrefix(rootPath) else { return nil }
+        return candidate
+    }
+
     private func serveStaticFile(at url: URL) -> Response? {
-        guard FileManager.default.isReadableFile(atPath: url.path),
+        // Only serve regular files; never directories or special files.
+        var isDirectory: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory),
+              !isDirectory.boolValue,
+              FileManager.default.isReadableFile(atPath: url.path),
               let data = try? Data(contentsOf: url) else { return nil }
         return Response(status: .ok, body: .data(data, contentType: mimeType(for: url.pathExtension)))
+    }
+
+    /// True if the string contains CR, LF, or NUL — the characters used to
+    /// smuggle extra HTTP headers or split a response.
+    private func containsControlCharacters(_ s: String) -> Bool {
+        s.utf8.contains { $0 == 0x0D || $0 == 0x0A || $0 == 0x00 }
     }
 
     private func mimeType(for ext: String) -> String {

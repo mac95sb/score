@@ -48,8 +48,14 @@ public struct Response: Sendable {
     }
 
     /// Redirect response (302 Found by default, 301 Moved Permanently when `permanent: true`).
+    ///
+    /// A `location` containing CR/LF/NUL is rejected with 400 to prevent HTTP
+    /// response splitting when the target is derived from user input.
     public static func redirect(to location: String, permanent: Bool = false) -> Response {
-        Response(
+        guard !location.utf8.contains(where: { $0 == 0x0D || $0 == 0x0A || $0 == 0x00 }) else {
+            return Response(status: .badRequest, body: .text("Invalid redirect location"))
+        }
+        return Response(
             status: permanent ? .movedPermanently : .found,
             headers: ["Location": location]
         )

@@ -35,6 +35,20 @@ struct RecordTests {
         #expect(Article.tableName == "articles")
     }
 
+    @Test("quotedTableName wraps and escapes the identifier")
+    func quotedTableName() {
+        #expect(Article.quotedTableName == "\"articles\"")
+    }
+
+    @Test("jsonExtractPath escapes the key against SQL/JSON-path injection")
+    func jsonPathEscaping() {
+        // Normal key is double-quoted as a literal JSON object label.
+        #expect(jsonExtractPath(forKey: "title") == "'$.\"title\"'")
+        // A single quote is doubled so it stays inside the SQL string literal
+        // instead of terminating it.
+        #expect(jsonExtractPath(forKey: "a'b") == "'$.\"a''b\"'")
+    }
+
     @Test("Record generates unique ids on init")
     func uniqueIDs() {
         let a = Article(title: "A")

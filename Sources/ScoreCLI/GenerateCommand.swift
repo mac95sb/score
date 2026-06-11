@@ -32,6 +32,7 @@ struct GenerateCommand: AsyncParsableCommand {
     var force: Bool = false
 
     mutating func run() async throws {
+        try validateName(name)
         let generator = CodeGenerator()
         let source = generator.generate(type: type, name: name)
         let filename = generator.filename(for: type, name: name)
