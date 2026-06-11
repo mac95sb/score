@@ -53,8 +53,8 @@ struct WebViewPackageOptions: ParsableArguments {
     @Option(name: .long, help: "Initial window height (desktop platforms).")
     var height: Int = 768
 
-    @Option(name: .long, help: "Container CLI for generated container builds (docker, container, podman).")
-    var containerTool: String = "docker"
+    @Option(name: .long, help: "Container CLI for generated container builds (container, docker, podman).")
+    var containerTool: String = "container"
 
     func makeConfig() throws -> PackagingConfig {
         let appName = name

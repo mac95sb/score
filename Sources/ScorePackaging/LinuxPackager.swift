@@ -32,8 +32,8 @@ public struct LinuxPackager: WebViewPackager {
           ./\(binary)
 
         Or build in a container (no local GTK toolchain needed):
-          make container-build                       # uses \(config.containerTool)
-          make container-build CONTAINER=container   # apple/container
+          make container-build                    # uses \(config.containerTool)
+          make container-build CONTAINER=docker   # or podman
         Artifacts land in dist/.
         """
         try writer.write(readme(config: config, nextSteps: nextSteps), to: "README.md")
@@ -181,8 +181,8 @@ public struct LinuxPackager: WebViewPackager {
         `make container-build` compiles the shell inside an Ubuntu 24.04 image
         with the GTK 4/WebKitGTK toolchain preinstalled and copies the binary
         (plus `www/` when bundling a static export) to `dist/`. The `CONTAINER`
-        variable selects the tool — `docker` (default), `container`
-        (apple/container), or `podman` all work, as they share the same
+        variable selects the tool — `container` (apple/container, the
+        default), `docker`, or `podman` all work, as they share the same
         `build`/`run` CLI for the operations used here. The binary links
         against the image's glibc/GTK, so run it on a comparable distribution
         (Ubuntu 24.04+).

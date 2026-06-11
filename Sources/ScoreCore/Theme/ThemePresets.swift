@@ -26,18 +26,22 @@ public struct ThemePalette: Sendable {
     ///
     /// The light palette uses the 600/500 weights on a white surface with
     /// neutral greys; the dark palette lifts the hues to 400 weights on a
-    /// near-black neutral surface.
+    /// near-black neutral surface. Pass a `tint` scale to wash the secondary
+    /// and tertiary surfaces with a hue instead of plain grey — this is what
+    /// gives the thematic palettes their multi-colour character.
     public init(
         primary: (Int) -> Color,
         accent: (Int) -> Color,
+        tint: ((Int) -> Color)? = nil,
         neutral: (Int) -> Color = Color.slate
     ) {
+        let surfaceTint = tint ?? neutral
         self.light = ThemeColors(
             primary:     primary(600),
             accent:      accent(500),
             surface:     .white,
-            secondary:   neutral(100),
-            tertiary:    neutral(50),
+            secondary:   surfaceTint(100),
+            tertiary:    surfaceTint(50),
             text:        neutral(900),
             muted:       neutral(500),
             destructive: .rose(600)
@@ -46,7 +50,7 @@ public struct ThemePalette: Sendable {
             primary:     primary(400),
             accent:      accent(400),
             surface:     neutral(950),
-            secondary:   neutral(800),
+            secondary:   surfaceTint(900),
             tertiary:    neutral(900),
             text:        neutral(100),
             muted:       neutral(400),
@@ -70,6 +74,41 @@ public struct ThemePalette: Sendable {
     public static let rose = ThemePalette(primary: Color.rose, accent: Color.amber)
     /// Near-monochrome: slate primary with a restrained blue accent.
     public static let mono = ThemePalette(primary: Color.slate, accent: Color.blue)
+
+    // MARK: - Thematic palettes
+    //
+    // Named after a mood rather than a hue, these combine multiple scales:
+    // distinct primary and accent hues plus a tinted surface wash, and warm
+    // (stone) or cool (slate/zinc) neutrals to match.
+
+    /// Deep blue primary, teal accent, sky-washed surfaces on cool greys.
+    public static let ocean = ThemePalette(
+        primary: Color.blue, accent: Color.teal, tint: Color.sky
+    )
+    /// Emerald primary, amber accent, green-washed surfaces on warm stone.
+    public static let forest = ThemePalette(
+        primary: Color.emerald, accent: Color.amber, tint: Color.emerald, neutral: Color.stone
+    )
+    /// Orange primary, rose accent, amber-washed surfaces on warm stone.
+    public static let sunset = ThemePalette(
+        primary: Color.orange, accent: Color.rose, tint: Color.amber, neutral: Color.stone
+    )
+    /// Indigo primary, violet accent, indigo-washed surfaces on cool slate.
+    public static let midnight = ThemePalette(
+        primary: Color.indigo, accent: Color.violet, tint: Color.indigo
+    )
+    /// Fuchsia primary, pink accent, pink-washed surfaces on neutral zinc.
+    public static let berry = ThemePalette(
+        primary: Color.fuchsia, accent: Color.pink, tint: Color.pink, neutral: Color.zinc
+    )
+    /// Red primary, orange accent, orange-washed surfaces on warm stone.
+    public static let ember = ThemePalette(
+        primary: Color.red, accent: Color.orange, tint: Color.orange, neutral: Color.stone
+    )
+    /// Lime primary, amber accent, lime-washed surfaces on warm stone.
+    public static let citrus = ThemePalette(
+        primary: Color.lime, accent: Color.amber, tint: Color.lime, neutral: Color.stone
+    )
 }
 
 // MARK: - ThemePreset

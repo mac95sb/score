@@ -20,6 +20,32 @@ struct ThemePaletteTests {
         #expect(palette.light.secondary.cssValue == Color.zinc(100).cssValue)
         #expect(palette.dark.accent.cssValue == Color.lime(400).cssValue)
     }
+
+    @Test("thematic palettes wash surfaces with a tint hue")
+    func thematicTint() {
+        let ocean = ThemePalette.ocean
+        #expect(ocean.light.primary.cssValue == Color.blue(600).cssValue)
+        #expect(ocean.light.accent.cssValue == Color.teal(500).cssValue)
+        #expect(ocean.light.secondary.cssValue == Color.sky(100).cssValue)
+        #expect(ocean.light.tertiary.cssValue == Color.sky(50).cssValue)
+        #expect(ocean.dark.secondary.cssValue == Color.sky(900).cssValue)
+    }
+
+    @Test("warm thematic palettes use stone neutrals")
+    func warmNeutrals() {
+        let sunset = ThemePalette.sunset
+        #expect(sunset.light.text.cssValue == Color.stone(900).cssValue)
+        #expect(sunset.light.secondary.cssValue == Color.amber(100).cssValue)
+        #expect(sunset.dark.surface.cssValue == Color.stone(950).cssValue)
+    }
+
+    @Test("thematic palettes compose with presets")
+    func thematicWithPreset() {
+        let theme = SiteTheme.preset(.soft, palette: .berry)
+        #expect(theme.colors.primary.cssValue == Color.fuchsia(600).cssValue)
+        #expect(theme.darkColors?.secondary.cssValue == Color.pink(900).cssValue)
+        #expect(theme.components.button?.radius == .full)
+    }
 }
 
 @Suite("ThemePreset")

@@ -46,7 +46,7 @@ struct WebViewPackagerTests {
         #expect(containerfile.contains("EnableWindowsTargeting=true"))
 
         let makefile = try contents(of: "Makefile", in: output)
-        #expect(makefile.contains("CONTAINER ?= docker"))
+        #expect(makefile.contains("CONTAINER ?= container"))
         #expect(makefile.contains("container-build:"))
     }
 
@@ -147,10 +147,10 @@ struct WebViewPackagerTests {
         let config = try PackagingConfig(
             appName: "Demo App",
             source: .remote(url: "https://demo.example.com"),
-            containerTool: "container"
+            containerTool: "docker"
         )
         _ = try LinuxPackager().package(config: config, into: output)
         let makefile = try contents(of: "Makefile", in: output)
-        #expect(makefile.contains("CONTAINER ?= container"))
+        #expect(makefile.contains("CONTAINER ?= docker"))
     }
 }

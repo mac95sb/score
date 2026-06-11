@@ -123,10 +123,13 @@ var theme: SiteTheme { .preset(.minimal, palette: .mono) }
 var theme: SiteTheme { .preset(.soft, palette: .rose) }
 ```
 
-Palettes: `.violet` (default), `.indigo`, `.blue`, `.emerald`, `.teal`,
-`.rose`, `.mono` — or build your own from any scales:
-`ThemePalette(primary: Color.purple, accent: Color.lime)`. Every palette
-includes a matching dark variant, applied automatically.
+Hue palettes: `.violet` (default), `.indigo`, `.blue`, `.emerald`, `.teal`,
+`.rose`, `.mono`. Thematic palettes combine multiple scales — distinct
+primary/accent hues, a colour-washed surface tint, and warm or cool neutrals:
+`.ocean`, `.forest`, `.sunset`, `.midnight`, `.berry`, `.ember`, `.citrus`.
+Or build your own:
+`ThemePalette(primary: Color.purple, accent: Color.lime, tint: Color.pink)`.
+Every palette includes a matching dark variant, applied automatically.
 
 Presets: `.minimal` (hairline shadows, quiet components), `.modern` (soft
 layered shadows, generous radii, blurred dialog backdrops), `.soft`
@@ -145,8 +148,9 @@ score package swiftui    # Records + typed API client as a library target in thi
 
 WebView shells bundle your static export (`score build`) or point at a
 deployed URL (`--url`). Windows and Linux projects include a `Containerfile`
-and `make container-build`, which works with `docker`, `container`
-(apple/container), or `podman` (`--container-tool` sets the default).
+and `make container-build`, which defaults to `container` (apple/container)
+and also works with `docker` or `podman` (`--container-tool` sets the
+default; `CONTAINER=<tool>` overrides per invocation).
 
 The SwiftUI export generates a library target **inside your app's package**
 and regenerates on every `score dev` / `score build`, so native clients can
