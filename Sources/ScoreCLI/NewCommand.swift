@@ -242,7 +242,7 @@ struct ProjectScaffolder: Sendable {
     private func writeMakefile(to dir: URL, name: String) throws {
         let makefile = """
         # Common tasks for \(name). Run `make help` for a summary.
-        CONTAINER ?= docker
+        CONTAINER ?= container
 
         dev: ## Start the dev server with hot-reload
         \tscore dev

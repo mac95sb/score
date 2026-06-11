@@ -35,8 +35,8 @@ public struct WindowsPackager: WebViewPackager {
           dotnet run
 
         Or cross-compile from any host with a container tool:
-          make container-build                       # uses \(config.containerTool)
-          make container-build CONTAINER=container   # apple/container
+          make container-build                    # uses \(config.containerTool)
+          make container-build CONTAINER=docker   # or podman
         Artifacts land in dist/.
         """
         try writer.write(readme(config: config, nextSteps: nextSteps), to: "README.md")
@@ -196,8 +196,8 @@ public struct WindowsPackager: WebViewPackager {
 
         `make container-build` builds the app inside the official .NET 8 SDK
         image and copies the self-contained `win-x64` output to `dist/`. The
-        `CONTAINER` variable selects the tool — `docker` (default), `container`
-        (apple/container), or `podman` all work, as they share the same
+        `CONTAINER` variable selects the tool — `container` (apple/container,
+        the default), `docker`, or `podman` all work, as they share the same
         `build`/`run` CLI for the operations used here. The resulting
         executable requires Windows with the WebView2 Evergreen Runtime.
 
