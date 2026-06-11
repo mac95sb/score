@@ -41,12 +41,21 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-openapi-runtime.git", from: "1.0.0"),
     ],
     targets: [
-        // MARK: - System library (SQLite3)
-        // On macOS the SDK ships sqlite3 natively; no brew install needed.
-        // On Linux install libsqlite3-dev via apt.
-        .systemLibrary(
+        // MARK: - Embedded SQLite amalgamation
+        // Self-contained C target — no system sqlite3 dependency required.
+        // To update: replace Sources/CSQLite/sqlite3.c and Sources/CSQLite/include/sqlite3.h
+        // with the latest amalgamation from https://sqlite.org/download.html (or `make update-sqlite`).
+        .target(
             name: "CSQLite",
-            providers: [.apt(["libsqlite3-dev"])]
+            path: "Sources/CSQLite",
+            sources: ["sqlite3.c"],
+            publicHeadersPath: "include",
+            cSettings: [
+                .define("SQLITE_THREADSAFE", to: "2"),
+                .define("SQLITE_ENABLE_FTS5"),
+                .define("SQLITE_ENABLE_JSON1"),
+                .define("SQLITE_ENABLE_RTREE"),
+            ]
         ),
 
         // MARK: - ScoreCore
