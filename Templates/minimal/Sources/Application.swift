@@ -23,11 +23,9 @@ struct WelcomePage: Page {
         Main {
             Section {
                 Heading(1) { "Hello from __NAME__" }
-                    .font(size: .fourXL)
-                    .font(weight: .bold)
+                    .font(size: .fourXL, weight: .bold)
                 Text { "Edit Sources/Application.swift to get started." }
-                    .font(size: .lg)
-                    .font(color: .muted)
+                    .font(size: .lg, color: .muted)
                     .margin(top: 4)
             }
             .frame(maxWidth: .px(720))

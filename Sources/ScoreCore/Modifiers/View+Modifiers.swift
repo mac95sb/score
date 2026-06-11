@@ -418,7 +418,42 @@ extension View {
         modifier(FontModifier(smoothing: smoothing))
     }
 
-    // MARK: Animation
+    /// Set multiple typography properties in one call.
+    ///
+    /// Use this overload when you need two or more font properties at once.
+    /// Single-property calls (e.g. `.font(size: .lg)`) resolve to the more
+    /// specific single-parameter overloads above.
+    ///
+    /// ```swift
+    /// Heading(1) { "Title" }
+    ///     .font(size: .fourXL, weight: .bold, wrap: .balance)
+    /// Text { "Subtitle" }
+    ///     .font(size: .xl, color: .muted)
+    /// ```
+    public func font(
+        size: FontSize? = nil,
+        weight: FontWeight? = nil,
+        color: Color? = nil,
+        family: FontFamily? = nil,
+        style: FontStyle? = nil,
+        align: TextAlign? = nil,
+        leading: LineHeight? = nil,
+        tracking: LetterSpacing? = nil,
+        wrap: TextWrap? = nil,
+        decoration: TextDecoration? = nil,
+        transform: TextTransform? = nil,
+        smoothing: FontSmoothing? = nil,
+        on condition: ModifierCondition? = nil
+    ) -> ModifiedContent<Self, FontModifier> {
+        modifier(FontModifier(
+            size: size, weight: weight, family: family, color: color,
+            leading: leading, tracking: tracking, align: align, transform: transform,
+            decoration: decoration, style: style, wrap: wrap, smoothing: smoothing,
+            condition: condition
+        ))
+    }
+
+
 
     /// Apply a CSS animation.
     public func animate(

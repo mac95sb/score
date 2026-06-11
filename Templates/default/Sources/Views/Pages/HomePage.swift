@@ -12,12 +12,9 @@ struct HomePage: Page {
         Main {
             Section {
                 Heading(1) { "Welcome to __NAME__" }
-                    .font(size: .fourXL)
-                    .font(weight: .bold)
-                    .font(wrap: .balance)
+                    .font(size: .fourXL, weight: .bold, wrap: .balance)
                 Text { "A site built with Score." }
-                    .font(size: .xl)
-                    .font(color: .muted)
+                    .font(size: .xl, color: .muted)
                     .margin(top: 4)
                 Link(to: "/blog") {
                     Button(.primary) { "Read the blog" }

@@ -203,12 +203,9 @@ struct ProjectScaffolder: Sendable {
                 Main {
                     Section {
                         Heading(1) { "Welcome to \(name)" }
-                            .font(size: .fourXL)
-                            .font(weight: .bold)
-                            .font(wrap: .balance)
+                            .font(size: .fourXL, weight: .bold, wrap: .balance)
                         Text { "A site built with Score." }
-                            .font(size: .xl)
-                            .font(color: .muted)
+                            .font(size: .xl, color: .muted)
                             .margin(top: 4)
                         Link(to: "/blog") {
                             Button(.primary) { "Read the blog" }
@@ -238,8 +235,7 @@ struct ProjectScaffolder: Sendable {
                 Main {
                     Section {
                         Heading(1) { "Blog" }
-                            .font(size: .threeXL)
-                            .font(weight: .bold)
+                            .font(size: .threeXL, weight: .bold)
                         VStack {
                             for post in posts {
                                 ArticleCard(post: post)
@@ -278,12 +274,9 @@ struct ProjectScaffolder: Sendable {
                 Main {
                     Article {
                         Heading(1) { post.title }
-                            .font(size: .fourXL)
-                            .font(weight: .bold)
-                            .font(wrap: .balance)
+                            .font(size: .fourXL, weight: .bold, wrap: .balance)
                         Text { post.excerpt }
-                            .font(size: .lg)
-                            .font(color: .muted)
+                            .font(size: .lg, color: .muted)
                             .margin(top: 4)
                         Divider().margin(y: 8)
                         Text { post.body }
@@ -336,11 +329,9 @@ struct ProjectScaffolder: Sendable {
                 Link(to: "/blog/\\(post.slug)") {
                     VStack {
                         Heading(3) { post.title }
-                            .font(size: .xl)
-                            .font(weight: .semibold)
+                            .font(size: .xl, weight: .semibold)
                         Text { post.excerpt }
-                            .font(size: .sm)
-                            .font(color: .muted)
+                            .font(size: .sm, color: .muted)
                             .margin(top: 2)
                     }
                     .padding(6)
@@ -365,14 +356,11 @@ struct ProjectScaffolder: Sendable {
                 Footer {
                     HStack {
                         Text { "© 2026 \(name). Built with " }
-                            .font(size: .sm)
-                            .font(color: .muted)
+                            .font(size: .sm, color: .muted)
                         Link(to: "https://github.com/mac95sb/score") { "Score" }
-                            .font(size: .sm)
-                            .font(color: .primary)
+                            .font(size: .sm, color: .primary)
                         Text { "." }
-                            .font(size: .sm)
-                            .font(color: .muted)
+                            .font(size: .sm, color: .muted)
                     }
                     .flex(justify: .center)
                     .padding(8)
@@ -405,7 +393,7 @@ struct ProjectScaffolder: Sendable {
                     list: { _, v in AnyView(AnyView(v).margin(y: .rem(0.75)).padding(left: 6)) },
                     listItem: { v in AnyView(v) },
                     table: { v in AnyView(AnyView(v).margin(y: .rem(1))) },
-                    link: { v in AnyView(AnyView(v).font(color: .primary).font(decoration: .underline)) },
+                    link: { v in AnyView(AnyView(v).font(color: .primary, decoration: .underline)) },
                     image: { v in AnyView(AnyView(v).border(radius: .lg).margin(y: .rem(1.5))) },
                     divider: { v in AnyView(AnyView(v).margin(y: .rem(2))) },
                     strong: { v in AnyView(AnyView(v).font(weight: .semibold)) },
@@ -493,12 +481,9 @@ struct ProjectScaffolder: Sendable {
                 Main {
                     Section {
                         Heading(1) { "Welcome to \(name)" }
-                            .font(size: .fourXL)
-                            .font(weight: .bold)
-                            .font(wrap: .balance)
+                            .font(size: .fourXL, weight: .bold, wrap: .balance)
                         Text { "A static site built with Score." }
-                            .font(size: .xl)
-                            .font(color: .muted)
+                            .font(size: .xl, color: .muted)
                             .margin(top: 4)
                     }
                     .frame(maxWidth: .px(720))
@@ -522,11 +507,9 @@ struct ProjectScaffolder: Sendable {
                 Main {
                     Section {
                         Heading(1) { "About" }
-                            .font(size: .threeXL)
-                            .font(weight: .bold)
+                            .font(size: .threeXL, weight: .bold)
                         Text { "Learn more about this site." }
-                            .font(size: .lg)
-                            .font(color: .muted)
+                            .font(size: .lg, color: .muted)
                             .margin(top: 4)
                     }
                     .frame(maxWidth: .px(720))
@@ -559,9 +542,7 @@ struct ProjectScaffolder: Sendable {
                 Main {
                     Article {
                         Heading(1) { post.frontmatter.title }
-                            .font(size: .fourXL)
-                            .font(weight: .bold)
-                            .font(wrap: .balance)
+                            .font(size: .fourXL, weight: .bold, wrap: .balance)
                         RichText(markdown: post.content)
                             .margin(top: 8)
                     }
@@ -636,11 +617,9 @@ struct ProjectScaffolder: Sendable {
                 Main {
                     Section {
                         Heading(1) { "Hello from \(name)" }
-                            .font(size: .fourXL)
-                            .font(weight: .bold)
+                            .font(size: .fourXL, weight: .bold)
                         Text { "Edit Sources/Application.swift to get started." }
-                            .font(size: .lg)
-                            .font(color: .muted)
+                            .font(size: .lg, color: .muted)
                             .margin(top: 4)
                     }
                     .frame(maxWidth: .px(720))

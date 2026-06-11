@@ -9,11 +9,9 @@ struct AboutPage: Page {
         Main {
             Section {
                 Heading(1) { "About" }
-                    .font(size: .threeXL)
-                    .font(weight: .bold)
+                    .font(size: .threeXL, weight: .bold)
                 Text { "Learn more about __NAME__." }
-                    .font(size: .lg)
-                    .font(color: .muted)
+                    .font(size: .lg, color: .muted)
                     .margin(top: 4)
             }
             .frame(maxWidth: .px(720))

@@ -19,9 +19,7 @@ struct BlogPostPage: Page {
         Main {
             Article {
                 Heading(1) { post.frontmatter.title }
-                    .font(size: .fourXL)
-                    .font(weight: .bold)
-                    .font(wrap: .balance)
+                    .font(size: .fourXL, weight: .bold, wrap: .balance)
                 RichText(markdown: post.content)
                     .margin(top: 8)
             }

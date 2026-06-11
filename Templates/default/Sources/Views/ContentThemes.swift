@@ -22,7 +22,7 @@ extension ContentTheme {
             },
             listItem: { v in AnyView(v) },
             table: { v in AnyView(AnyView(v).margin(y: .rem(1))) },
-            link: { v in AnyView(AnyView(v).font(color: .primary).font(decoration: .underline)) },
+            link: { v in AnyView(AnyView(v).font(color: .primary, decoration: .underline)) },
             image: { v in AnyView(AnyView(v).border(radius: .lg).margin(y: .rem(1.5))) },
             divider: { v in AnyView(AnyView(v).margin(y: .rem(2))) },
             strong: { v in AnyView(AnyView(v).font(weight: .semibold)) },

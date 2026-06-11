@@ -18,12 +18,9 @@ struct BlogPostPage: Page {
         Main {
             Article {
                 Heading(1) { post.title }
-                    .font(size: .fourXL)
-                    .font(weight: .bold)
-                    .font(wrap: .balance)
+                    .font(size: .fourXL, weight: .bold, wrap: .balance)
                 Text { post.excerpt }
-                    .font(size: .lg)
-                    .font(color: .muted)
+                    .font(size: .lg, color: .muted)
                     .margin(top: 4)
                 Divider()
                     .margin(y: 8)
