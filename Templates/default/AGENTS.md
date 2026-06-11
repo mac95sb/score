@@ -87,7 +87,7 @@ paragraph: { v in v.erased().font(leading: .relaxed) }
 | `HStack { … }` | `<div>` | `flex-direction: row` |
 | `ZStack { … }` | `<div>` | `position: relative` for layering |
 | `Grid(columns:?) { … }` | `<div>` | CSS Grid container |
-| `ScrollView { … }` | `<div>` | Scrollable container |
+| `ScrollView(axis: .both) { … }` | `<div>` | Scrollable. Default axis is `.both`; use `.x` or `.y` to restrict. |
 | `Spacer()` | `<div>` | `flex: 1` fill |
 | `Divider()` | `<hr>` | |
 | `EmptyView()` | — | Renders nothing |

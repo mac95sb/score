@@ -91,11 +91,6 @@ struct MySite: Application {
             radii {
                 sm: 4; md: 8; lg: 12; xl: 16; twoXL: 24
             }
-            shadows {
-                sm: Shadow(y: 1, blur: 2, color: Color(oklch: 0, 0, 0).opacity(0.05))
-                md: "0 4px 6px oklch(0 0 0 / 0.07)"
-                lg: "0 10px 15px oklch(0 0 0 / 0.1)"
-            }
             breakpoints {
                 phone: 480; tablet: 768; desktop: 1024; wide: 1280; ultrawide: 1536
             }
@@ -171,6 +166,79 @@ var theme: SiteTheme {
         Token("--hero-height", "calc(100dvh - 64px)")
     }
 }
+```
+
+## Developer Theme Presets
+
+Score ships colour palettes based on popular editor themes. Use them as
+`darkColors` or `customThemes` entries on ``SiteTheme``:
+
+```swift
+var theme: SiteTheme {
+    SiteTheme(
+        darkColors: .tokyoNight,          // OS-dark-mode variant
+        customThemes: [
+            "rose-pine":    .rosePine,
+            "vesper":       .vesper,
+            "one-dark":     .oneDark,
+            "gruvbox":      .gruvboxDark,
+        ]
+    )
+}
+```
+
+Available presets (all on `ThemeColors`):
+
+| Name | Style |
+|------|-------|
+| `.rosePine` | Warm purple dark |
+| `.rosePineDawn` | Warm purple light |
+| `.tokyoNight` | Cool blue-purple dark |
+| `.tokyoNightStorm` | Slightly lighter Tokyo Night |
+| `.vesper` | Minimal warm-toned dark |
+| `.oneDark` | Atom One Dark — blue-grey |
+| `.gruvboxDark` | Retro warm dark |
+| `.gruvboxLight` | Retro warm light |
+
+## Theme Selector Component
+
+``ThemeSelector`` renders a `<select>` dropdown that switches themes at runtime
+by writing a `data-theme` attribute to `<html>`. Selection is persisted in
+`localStorage`.
+
+```swift
+// In a navigation bar or settings panel
+ThemeSelector([
+    .init("Default",     themeKey: ""),
+    .init("Rosé Pine",   themeKey: "rose-pine"),
+    .init("Tokyo Night", themeKey: "tokyo-night"),
+    .init("One Dark",    themeKey: "one-dark"),
+    .init("Gruvbox",     themeKey: "gruvbox"),
+])
+```
+
+Pass `mode: .palette` to switch colour palettes independently of other theme
+settings (e.g. light vs dark is a theme choice; accent colour is a palette
+choice):
+
+```swift
+ThemeSelector(palette: [
+    .init("Default", themeKey: ""),
+    .init("Warm",    themeKey: "warm"),
+    .init("Cool",    themeKey: "cool"),
+])
+```
+
+## Shadows
+
+Shadows are referenced through semantic tokens — use `.shadow(.sm)`, `.shadow(.md)`,
+`.shadow(.lg)`, `.shadow(.xl)`, `.shadow(.twoXL)`, or `.shadow(ring:)`.
+The token values are emitted as CSS custom properties by ``SiteTheme``:
+
+```swift
+.shadow(.md)                             // var(--shadow-md)
+.shadow(.lg, color: .primary.opacity(0.2))  // coloured shadow
+.shadow(ring: 2, color: .primary.opacity(0.4))  // focus ring
 ```
 
 ## Related Concepts
