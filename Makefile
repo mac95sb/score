@@ -4,21 +4,17 @@
 #   build          Build all targets in release configuration
 #   build-debug    Build all targets in debug configuration
 #   test           Run all test suites
-#   lint           Run SwiftLint across all sources
-#   format         Format all sources with swift-format
+#   format         Format all sources with swift format
+#   format-check   Check formatting without writing changes
 #   clean          Remove .build directory
 #   docs           Build DocC documentation
 #   update-sqlite  Download and embed the latest SQLite amalgamation
-#   release        Full quality gate: format + lint + test + release build
+#   release        Full quality gate: format-check + test + release build
 #
 # Configuration via environment variables:
 #   SWIFT          Path to the swift binary (default: swift)
-#   SWIFTLINT      Path to swiftlint binary (default: swiftlint)
-#   SWIFTFORMAT    Path to swift-format binary (default: swift-format)
 
-SWIFT       ?= swift
-SWIFTLINT   ?= swiftlint
-SWIFTFORMAT ?= swift-format
+SWIFT ?= swift
 
 SQLITE_VERSION    ?= 3.53.2
 SQLITE_YEAR       ?= 2025
@@ -27,8 +23,6 @@ SQLITE_URL        ?= https://www.sqlite.org/$(SQLITE_YEAR)/sqlite-amalgamation-$
 
 CSQLITE_DIR  = Sources/CSQLite
 CSQLITE_INC  = $(CSQLITE_DIR)/include
-
-SOURCES = $(shell find Sources Tests -name "*.swift" 2>/dev/null)
 
 .DEFAULT_GOAL := build
 
@@ -52,31 +46,15 @@ test:
 test-verbose:
 	$(SWIFT) test --verbose
 
-# ─── Lint & Format ────────────────────────────────────────────────────────────
-
-.PHONY: lint
-lint:
-	@if command -v $(SWIFTLINT) >/dev/null 2>&1; then \
-		$(SWIFTLINT) lint --strict; \
-	else \
-		echo "swiftlint not found — skipping (install with: brew install swiftlint)"; \
-	fi
+# ─── Format & Lint ────────────────────────────────────────────────────────────
 
 .PHONY: format
 format:
-	@if command -v $(SWIFTFORMAT) >/dev/null 2>&1; then \
-		$(SWIFTFORMAT) format --recursive Sources Tests; \
-	else \
-		echo "swift-format not found — skipping (install with: brew install swift-format)"; \
-	fi
+	$(SWIFT) format --recursive Sources Tests Package.swift
 
 .PHONY: format-check
 format-check:
-	@if command -v $(SWIFTFORMAT) >/dev/null 2>&1; then \
-		$(SWIFTFORMAT) lint --recursive Sources Tests; \
-	else \
-		echo "swift-format not found — skipping"; \
-	fi
+	$(SWIFT) format lint --recursive Sources Tests Package.swift
 
 # ─── Documentation ────────────────────────────────────────────────────────────
 
@@ -129,7 +107,7 @@ clean:
 # ─── Release gate ─────────────────────────────────────────────────────────────
 
 .PHONY: release
-release: format lint test build
+release: format-check test build
 	@echo ""
 	@echo "✓ Release gate passed"
 
@@ -167,10 +145,9 @@ help:
 	@echo "    test-verbose    Run tests with verbose output"
 	@echo ""
 	@echo "  Code quality:"
-	@echo "    format          Format all Swift sources with swift-format"
-	@echo "    format-check    Check formatting without writing changes"
-	@echo "    lint            Run SwiftLint in strict mode"
-	@echo "    release         Full gate: format + lint + test + release build"
+	@echo "    format          Format all Swift sources (swift format)"
+	@echo "    format-check    Lint formatting without writing changes (swift format lint)"
+	@echo "    release         Full gate: format-check + test + release build"
 	@echo ""
 	@echo "  Documentation:"
 	@echo "    docs            Build DocC static site to .build/docs"

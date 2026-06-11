@@ -1,16 +1,20 @@
+<p align="center">
+  <img src="icon.svg" width="64" height="64" alt="Score">
+</p>
+
 # Score
 
-A Swift-first framework for building web applications — described in Swift, rendered to vanilla HTML, CSS, and JavaScript.
+Compose web apps in Swift — rendered to vanilla HTML, CSS, and JavaScript.
 
-**[Documentation](https://mac95sb.github.io/score/documentation/score)** · **[Showcase](#showcase)** · **[Getting Started](https://mac95sb.github.io/score/documentation/score/gettingstarted)**
+**[Documentation](https://mac95sb.github.io/score/documentation/score)** · **[Tutorials](https://mac95sb.github.io/score/tutorials/score)** · **[Showcase](#showcase)**
 
 ```swift
 struct ArticleCard: View {
-    let post: Post
+    let post: ContentPost
     var body: some View {
         VStack {
-            Heading(3) { post.title }
-            Text { post.excerpt }.font(color: .muted)
+            Heading(3) { post.frontmatter.title }
+            Text { post.frontmatter.excerpt ?? "" }.font(color: .muted)
         }
         .padding(6)
         .border(radius: .lg)
@@ -20,20 +24,22 @@ struct ArticleCard: View {
 }
 ```
 
-## Installation
+## Quick Start
 
 ```bash
+# Install the CLI
 curl -fsSL https://github.com/mac95sb/score/releases/latest/download/score \
   -o ~/.local/bin/score && chmod +x ~/.local/bin/score
-```
 
-Then scaffold a new project:
-
-```bash
+# Create and run a project
 score new my-site
 cd my-site && score dev
 ```
 
+Open `http://localhost:8080`. Edit any file in `Sources/` or `Content/` and the browser reloads automatically.
+
+For guides, tutorials, and the full API reference, see the **[documentation](https://mac95sb.github.io/score/documentation/score)**.
+
 ## License
 
-MIT
+Apache 2.0

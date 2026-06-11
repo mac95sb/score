@@ -5,6 +5,8 @@
 ```bash
 swift build            # build all targets
 swift test             # run the full test suite (swift-testing, @Suite/@Test)
+swift format --recursive Sources Tests          # format
+swift format lint --recursive Sources Tests     # check formatting (CI gate)
 ```
 
 The package requires Swift 6 / macOS 15 (Linux is supported; SQLite via
