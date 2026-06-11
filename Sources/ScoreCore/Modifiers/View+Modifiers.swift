@@ -241,7 +241,7 @@ extension View {
 
     // MARK: Border
 
-    /// Apply a border with optional color, width, edge, and style.
+    /// Apply a border stroke with optional color, width, edge, and style.
     public func border(
         color: Color? = nil,
         width: Double = 1,
@@ -253,13 +253,30 @@ extension View {
     }
 
     /// Apply a border radius using a semantic token.
-    public func border(radius: RadiusToken, on condition: ModifierCondition? = nil) -> ModifiedContent<Self, BorderRadiusModifier> {
-        modifier(BorderRadiusModifier(radius: radius, condition: condition))
+    public func border(radius: RadiusToken, on condition: ModifierCondition? = nil) -> ModifiedContent<Self, BorderModifier> {
+        modifier(BorderModifier(radius: radius, condition: condition))
     }
 
     /// Apply a border radius as a raw pixel value.
-    public func border(radius px: Double) -> ModifiedContent<Self, BorderRadiusModifier> {
-        modifier(BorderRadiusModifier(radiusPx: px))
+    public func border(radius px: Double) -> ModifiedContent<Self, BorderModifier> {
+        modifier(BorderModifier(radiusPx: px))
+    }
+
+    /// Apply border stroke and radius in one call.
+    ///
+    /// ```swift
+    /// Card { ... }
+    ///     .border(color: .muted.opacity(0.2), radius: .lg)
+    /// ```
+    public func border(
+        color: Color? = nil,
+        width: Double = 1,
+        edge: Edge? = nil,
+        style: BorderStyle = .solid,
+        radius: RadiusToken,
+        on condition: ModifierCondition? = nil
+    ) -> ModifiedContent<Self, BorderModifier> {
+        modifier(BorderModifier(color: color, width: width, edge: edge, style: style, radius: radius, condition: condition))
     }
 
     // MARK: Shadow
@@ -344,6 +361,44 @@ extension View {
     /// Apply a backdrop blur filter.
     public func effect(backdropBlur: SpacingValue, on condition: ModifierCondition? = nil) -> ModifiedContent<Self, EffectModifier> {
         modifier(EffectModifier(backdropBlur: backdropBlur, condition: condition))
+    }
+
+    /// Apply multiple visual effects in one call.
+    ///
+    /// Use this overload when you need two or more effect properties at once.
+    /// Single-property calls (e.g. `.effect(opacity: 0.5)`) resolve to the
+    /// more specific single-parameter overloads above.
+    ///
+    /// ```swift
+    /// Image(src: url, alt: "Hero")
+    ///     .effect(opacity: 0.8, objectFit: .cover)
+    ///
+    /// DisabledButton { "Submit" }
+    ///     .effect(opacity: 0.4, cursor: .notAllowed, pointerEvents: false)
+    /// ```
+    public func effect(
+        opacity: Double? = nil,
+        blur: SpacingValue? = nil,
+        saturate: Double? = nil,
+        brightness: Double? = nil,
+        grayscale: Bool? = nil,
+        objectFit: ObjectFit? = nil,
+        cursor: CursorValue? = nil,
+        userSelect: UserSelect? = nil,
+        pointerEvents: Bool? = nil,
+        fill: Color? = nil,
+        blendMode: BlendMode? = nil,
+        backdropBlur: SpacingValue? = nil,
+        on condition: ModifierCondition? = nil
+    ) -> ModifiedContent<Self, EffectModifier> {
+        modifier(EffectModifier(
+            opacity: opacity, blur: blur, saturate: saturate,
+            brightness: brightness, grayscale: grayscale,
+            blendMode: blendMode, objectFit: objectFit,
+            cursor: cursor, userSelect: userSelect,
+            pointerEvents: pointerEvents, fill: fill,
+            backdropBlur: backdropBlur, condition: condition
+        ))
     }
 
     // MARK: Font
@@ -452,8 +507,6 @@ extension View {
             condition: condition
         ))
     }
-
-
 
     /// Apply a CSS animation.
     public func animate(
