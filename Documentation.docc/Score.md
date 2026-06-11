@@ -11,11 +11,11 @@ the browser receives standard web-platform output.
 
 ```swift
 struct ArticleCard: View {
-    let post: Post
+    let post: ContentPost
     var body: some View {
         VStack {
-            Heading(3) { post.title }
-            Text { post.excerpt }.font(color: .muted)
+            Heading(3) { post.frontmatter.title }
+            Text { post.frontmatter.excerpt ?? "" }.font(color: .muted)
         }
         .padding(6)
         .border(radius: .lg)
@@ -33,6 +33,7 @@ struct ArticleCard: View {
 ### Core Concepts
 - <doc:ViewHierarchy>
 - <doc:ThemeAndTokens>
+- <doc:ComponentTheming>
 - <doc:ModifierSystem>
 
 ### Building Applications

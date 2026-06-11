@@ -16,8 +16,4 @@ struct __NAME__: Application {
     var routes: some RouteCollection {
         PostsController()
     }
-
-    var database: some DatabaseConfig {
-        SQLiteDatabase(path: ".score/db.sqlite")
-    }
 }

@@ -1,16 +1,18 @@
 import Score
 
 struct ArticleCard: View {
-    let post: Post
+    let post: ContentPost
 
     var body: some View {
         Link(to: "/blog/\(post.slug)") {
             VStack {
-                Heading(3) { post.title }
+                Heading(3) { post.frontmatter.title }
                     .font(size: .xl, weight: .semibold)
-                Text { post.excerpt }
-                    .font(size: .sm, color: .muted)
-                    .margin(top: 2)
+                if let excerpt = post.frontmatter.excerpt {
+                    Text { excerpt }
+                        .font(size: .sm, color: .muted)
+                        .margin(top: 2)
+                }
             }
             .padding(6)
             .border(color: .muted.opacity(0.2), radius: .lg)
