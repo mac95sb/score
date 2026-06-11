@@ -1,6 +1,10 @@
+<p align="center">
+  <img src="icon.svg" width="64" height="64" alt="Score">
+</p>
+
 # Score
 
-A Swift-first framework for building web applications — described in Swift, rendered to vanilla HTML, CSS, and JavaScript.
+Like a musical score is a complete, structured description of a composition, Score lets you describe your entire web application in Swift — rendered to vanilla HTML, CSS, and JavaScript.
 
 **[Documentation](https://mac95sb.github.io/score/documentation/score)** · **[Tutorials](https://mac95sb.github.io/score/tutorials/score)** · **[Showcase](#showcase)**
 
