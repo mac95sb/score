@@ -23,13 +23,16 @@ import Foundation
 ///     theme.components.button?.variantOverrides[.primary] = [
 ///         "text-transform": "uppercase"
 ///     ]
-///     theme.components.customCSS = "dialog::backdrop{backdrop-filter:blur(2px)}"
 ///     return theme
 /// }
 /// ```
 ///
 /// The default value on ``SiteTheme`` is ``ComponentTheme/none``, which emits
 /// no CSS at all — existing sites are unaffected until they opt in.
+///
+/// > Note: There is intentionally no raw `customCSS`/`customJS`/`customHTML`
+/// > escape hatch while Score is being dogfooded pre-launch. Styling is
+/// > expressed through the structured `overrides` dictionaries only.
 public struct ComponentTheme: Sendable {
     /// Styles for ``Button`` (`button[data-variant]`). `nil` emits nothing.
     public var button: ButtonTheme?
@@ -41,11 +44,6 @@ public struct ComponentTheme: Sendable {
     public var input: InputTheme?
     /// Styles for ``Badge`` (`.badge`). `nil` emits nothing.
     public var badge: BadgeTheme?
-    /// Raw CSS appended after all generated component styles.
-    ///
-    /// Because it is emitted last, equal-specificity selectors here win over
-    /// the generated defaults — use it as the final escape hatch.
-    public var customCSS: String
 
     /// No component styling. The default on ``SiteTheme``.
     public static let none = ComponentTheme()
@@ -64,15 +62,13 @@ public struct ComponentTheme: Sendable {
         link: LinkTheme? = nil,
         dialog: DialogTheme? = nil,
         input: InputTheme? = nil,
-        badge: BadgeTheme? = nil,
-        customCSS: String = ""
+        badge: BadgeTheme? = nil
     ) {
         self.button    = button
         self.link      = link
         self.dialog    = dialog
         self.input     = input
         self.badge     = badge
-        self.customCSS = customCSS
     }
 
     /// Emit the combined component CSS, or an empty string when nothing is enabled.
@@ -83,7 +79,6 @@ public struct ComponentTheme: Sendable {
         if let dialog { out += dialog.css() }
         if let input  { out += input.css() }
         if let badge  { out += badge.css() }
-        out += customCSS
         return out
     }
 }

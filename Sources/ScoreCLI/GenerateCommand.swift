@@ -1,5 +1,6 @@
 import ArgumentParser
 import Foundation
+import Noora
 
 /// `score generate <type> <name>` — generate Score boilerplate code.
 ///
@@ -45,7 +46,7 @@ struct GenerateCommand: AsyncParsableCommand {
         }
 
         try source.write(to: outputURL, atomically: true, encoding: .utf8)
-        print("  ✓  Generated \(outputURL.path)")
+        Noora().success(.alert("Generated \(outputURL.path)"))
     }
 
     private func defaultOutputDirectory(for type: GeneratorType) -> URL {

@@ -14,6 +14,7 @@ Score lets you describe web content, layout, and behaviour in Swift. It renders 
 ### Core Concepts
 - <doc:ViewHierarchy>
 - <doc:ThemeAndTokens>
+- <doc:ComponentTheming>
 - <doc:ModifierSystem>
 
 ### Building Applications

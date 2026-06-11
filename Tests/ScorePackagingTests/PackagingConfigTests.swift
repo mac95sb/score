@@ -43,6 +43,26 @@ struct PackagingConfigTests {
         }
     }
 
+    @Test("container tool defaults to docker and rejects blanks")
+    func containerTool() throws {
+        let defaulted = try PackagingConfig(appName: "MyApp", source: .remote(url: "https://example.com"))
+        #expect(defaulted.containerTool == "docker")
+
+        let blank = try PackagingConfig(
+            appName: "MyApp",
+            source: .remote(url: "https://example.com"),
+            containerTool: "  "
+        )
+        #expect(blank.containerTool == "docker")
+
+        let custom = try PackagingConfig(
+            appName: "MyApp",
+            source: .remote(url: "https://example.com"),
+            containerTool: "container"
+        )
+        #expect(custom.containerTool == "container")
+    }
+
     @Test("android package replaces invalid characters")
     func androidPackage() throws {
         let config = try PackagingConfig(

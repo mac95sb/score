@@ -1,5 +1,6 @@
 import ArgumentParser
 import Foundation
+import Noora
 
 /// `score lint` — lint Score views and flag common issues.
 ///
@@ -35,12 +36,13 @@ struct LintCommand: AsyncParsableCommand {
         }
 
         if json {
+            // Machine-readable output — written to stdout verbatim by design.
             let encoder = JSONEncoder()
             encoder.outputFormatting = .prettyPrinted
             let data = try encoder.encode(allDiagnostics)
             print(String(data: data, encoding: .utf8) ?? "[]")
         } else {
-            printDiagnostics(allDiagnostics)
+            renderDiagnostics(allDiagnostics)
         }
 
         let errors = allDiagnostics.filter { $0.severity == .error || (strict && $0.severity == .warning) }
@@ -49,18 +51,23 @@ struct LintCommand: AsyncParsableCommand {
         }
     }
 
-    private func printDiagnostics(_ diagnostics: [LintDiagnostic]) {
+    private func renderDiagnostics(_ diagnostics: [LintDiagnostic]) {
+        let ui = Noora()
         if diagnostics.isEmpty {
-            print("  ✓  No issues found.")
+            ui.success(.alert("No issues found"))
             return
         }
-        for diag in diagnostics.sorted(by: { $0.file < $1.file }) {
-            let icon = diag.severity == .error ? "✗" : "⚠"
-            print("  \(icon)  \(diag.file):\(diag.line)  \(diag.message)")
+        let sorted = diagnostics.sorted(by: { $0.file < $1.file })
+        let warnings = sorted.filter { $0.severity == .warning }
+        let errors = sorted.filter { $0.severity == .error }
+
+        if !warnings.isEmpty {
+            ui.warning(warnings.map { .alert("\($0.file):\($0.line) — \($0.message)") })
         }
-        let warnings = diagnostics.filter { $0.severity == .warning }.count
-        let errors = diagnostics.filter { $0.severity == .error }.count
-        print("\n  \(errors) error(s), \(warnings) warning(s)")
+        for diag in errors {
+            ui.error(.alert("\(diag.file):\(diag.line) — \(diag.message)"))
+        }
+        ui.info(.alert("\(errors.count) error(s), \(warnings.count) warning(s)"))
     }
 }
 

@@ -1,5 +1,6 @@
 import ArgumentParser
 import Foundation
+import Noora
 
 /// `score new <name>` — scaffold a new Score project.
 ///
@@ -21,35 +22,45 @@ struct NewCommand: AsyncParsableCommand {
     var skipResolve: Bool = false
 
     mutating func run() async throws {
+        let ui = Noora()
         let projectDir = URL(fileURLWithPath: name)
 
         guard !FileManager.default.fileExists(atPath: projectDir.path) else {
             throw CLIError.directoryExists(name)
         }
 
-        print("  Creating \(name) (\(template.rawValue) template)…\n")
-
-        let scaffold = ProjectScaffolder(template: template)
-        try scaffold.write(to: projectDir, projectName: name)
-
-        if !skipResolve {
-            print("  Resolving dependencies…")
-            let p = Process()
-            p.executableURL = URL(fileURLWithPath: "/usr/bin/swift")
-            p.arguments = ["package", "resolve"]
-            p.currentDirectoryURL = projectDir
-            try p.run()
-            p.waitUntilExit()
+        let name = self.name
+        let template = self.template
+        try await ui.progressStep(
+            message: "Scaffolding \(name) (\(template.rawValue) template)",
+            successMessage: "Scaffolded \(name)/",
+            errorMessage: "Scaffolding failed",
+            showSpinner: true
+        ) { _ in
+            let scaffold = ProjectScaffolder(template: template)
+            try scaffold.write(to: projectDir, projectName: name)
         }
 
-        print("""
+        if !skipResolve {
+            try await ui.progressStep(
+                message: "Resolving dependencies",
+                successMessage: "Dependencies resolved",
+                errorMessage: "Dependency resolution failed",
+                showSpinner: true
+            ) { _ in
+                let p = Process()
+                p.executableURL = URL(fileURLWithPath: "/usr/bin/swift")
+                p.arguments = ["package", "resolve"]
+                p.currentDirectoryURL = projectDir
+                try p.run()
+                p.waitUntilExit()
+            }
+        }
 
-  ✓  Created \(name)/
-
-  Next steps:
-    cd \(name)
-    score dev
-  """)
+        ui.success(.alert(
+            "Created \(name)/",
+            takeaways: ["cd \(name)", "score dev"]
+        ))
     }
 }
 
@@ -85,6 +96,7 @@ struct ProjectScaffolder: Sendable {
     private func writeDefault(to dir: URL, name: String) throws {
         try writePackageSwift(to: dir, name: name)
         try writeGitignore(to: dir)
+        try writeMakefile(to: dir, name: name)
         try mkdir(dir.appendingPathComponent("Sources/\(name)"))
         try mkdir(dir.appendingPathComponent("Public"))
         try mkdir(dir.appendingPathComponent("Content"))
@@ -123,6 +135,7 @@ struct ProjectScaffolder: Sendable {
     private func writeStatic(to dir: URL, name: String) throws {
         try writePackageSwift(to: dir, name: name)
         try writeGitignore(to: dir)
+        try writeMakefile(to: dir, name: name)
         try mkdir(dir.appendingPathComponent("Sources/\(name)"))
         try mkdir(dir.appendingPathComponent("Public"))
         try mkdir(dir.appendingPathComponent("Content"))
@@ -173,6 +186,7 @@ struct ProjectScaffolder: Sendable {
     private func writeMinimal(to dir: URL, name: String) throws {
         try writePackageSwift(to: dir, name: name)
         try writeGitignore(to: dir)
+        try writeMakefile(to: dir, name: name)
         try mkdir(dir.appendingPathComponent("Sources/\(name)"))
 
         let appSwift = """
@@ -223,6 +237,52 @@ struct ProjectScaffolder: Sendable {
         )
         """
         try write(pkg, to: dir.appendingPathComponent("Package.swift"))
+    }
+
+    private func writeMakefile(to dir: URL, name: String) throws {
+        let makefile = """
+        # Common tasks for \(name). Run `make help` for a summary.
+        CONTAINER ?= docker
+
+        dev: ## Start the dev server with hot-reload
+        \tscore dev
+
+        build: ## Build the static site to .score/build/
+        \tscore build
+
+        preview: ## Serve the static build locally
+        \tscore preview
+
+        test: ## Run the test suite
+        \tswift test
+
+        lint: ## Lint Score views
+        \tscore lint
+
+        routes: ## Print the route table
+        \tscore routes
+
+        package-windows: build ## Package as a Windows WebView2 app
+        \tscore package windows --container-tool $(CONTAINER)
+
+        package-android: build ## Package as an Android WebView app
+        \tscore package android
+
+        package-linux: build ## Package as a Linux WebKitGTK app
+        \tscore package linux --container-tool $(CONTAINER)
+
+        package-swiftui: ## Export Records + API client for SwiftUI apps
+        \tscore package swiftui
+
+        clean: ## Remove build artifacts
+        \trm -rf .build .score/build dist
+
+        help: ## Show this help
+        \t@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  %-18s %s\\n", $$1, $$2}'
+
+        .PHONY: dev build preview test lint routes package-windows package-android package-linux package-swiftui clean help
+        """
+        try write(makefile, to: dir.appendingPathComponent("Makefile"))
     }
 
     private func writeGitignore(to dir: URL) throws {

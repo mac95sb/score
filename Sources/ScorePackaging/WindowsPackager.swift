@@ -22,18 +22,22 @@ public struct WindowsPackager: WebViewPackager {
         try writer.write(csproj(config: config), to: "\(name).csproj")
         try writer.write(programCS(config: config), to: "Program.cs")
         try writer.write(mainFormCS(config: config), to: "MainForm.cs")
+        try writer.write(containerfile(config: config), to: "Containerfile")
+        try writer.write(makefile(config: config), to: "Makefile")
 
         if case .staticExport(let path) = config.source {
             try writer.copyStaticExport(from: path, to: "wwwroot")
         }
 
         let nextSteps = """
-        Build (requires the .NET 8 SDK and the WebView2 Evergreen Runtime):
+        Build on Windows (requires the .NET 8 SDK and the WebView2 Evergreen Runtime):
           cd \(outputDirectory.path)
           dotnet run
 
-        Publish a self-contained executable:
-          dotnet publish -c Release -r win-x64 --self-contained
+        Or cross-compile from any host with a container tool:
+          make container-build                       # uses \(config.containerTool)
+          make container-build CONTAINER=container   # apple/container
+        Artifacts land in dist/.
         """
         try writer.write(readme(config: config, nextSteps: nextSteps), to: "README.md")
 
@@ -141,6 +145,42 @@ public struct WindowsPackager: WebViewPackager {
         """
     }
 
+    private func containerfile(config: PackagingConfig) -> String {
+        """
+        # Cross-compiles the Windows WebView2 shell from any container host.
+        # The produced binaries run on Windows only; the container is just the builder.
+        FROM mcr.microsoft.com/dotnet/sdk:8.0
+        WORKDIR /src
+        COPY . .
+        RUN dotnet publish \(config.executableName).csproj -c Release -r win-x64 \\
+            --self-contained /p:EnableWindowsTargeting=true -o /out
+        CMD ["cp", "-r", "/out/.", "/dist/"]
+        """
+    }
+
+    private func makefile(config: PackagingConfig) -> String {
+        """
+        APP := \(config.binaryName)
+        CONTAINER ?= \(config.containerTool)
+
+        run: ## Build and run on Windows
+        \tdotnet run
+
+        publish: ## Self-contained Windows build (run on Windows)
+        \tdotnet publish -c Release -r win-x64 --self-contained
+
+        container-build: ## Cross-compile via $(CONTAINER) into dist/
+        \t$(CONTAINER) build -t $(APP)-windows-build -f Containerfile .
+        \tmkdir -p dist
+        \t$(CONTAINER) run --rm -v "$$(pwd)/dist:/dist" $(APP)-windows-build
+
+        clean:
+        \trm -rf bin obj dist
+
+        .PHONY: run publish container-build clean
+        """
+    }
+
     private func readme(config: PackagingConfig, nextSteps: String) -> String {
         """
         # \(config.appName) — Windows shell
@@ -151,6 +191,15 @@ public struct WindowsPackager: WebViewPackager {
         ## Building
 
         \(nextSteps)
+
+        ## Container builds
+
+        `make container-build` builds the app inside the official .NET 8 SDK
+        image and copies the self-contained `win-x64` output to `dist/`. The
+        `CONTAINER` variable selects the tool — `docker` (default), `container`
+        (apple/container), or `podman` all work, as they share the same
+        `build`/`run` CLI for the operations used here. The resulting
+        executable requires Windows with the WebView2 Evergreen Runtime.
 
         ## Updating the bundled site
 

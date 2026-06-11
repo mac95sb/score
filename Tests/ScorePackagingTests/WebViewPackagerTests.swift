@@ -31,6 +31,8 @@ struct WebViewPackagerTests {
         let result = try WindowsPackager().package(config: try remoteConfig(), into: output)
         #expect(result.filesWritten.contains("DemoApp.csproj"))
         #expect(result.filesWritten.contains("MainForm.cs"))
+        #expect(result.filesWritten.contains("Containerfile"))
+        #expect(result.filesWritten.contains("Makefile"))
 
         let csproj = try contents(of: "DemoApp.csproj", in: output)
         #expect(csproj.contains("Microsoft.Web.WebView2"))
@@ -39,6 +41,13 @@ struct WebViewPackagerTests {
         let form = try contents(of: "MainForm.cs", in: output)
         #expect(form.contains("Navigate(\"https://demo.example.com\")"))
         #expect(!form.contains("SetVirtualHostNameToFolderMapping"))
+
+        let containerfile = try contents(of: "Containerfile", in: output)
+        #expect(containerfile.contains("EnableWindowsTargeting=true"))
+
+        let makefile = try contents(of: "Makefile", in: output)
+        #expect(makefile.contains("CONTAINER ?= docker"))
+        #expect(makefile.contains("container-build:"))
     }
 
     @Test("windows packager bundles the static export via virtual host")
@@ -114,6 +123,7 @@ struct WebViewPackagerTests {
         let result = try LinuxPackager().package(config: try remoteConfig(), into: output)
         #expect(result.filesWritten.contains("main.c"))
         #expect(result.filesWritten.contains("Makefile"))
+        #expect(result.filesWritten.contains("Containerfile"))
         #expect(result.filesWritten.contains("demoapp.desktop"))
 
         let main = try contents(of: "main.c", in: output)
@@ -123,5 +133,24 @@ struct WebViewPackagerTests {
         let makefile = try contents(of: "Makefile", in: output)
         #expect(makefile.contains("webkitgtk-6.0"))
         #expect(makefile.contains("gtk4"))
+        #expect(makefile.contains("container-build:"))
+
+        let containerfile = try contents(of: "Containerfile", in: output)
+        #expect(containerfile.contains("libwebkitgtk-6.0-dev"))
+    }
+
+    @Test("container tool is configurable in generated Makefiles")
+    func containerTool() throws {
+        let output = try tempDirectory()
+        defer { try? FileManager.default.removeItem(at: output) }
+
+        let config = try PackagingConfig(
+            appName: "Demo App",
+            source: .remote(url: "https://demo.example.com"),
+            containerTool: "container"
+        )
+        _ = try LinuxPackager().package(config: config, into: output)
+        let makefile = try contents(of: "Makefile", in: output)
+        #expect(makefile.contains("CONTAINER ?= container"))
     }
 }

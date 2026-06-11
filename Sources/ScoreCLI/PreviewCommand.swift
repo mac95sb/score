@@ -1,5 +1,6 @@
 import ArgumentParser
 import Foundation
+import Noora
 
 /// `score preview` — serve the static build output locally.
 ///
@@ -26,21 +27,30 @@ struct PreviewCommand: AsyncParsableCommand {
     var rebuild: Bool = false
 
     mutating func run() async throws {
+        let ui = Noora()
         let buildDir = URL(fileURLWithPath: directory)
 
         if rebuild || !FileManager.default.fileExists(atPath: buildDir.path) {
-            print("  Building site…")
-            let built = try await buildPackage(configuration: "release", verbose: false)
-            guard built else { throw CLIError.buildFailed }
+            try await ui.progressStep(
+                message: "Building site",
+                successMessage: "Built",
+                errorMessage: "Build failed",
+                showSpinner: true
+            ) { _ in
+                guard try await buildPackage(configuration: "release", verbose: false) else {
+                    throw CLIError.buildFailed
+                }
+            }
         }
 
         guard FileManager.default.fileExists(atPath: buildDir.path) else {
             throw CLIError.buildNotFound(directory)
         }
 
-        print("  score preview  →  http://\(host):\(port)")
-        print("  Serving from \(directory)")
-        print("  Press Ctrl-C to stop.\n")
+        ui.info(.alert(
+            "score preview → http://\(host):\(port)",
+            takeaways: ["Serving from \(directory)", "Press Ctrl-C to stop"]
+        ))
 
         // Use a built-in Foundation-based static file server so we don't need
         // to declare NIO as a direct dependency of ScoreCLI.
@@ -99,8 +109,6 @@ actor StaticFileServer {
 
         // Listen
         guard listen(serverFD, 64) == 0 else { throw StaticServerError.listenFailed }
-
-        print("  Listening on http://\(host):\(port)")
 
         // Accept loop
         while !Task.isCancelled {
