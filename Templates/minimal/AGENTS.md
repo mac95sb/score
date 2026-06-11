@@ -84,7 +84,7 @@ struct HomePage: Page {
 
 | View | HTML |
 |------|------|
-| `Text { … }` | `<p>` / `<span>` (`inline: true` for span) |
+| `Text { … }` | `<p>` or `<span>` | Renders `<p>` for block/paragraph content, `<span>` for inline runs. Infers the correct tag from grammatical context automatically; override with `inline: true` / `inline: false`. |
 | `Heading(_ level: Int) { … }` | `<h1>`…`<h6>` |
 | `RichText(markdown: String, theme:?)` | `<div class="rich-text">` |
 | `Code(_ value: String)` | `<code>` |
