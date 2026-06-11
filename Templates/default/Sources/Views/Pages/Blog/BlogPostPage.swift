@@ -1,12 +1,12 @@
 import Score
 
 struct BlogPostPage: Page {
-    let post: Post
+    let post: ContentPost
 
     var metadata: PageMetadata? {
         PageMetadata(
-            title: post.title,
-            description: post.excerpt,
+            title: post.frontmatter.title,
+            description: post.frontmatter.excerpt ?? "",
             ogType: .article,
             canonicalURL: "/blog/\(post.slug)"
         )
@@ -17,14 +17,16 @@ struct BlogPostPage: Page {
     var body: some View {
         Main {
             Article {
-                Heading(1) { post.title }
+                Heading(1) { post.frontmatter.title }
                     .font(size: .fourXL, weight: .bold, wrap: .balance)
-                Text { post.excerpt }
-                    .font(size: .lg, color: .muted)
-                    .margin(top: 4)
+                if let excerpt = post.frontmatter.excerpt {
+                    Text { excerpt }
+                        .font(size: .lg, color: .muted)
+                        .margin(top: 4)
+                }
                 Divider()
                     .margin(y: 8)
-                Text { post.body }
+                RichText(markdown: post.content)
             }
             .frame(maxWidth: .px(720))
             .margin(x: .auto)
