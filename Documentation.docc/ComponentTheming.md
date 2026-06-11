@@ -75,20 +75,18 @@ Button(.primary) { "Save" }.padding(8)  // this instance: padding 32px wins
 ### Palettes and presets
 
 ``ThemePalette`` pairs light and dark ``ThemeColors`` built from the built-in
-colour scales. Hue palettes are named after their primary colour (`.violet`,
-`.indigo`, `.blue`, `.emerald`, `.teal`, `.rose`, `.mono`); thematic palettes
-are named after a mood and combine multiple scales — distinct primary/accent
-hues, a colour-washed surface tint, and warm or cool neutrals (`.ocean`,
-`.forest`, `.sunset`, `.midnight`, `.berry`, `.ember`, `.citrus`). Build your
-own with `ThemePalette(primary:accent:tint:neutral:)`. ``ThemePreset``
-configures everything else — radii, shadows, and component styles — while
-inheriting the palette:
+colour scales — hue palettes (`.violet`, `.indigo`, …), thematic multi-scale
+palettes (`.ocean`, `.sunset`, `.neoBrutalism`-friendly `.ember`, …), or
+custom via `ThemePalette(primary:accent:tint:neutral:)`. ``ThemePreset``
+(`.minimal`, `.modern`, `.soft`, `.neoBrutalism`) configures radii, shadows,
+and component styles while inheriting the palette:
 
 ```swift
 var theme: SiteTheme { .preset(.neoBrutalism, palette: .emerald) }
 ```
 
-Available presets: `.minimal`, `.modern`, `.soft`, `.neoBrutalism`.
+See <doc:ThemeAndTokens> for the full palette catalogue, custom tokens, and
+dark-mode behaviour.
 
 > Important: There is intentionally no raw `customCSS`, `customJS`, or
 > `customHTML` escape hatch while Score is dogfooded pre-launch. Express
