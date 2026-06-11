@@ -2,7 +2,6 @@ import ArgumentParser
 import Foundation
 import Logging
 import Noora
-import ScorePackaging
 
 /// `score dev` — start the development server with hot-reload.
 ///
@@ -28,86 +27,116 @@ struct DevCommand: AsyncParsableCommand {
     var verbose: Bool = false
 
     mutating func run() async throws {
-        let ui = Noora()
-        ui.info(.alert(
-            "score dev → http://\(host):\(port)",
-            takeaways: ["Press Ctrl-C to stop"]
+        let noora = Noora()
+        noora.info(.alert(
+            "score dev",
+            takeaways: ["http://\(host):\(port)", "Press Ctrl-C to stop"]
         ))
 
-        regenerateEmbeddedKits()
-
-        // Initial build
-        let verbose = self.verbose
-        try await ui.progressStep(
-            message: "Compiling (debug)",
-            successMessage: "Compiled",
-            errorMessage: "Build failed",
-            showSpinner: !verbose
-        ) { _ in
-            guard try await buildPackage(configuration: "debug", verbose: verbose) else {
-                throw CLIError.buildFailed
-            }
-        }
+        let built = try await buildPackage(configuration: "debug", verbose: verbose)
+        guard built else { throw CLIError.buildFailed }
 
         let binaryURL = try locateExecutable()
+        let serverBox = ServerProcessBox()
 
         try await withThrowingTaskGroup(of: Void.self) { group in
             group.addTask {
-                try await self.runServer(binaryURL: binaryURL)
+                try await self.runServer(binaryURL: binaryURL, box: serverBox)
             }
 
             if !self.noHotReload {
                 group.addTask {
-                    await self.watchForChanges(binaryURL: binaryURL)
+                    await self.watchForChanges(box: serverBox)
                 }
             }
 
-            // Cancel everything on first task completion
             try await group.next()
             group.cancelAll()
+            serverBox.terminate()
         }
     }
 
     // MARK: - Server
 
-    private func runServer(binaryURL: URL) async throws {
-        let process = Process()
-        process.executableURL = binaryURL
-        process.arguments = ["--host", host, "--port", "\(port)", "--dev"]
-        process.environment = ProcessInfo.processInfo.environment
-            .merging(["SCORE_DEV_RELOAD": "1"]) { _, new in new }
-        try process.run()
-        process.waitUntilExit()
-        Noora().warning(.alert("Server exited with status \(process.terminationStatus)"))
+    /// Launch the app binary and relaunch it whenever the watcher terminates
+    /// it after a successful rebuild.
+    private func runServer(binaryURL: URL, box: ServerProcessBox) async throws {
+        while !Task.isCancelled {
+            let process = Process()
+            process.executableURL = binaryURL
+            process.arguments = ["--host", host, "--port", "\(port)", "--dev"]
+            process.environment = ProcessInfo.processInfo.environment
+                .merging(["SCORE_DEV_RELOAD": "1"]) { _, new in new }
+            try process.run()
+            box.set(process)
+
+            let status = await waitForExit(process)
+            let restartRequested = box.consumeRestartFlag()
+            if Task.isCancelled { break }
+            if restartRequested {
+                Noora().passthrough("↻  Restarting server…")
+                continue
+            }
+            Noora().warning(.alert("Server exited with status \(status)"))
+            break
+        }
+    }
+
+    private func waitForExit(_ process: Process) async -> Int32 {
+        // One-shot guard: the termination handler and the not-running check
+        // below can race when the process exits immediately after launch.
+        final class Once: @unchecked Sendable {
+            private let lock = NSLock()
+            private var fired = false
+            func tryFire() -> Bool {
+                lock.lock()
+                defer { lock.unlock() }
+                if fired { return false }
+                fired = true
+                return true
+            }
+        }
+        let once = Once()
+        return await withCheckedContinuation { continuation in
+            process.terminationHandler = { proc in
+                if once.tryFire() {
+                    continuation.resume(returning: proc.terminationStatus)
+                }
+            }
+            if !process.isRunning, once.tryFire() {
+                continuation.resume(returning: process.terminationStatus)
+            }
+        }
     }
 
     // MARK: - File watcher
 
-    private func watchForChanges(binaryURL: URL) async {
+    private func watchForChanges(box: ServerProcessBox) async {
+        // All paths that should trigger a rebuild when modified.
+        // Localizable.xcstrings is a single file so we check it directly.
         let directories = [
             URL(fileURLWithPath: "Sources"),
             URL(fileURLWithPath: "Content"),
             URL(fileURLWithPath: "Public"),
         ].filter { FileManager.default.fileExists(atPath: $0.path) }
 
+        let singleFiles = [
+            URL(fileURLWithPath: "Localizable.xcstrings"),
+        ].filter { FileManager.default.fileExists(atPath: $0.path) }
+
         var lastModDates: [URL: Date] = [:]
 
         while !Task.isCancelled {
-            let changed = pollChanges(in: directories, lastDates: &lastModDates)
+            var changed = pollChanges(in: directories, lastDates: &lastModDates)
+            changed += pollFiles(singleFiles, lastDates: &lastModDates)
             if !changed.isEmpty {
-                let ui = Noora()
-                let files = changed.map(\.lastPathComponent).joined(separator: ", ")
-                regenerateEmbeddedKits()
-                let verbose = self.verbose
-                _ = try? await ui.progressStep(
-                    message: "Rebuilding (\(files))",
-                    successMessage: "Rebuilt — reload your browser",
-                    errorMessage: "Rebuild failed",
-                    showSpinner: !verbose
-                ) { _ in
-                    guard try await buildPackage(configuration: "debug", verbose: verbose) else {
-                        throw CLIError.buildFailed
-                    }
+                let noora = Noora()
+                for url in changed {
+                    noora.passthrough("↻  \(url.lastPathComponent)")
+                }
+                if let built = try? await buildPackage(configuration: "debug", verbose: verbose), built {
+                    noora.success(.alert("Rebuilt — reload your browser"))
+                    box.requestRestart()
                 }
             }
             try? await Task.sleep(for: .milliseconds(500))
@@ -132,28 +161,33 @@ struct DevCommand: AsyncParsableCommand {
                 guard let attrs = try? fileURL.resourceValues(forKeys: [.contentModificationDateKey]),
                       let modDate = attrs.contentModificationDate else { continue }
 
-                if let last = lastDates[fileURL], modDate > last {
-                    lastDates[fileURL] = modDate
+                if let last = lastModDates[fileURL], modDate > last {
+                    lastModDates[fileURL] = modDate
                     changed.append(fileURL)
-                } else if lastDates[fileURL] == nil {
-                    lastDates[fileURL] = modDate
+                } else if lastModDates[fileURL] == nil {
+                    lastModDates[fileURL] = modDate
                 }
             }
         }
         return changed
     }
-}
 
-// MARK: - Embedded kit regeneration
-
-/// Regenerate any `score package swiftui` kit targets before compiling, so
-/// exported models and endpoints always match the application's current API.
-func regenerateEmbeddedKits() {
-    let regenerated = KitRegenerator.regenerateEmbeddedKits()
-    if !regenerated.isEmpty {
-        Noora().info(.alert(
-            "Regenerated \(regenerated.joined(separator: ", ")) (Records + API endpoints)"
-        ))
+    private func pollFiles(
+        _ files: [URL],
+        lastDates: inout [URL: Date]
+    ) -> [URL] {
+        var changed: [URL] = []
+        for fileURL in files {
+            guard let attrs = try? fileURL.resourceValues(forKeys: [.contentModificationDateKey]),
+                  let modDate = attrs.contentModificationDate else { continue }
+            if let last = lastModDates[fileURL], modDate > last {
+                lastModDates[fileURL] = modDate
+                changed.append(fileURL)
+            } else if lastModDates[fileURL] == nil {
+                lastModDates[fileURL] = modDate
+            }
+        }
+        return changed
     }
 }
 
@@ -183,44 +217,74 @@ struct BuildCommand: AsyncParsableCommand {
     var output: String = ".score/build"
 
     mutating func run() async throws {
-        let ui = Noora()
+        let noora = Noora()
         let start = Date()
 
-        regenerateEmbeddedKits()
-
-        let verbose = self.verbose
-        try await ui.progressStep(
-            message: "Compiling (release)",
-            successMessage: "Compiled",
-            errorMessage: "Build failed",
-            showSpinner: !verbose
-        ) { _ in
-            guard try await buildPackage(configuration: "release", verbose: verbose) else {
-                throw CLIError.buildFailed
-            }
-        }
+        let built = try await buildPackage(configuration: "release", verbose: verbose)
+        guard built else { throw CLIError.buildFailed }
 
         let binaryURL = try locateExecutable()
         var args = ["--build-only", "--output", output]
         if noMinify { args.append("--no-minify") }
         if noFingerprint { args.append("--no-fingerprint") }
 
-        let arguments = args
-        try await ui.progressStep(
-            message: "Generating static site",
-            successMessage: "Static site generated",
-            errorMessage: "Static generation failed",
-            showSpinner: true
-        ) { _ in
-            let process = Process()
-            process.executableURL = binaryURL
-            process.arguments = arguments
-            try process.run()
-            process.waitUntilExit()
-            guard process.terminationStatus == 0 else { throw CLIError.buildFailed }
-        }
+        let process = Process()
+        process.executableURL = binaryURL
+        process.arguments = args
+        try process.run()
+        process.waitUntilExit()
 
         let elapsed = String(format: "%.2f", Date().timeIntervalSince(start))
-        ui.success(.alert("Built in \(elapsed)s → \(output)"))
+        if process.terminationStatus == 0 {
+            noora.success(.alert("Built in \(elapsed)s", takeaways: ["\(output)"]))
+        } else {
+            throw CLIError.buildFailed
+        }
+    }
+}
+
+// MARK: - ServerProcessBox
+
+/// Holds the currently-running app server process so the file watcher can
+/// terminate it for a restart after a successful rebuild.
+///
+/// A lock-guarded class rather than an actor because `Process` is not
+/// `Sendable` and never escapes — only `terminate()` is called on it from
+/// another task.
+final class ServerProcessBox: @unchecked Sendable {
+    private let lock = NSLock()
+    private var process: Process?
+    private var restartRequested = false
+
+    func set(_ process: Process) {
+        lock.lock()
+        defer { lock.unlock() }
+        self.process = process
+    }
+
+    /// Terminate the running server so `runServer` relaunches the rebuilt binary.
+    func requestRestart() {
+        lock.lock()
+        restartRequested = true
+        let running = process
+        lock.unlock()
+        running?.terminate()
+    }
+
+    /// Returns whether the last exit was watcher-requested, resetting the flag.
+    func consumeRestartFlag() -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        let value = restartRequested
+        restartRequested = false
+        return value
+    }
+
+    func terminate() {
+        lock.lock()
+        let running = process
+        process = nil
+        lock.unlock()
+        running?.terminate()
     }
 }

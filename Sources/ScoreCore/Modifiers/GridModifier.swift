@@ -1,5 +1,22 @@
 // MARK: - GridModifier
 
+/// A modifier that applies CSS Grid properties to an element.
+///
+/// Use ``View/grid(columns:gap:columnGap:rowGap:autoFlow:placeItems:at:)`` and the
+/// ``View/gridItem(span:rowSpan:spanFull:area:alignSelf:justifySelf:at:)`` family
+/// rather than constructing `GridModifier` directly.
+///
+/// ```swift
+/// HStack {
+///     Card { "One" }.gridItem(span: 2)
+///     Card { "Two" }
+///     Card { "Three" }
+/// }
+/// .grid(columns: 3, gap: 6)
+/// .grid(columns: 1, at: .mobile)
+/// ```
+///
+/// - SeeAlso: ``View/grid(columns:gap:columnGap:rowGap:autoFlow:placeItems:at:)``, ``FlexModifier``
 public struct GridModifier: ThemeAwareModifier {
     let columns: Int?
     let columnsTemplate: String?

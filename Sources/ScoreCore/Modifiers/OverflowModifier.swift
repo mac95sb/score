@@ -1,5 +1,20 @@
 // MARK: - OverflowModifier
 
+/// A modifier that sets the CSS `overflow` and `overscroll-behavior` properties.
+///
+/// Use ``View/overflow(_:on:)`` and ``View/overflow(x:y:on:)`` rather than
+/// constructing `OverflowModifier` directly.
+///
+/// ```swift
+/// ScrollArea { LongContent() }
+///     .overflow(y: .auto)
+///     .frame(height: .px(400))
+///
+/// ModalDialog { ... }
+///     .overflow(.hidden)
+/// ```
+///
+/// - SeeAlso: ``View/overflow(_:on:)``
 public struct OverflowModifier: ThemeAwareModifier {
     let both: OverflowValue?
     let x: OverflowValue?

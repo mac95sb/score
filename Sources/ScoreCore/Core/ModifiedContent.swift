@@ -24,9 +24,104 @@ public struct ModifiedContent<Base: View, Modifier: ViewModifier>: View, _HTMLRe
     }
 
     public func collectCSS(context: inout CSSCollectionContext) {
-        context.pushModifier(modifier)
+        if let themeAware = modifier as? any ThemeAwareModifier {
+            // Use per-declaration conditions from ThemeAwareModifier for accurate conditional CSS.
+            let condDecls = themeAware.declarations(theme: .default)
+            let overrideCondition = context.groupConditionOverride
+            for decl in condDecls {
+                let effectiveCondition = decl.condition ?? overrideCondition
+                context.record(
+                    CSSDeclaration(decl.property, decl.value),
+                    condition: effectiveCondition?.cssCondition(theme: .default)
+                )
+            }
+        } else {
+            let decls = modifier.cssDeclarations()
+            if !decls.isEmpty {
+                let explicit = modifier.cssCondition()
+                let effective = explicit ?? context.groupConditionOverride?.cssCondition(theme: .default)
+                context.record(decls, condition: effective)
+            }
+        }
         base._collectCSSInto(&context)
-        context.popModifier()
+    }
+}
+
+// MARK: - ConditionGroupView
+
+/// Wraps a view and applies a condition to all modifier CSS collected within it.
+///
+/// Created by `.at(_:content:)` and `.on(_:content:)` group helpers.
+public struct ConditionGroupView<Content: View>: View, _HTMLRenderable {
+    let condition: ModifierCondition
+    let content: Content
+
+    public typealias Body = Swift.Never
+    public var body: Swift.Never { fatalError() }
+
+    public func renderHTML(context: inout RenderContext) -> String {
+        content._renderInto(&context)
+    }
+
+    public func collectCSS(context: inout CSSCollectionContext) {
+        let saved = context.groupConditionOverride
+        context.groupConditionOverride = condition
+        content._collectCSSInto(&context)
+        context.groupConditionOverride = saved
+    }
+}
+
+// MARK: - AnimateChildrenView
+
+/// Wraps a view and stagger-animates its direct children.
+///
+/// Created by `.animateChildren(_:duration:stagger:easing:)`.
+public struct AnimateChildrenView<Content: View>: View, _HTMLRenderable {
+    let animationName: String
+    let duration: AnimationDuration
+    let stagger: AnimationDuration
+    let easing: AnimationTiming
+    let content: Content
+
+    public typealias Body = Swift.Never
+    public var body: Swift.Never { fatalError() }
+
+    public func renderHTML(context: inout RenderContext) -> String {
+        let inner = content._renderInto(&context)
+        return "<div data-score-stagger=\"\(stagger.css)\">\(inner)</div>"
+    }
+
+    public func collectCSS(context: inout CSSCollectionContext) {
+        let animValue = "\(animationName) \(duration.css) \(easing.css) both"
+        let condition = CSSCondition.combined(
+            pseudo: " > *",
+            media: "(prefers-reduced-motion: no-preference)"
+        )
+        context.record(CSSDeclaration("animation", animValue), condition: condition)
+        content._collectCSSInto(&context)
+    }
+}
+
+// MARK: - AnimateOnScrollView
+
+/// Wraps a view and marks it for scroll-triggered animation via an Intersection Observer.
+///
+/// Created by `.animateOnScroll(_:threshold:)`.
+public struct AnimateOnScrollView<Content: View>: View, _HTMLRenderable {
+    let animationName: String
+    let threshold: Double
+    let content: Content
+
+    public typealias Body = Swift.Never
+    public var body: Swift.Never { fatalError() }
+
+    public func renderHTML(context: inout RenderContext) -> String {
+        let inner = content._renderInto(&context)
+        return "<div data-score-aos=\"\(attributeEscape(animationName))\" data-score-aos-threshold=\"\(threshold)\">\(inner)</div>"
+    }
+
+    public func collectCSS(context: inout CSSCollectionContext) {
+        content._collectCSSInto(&context)
     }
 }
 

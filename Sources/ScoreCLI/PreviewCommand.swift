@@ -27,29 +27,24 @@ struct PreviewCommand: AsyncParsableCommand {
     var rebuild: Bool = false
 
     mutating func run() async throws {
-        let ui = Noora()
         let buildDir = URL(fileURLWithPath: directory)
 
+        let noora = Noora()
+
         if rebuild || !FileManager.default.fileExists(atPath: buildDir.path) {
-            try await ui.progressStep(
-                message: "Building site",
-                successMessage: "Built",
-                errorMessage: "Build failed",
-                showSpinner: true
-            ) { _ in
-                guard try await buildPackage(configuration: "release", verbose: false) else {
-                    throw CLIError.buildFailed
-                }
+            let built = try await noora.progressStep(message: "Building site…") { _ in
+                try await buildPackage(configuration: "release", verbose: false)
             }
+            guard built else { throw CLIError.buildFailed }
         }
 
         guard FileManager.default.fileExists(atPath: buildDir.path) else {
             throw CLIError.buildNotFound(directory)
         }
 
-        ui.info(.alert(
-            "score preview → http://\(host):\(port)",
-            takeaways: ["Serving from \(directory)", "Press Ctrl-C to stop"]
+        noora.info(.alert(
+            "score preview",
+            takeaways: ["http://\(host):\(port)", "Serving from \(directory)", "Press Ctrl-C to stop"]
         ))
 
         // Use a built-in Foundation-based static file server so we don't need
@@ -109,6 +104,8 @@ actor StaticFileServer {
 
         // Listen
         guard listen(serverFD, 64) == 0 else { throw StaticServerError.listenFailed }
+
+        Noora().passthrough("Listening on http://\(host):\(port)")
 
         // Accept loop
         while !Task.isCancelled {

@@ -1,5 +1,20 @@
 // MARK: - PositionModifier
 
+/// A modifier that applies CSS `position`, inset, and `z-index` properties.
+///
+/// Use ``View/position(_:top:right:bottom:left:at:)`` and its overloads rather
+/// than constructing `PositionModifier` directly.
+///
+/// ```swift
+/// Overlay { Spinner() }
+///     .position(.absolute, inset: 0)
+///
+/// SiteNavigation()
+///     .position(.sticky, top: 0)
+///     .position(zIndex: 10)
+/// ```
+///
+/// - SeeAlso: ``View/position(_:top:right:bottom:left:at:)``
 public struct PositionModifier: ThemeAwareModifier {
     let type: PositionType?
     let top: SpacingValue?

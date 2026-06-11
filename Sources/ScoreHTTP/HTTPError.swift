@@ -29,6 +29,7 @@ public struct HTTPError: Error, Sendable {
         case notFound = 404
         case methodNotAllowed = 405
         case unprocessableEntity = 422
+        case upgradeRequired = 426
         case tooManyRequests = 429
         case internalServerError = 500
         case serviceUnavailable = 503
@@ -46,6 +47,7 @@ public struct HTTPError: Error, Sendable {
             case .notFound: return "Not Found"
             case .methodNotAllowed: return "Method Not Allowed"
             case .unprocessableEntity: return "Unprocessable Entity"
+            case .upgradeRequired: return "Upgrade Required"
             case .tooManyRequests: return "Too Many Requests"
             case .internalServerError: return "Internal Server Error"
             case .serviceUnavailable: return "Service Unavailable"

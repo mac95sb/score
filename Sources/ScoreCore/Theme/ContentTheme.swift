@@ -41,6 +41,54 @@ public struct ContentTheme: Sendable {
         strikethrough: { v in v }
     )
 
+    /// A content theme tuned for long-form blog articles.
+    ///
+    /// Applies generous line height and spacing to body text, distinctive blockquote
+    /// styling, and comfortable heading sizes suited to article prose.
+    public static let blog = ContentTheme(
+        heading: { level, v in
+            let size: FontSize = level == 1 ? .fourXL : level == 2 ? .threeXL : level == 3 ? .twoXL : .xl
+            return v.erased().font(size: size, weight: .bold).margin(y: .rem(1))
+        },
+        paragraph: { v in
+            v.erased().font(leading: .relaxed).margin(y: .rem(0.75))
+        },
+        code: { v in
+            v.erased().font(family: .systemMono).padding(.px(2), .px(6)).border(radius: .sm).background(color: .surface)
+        },
+        codeBlock: { _, v in
+            v.erased().font(family: .systemMono).padding(.rem(1.5)).border(radius: .md).background(color: .surface).overflow(.scroll)
+        },
+        blockquote: { v in
+            v.erased().border(color: .primary, width: 4, edge: .left).padding(x: .rem(1.5), y: .rem(1)).font(color: .muted, style: .italic)
+        },
+        list: { _, v in
+            v.erased().margin(y: .rem(0.75)).padding(left: .rem(1.5))
+        },
+        listItem: { v in
+            v.erased().margin(y: .rem(0.25))
+        },
+        table: { v in
+            v.erased().overflow(.scroll)
+        },
+        link: { v in
+            v.erased().font(color: .primary, decoration: .underline)
+        },
+        image: { v in
+            v.erased().border(radius: .md).overflow(.hidden)
+        },
+        divider: { v in
+            v.erased().margin(y: .rem(2))
+        },
+        strong: { v in
+            v.erased().font(weight: .semibold)
+        },
+        emphasis: { v in
+            v.erased().font(style: .italic)
+        },
+        strikethrough: { v in v }
+    )
+
     public init(
         heading:       @escaping HeadingStyle                              = { _, v in v },
         paragraph:     @escaping ElementStyle                              = { v in v },

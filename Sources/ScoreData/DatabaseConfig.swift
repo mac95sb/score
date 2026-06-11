@@ -25,3 +25,21 @@ public struct InMemoryDatabase: DatabaseConfig {
         try await DatabaseContext.sqlite(path: ":memory:")
     }
 }
+
+/// The placeholder configuration used when an application declares no database.
+///
+/// `Application.database` defaults to `NoDatabase`; the runtime skips database
+/// bootstrap entirely when it sees this type. Calling `makeContext()` throws.
+public struct NoDatabase: DatabaseConfig {
+    public struct NotConfigured: Error, CustomStringConvertible {
+        public var description: String {
+            "No database configured — declare `var database` on your Application."
+        }
+    }
+
+    public init() {}
+
+    public func makeContext() async throws -> DatabaseContext {
+        throw NotConfigured()
+    }
+}

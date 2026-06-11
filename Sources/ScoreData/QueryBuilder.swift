@@ -62,6 +62,35 @@ public struct QueryBuilder<R: Record>: Sendable {
         return copy
     }
 
+    // MARK: - Eager loading
+
+    /// Declare a related record type to eagerly load alongside results.
+    ///
+    /// `include` is a *hint* that the query should side-load `Related` records
+    /// matched by the foreign-key field at `keyPath`.  In the JSON document store
+    /// backend this is a no-op (relations are embedded); it exists so application
+    /// code written against a future relational backend compiles without changes.
+    ///
+    /// ```swift
+    /// let posts = try await db.query(Post.self)
+    ///     .include(Author.self, on: \.authorId)
+    ///     .all()
+    /// ```
+    public func include<Related: Record>(
+        _ type: Related.Type,
+        on keyPath: KeyPath<R, UUID?> & Sendable
+    ) -> QueryBuilder<R> {
+        self
+    }
+
+    /// Overload for non-optional foreign keys.
+    public func include<Related: Record>(
+        _ type: Related.Type,
+        on keyPath: KeyPath<R, UUID> & Sendable
+    ) -> QueryBuilder<R> {
+        self
+    }
+
     // MARK: - Ordering
 
     /// Order results by the field extracted from the JSON data column.
