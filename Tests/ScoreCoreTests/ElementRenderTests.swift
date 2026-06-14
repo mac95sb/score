@@ -72,7 +72,7 @@ struct ElementRenderTests {
     @Test("Image renders with src and alt")
     func imageElement() throws {
         var ctx = RenderContext()
-        let html = Image(src: "/logo.png", alt: "Logo")._renderInto(&ctx)
+        let html = Image("/logo.png", alt: "Logo")._renderInto(&ctx)
         #expect(html.contains("src=\"/logo.png\""))
         #expect(html.contains("alt=\"Logo\""))
     }
@@ -103,7 +103,7 @@ struct ElementRenderTests {
     @Test("List renders as <ol> when ordered")
     func orderedList() throws {
         var ctx = RenderContext()
-        let html = List(ordered: true) {
+        let html = List(.ordered) {
             ListItem { "First" }
         }._renderInto(&ctx)
         #expect(html.hasPrefix("<ol"))
@@ -130,7 +130,7 @@ struct ElementRenderTests {
     @Test("Code renders as <code>")
     func codeElement() throws {
         var ctx = RenderContext()
-        let html = Code { "let x = 1" }._renderInto(&ctx)
+        let html = Code("let x = 1")._renderInto(&ctx)
         #expect(html.contains("<code>"))
         #expect(html.contains("let x = 1"))
     }

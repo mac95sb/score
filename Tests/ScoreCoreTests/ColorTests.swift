@@ -38,7 +38,7 @@ struct ColorTests {
     func mixColors() throws {
         let c1 = Color(oklch: 0.2, 0.0, 0.0)
         let c2 = Color(oklch: 0.8, 0.0, 0.0)
-        let mixed = c1.mix(with: c2, weight: 0.5)
+        let mixed = c1.mix(c2, by: 0.5)
         #expect(mixed.l > 0.4)
         #expect(mixed.l < 0.6)
     }

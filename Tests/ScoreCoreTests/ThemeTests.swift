@@ -30,14 +30,14 @@ struct ThemeTests {
     @Test("dark mode block emitted when darkColors set")
     func darkModeBlock() {
         let dark = ThemeColors(
-            primary: .oklch(0.7, 0.15, 250),
-            accent:  .oklch(0.6, 0.2, 200),
-            surface: .oklch(0.15, 0.0, 0),
-            secondary: .oklch(0.5, 0.1, 250),
-            tertiary: .oklch(0.4, 0.05, 0),
-            text:  .oklch(0.95, 0.0, 0),
-            muted: .oklch(0.6, 0.0, 0),
-            destructive: .oklch(0.55, 0.22, 25)
+            primary: Color(oklch:0.7, 0.15, 250),
+            accent:  Color(oklch:0.6, 0.2, 200),
+            surface: Color(oklch:0.15, 0.0, 0),
+            secondary: Color(oklch:0.5, 0.1, 250),
+            tertiary: Color(oklch:0.4, 0.05, 0),
+            text:  Color(oklch:0.95, 0.0, 0),
+            muted: Color(oklch:0.6, 0.0, 0),
+            destructive: Color(oklch:0.55, 0.22, 25)
         )
         let theme = SiteTheme(darkColors: dark)
         let css = theme.cssVariables()
@@ -57,7 +57,7 @@ struct ThemeTests {
     @Test("custom tokens appear in CSS variables")
     func customTokens() {
         let theme = SiteTheme(tokens: [
-            ThemeToken(name: "--brand-color", value: "oklch(0.5 0.2 270)"),
+            ThemeToken("--brand-color", "oklch(0.5 0.2 270)"),
         ])
         let css = theme.cssVariables()
         #expect(css.contains("--brand-color"))

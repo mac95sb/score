@@ -7,7 +7,7 @@ import ScoreCore
 
 struct StubMiddleware: Middleware {
     let tag: String
-    func handle(_ request: Request, next: RequestHandler) async throws -> Response {
+    func handle(_ request: Request, next: @Sendable (Request) async throws -> Response) async throws -> Response {
         try await next(request)
     }
 }
@@ -92,8 +92,8 @@ struct RouteGroupTests {
             DELETE("/resource") { _ in .ok() }
         }
         let methods = group.routes.map(\.method)
-        #expect(methods.contains(.get))
-        #expect(methods.contains(.post))
-        #expect(methods.contains(.delete))
+        #expect(methods.contains(.GET))
+        #expect(methods.contains(.POST))
+        #expect(methods.contains(.DELETE))
     }
 }
