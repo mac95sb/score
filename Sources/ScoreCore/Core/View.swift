@@ -64,7 +64,7 @@ extension Swift.Never: View {
 
 // MARK: - String literal support
 
-extension String: @retroactive View {
+extension String: View {
     public typealias Body = _StringView
     public var body: _StringView { _StringView(text: self) }
 }

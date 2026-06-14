@@ -33,7 +33,3 @@ public enum LocaleDetectionStrategy: Sendable, Hashable {
     /// Detect locale from a cookie with the given name.
     case cookie(String)
 }
-
-// MARK: - Sendable conformance
-
-extension Locale: @retroactive @unchecked Sendable {}
