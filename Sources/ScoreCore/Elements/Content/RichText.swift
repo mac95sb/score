@@ -19,21 +19,21 @@ public struct RichText: View, _HTMLRenderable {
     public var body: Never { fatalError() }
 
     public func renderHTML(context: inout RenderContext) -> String {
-        let rendered = MarkdownRenderer.render(markdown)
+        let rendered = Self.render(markdown)
         return "<div class=\"rich-text\">\(rendered)</div>"
     }
 
     public func collectCSS(context: inout CSSCollectionContext) {}
 }
 
-// MARK: - MarkdownRenderer
+// MARK: - Markdown rendering
 
-/// Simple markdown-to-HTML renderer covering common cases.
+/// Simple markdown-to-HTML rendering covering common cases.
 ///
-/// Full production use should integrate swift-markdown; this handles
-/// headings, paragraphs, lists, code blocks, blockquotes, and inline
+/// Full production use should integrate swift-markdown (see ``MarkdownRenderer``);
+/// this handles headings, paragraphs, lists, code blocks, blockquotes, and inline
 /// formatting (bold, italic, code, links, strikethrough).
-public enum MarkdownRenderer {
+extension RichText {
     public static func render(_ markdown: String) -> String {
         var html = ""
         let lines = markdown.components(separatedBy: "\n")

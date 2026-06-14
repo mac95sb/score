@@ -96,13 +96,13 @@ public struct MarkdownRenderer {
     // MARK: - Lists
 
     private func renderUnorderedList(_ list: Markdown.UnorderedList) -> AnyView {
-        let items = list.listItems.map { renderListItem($0) }
+        let items = Array(list.listItems).map { renderListItem($0) }
         let inner = AnyView(ScoreCore.List(.unordered) { ForEach(items) { $0 } })
         return AnyView(theme.list(.unordered, inner))
     }
 
     private func renderOrderedList(_ list: Markdown.OrderedList) -> AnyView {
-        let items = list.listItems.map { renderListItem($0) }
+        let items = Array(list.listItems).map { renderListItem($0) }
         let inner = AnyView(ScoreCore.List(.ordered) { ForEach(items) { $0 } })
         return AnyView(theme.list(.ordered, inner))
     }
@@ -117,11 +117,11 @@ public struct MarkdownRenderer {
 
     private func renderTable(_ table: Markdown.Table) -> AnyView {
         // swift-markdown: table.head.children = cells; table.body.children = rows
-        let headerCells = table.head.children.map { cell in
+        let headerCells = Array(table.head.cells).map { cell in
             AnyView(ScoreCore.TableCell(.header) { cell.plainText })
         }
-        let bodyRows = table.body.children.map { row -> AnyView in
-            let cells = row.children.map { cell in
+        let bodyRows = Array(table.body.rows).map { row -> AnyView in
+            let cells = Array(row.cells).map { cell in
                 AnyView(ScoreCore.TableCell { cell.plainText })
             }
             return AnyView(ScoreCore.TableRow { ForEach(cells) { $0 } })
