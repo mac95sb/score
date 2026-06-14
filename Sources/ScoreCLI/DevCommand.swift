@@ -39,14 +39,15 @@ struct DevCommand: AsyncParsableCommand {
         let binaryURL = try locateExecutable()
         let serverBox = ServerProcessBox()
 
+        let cmd = self
         try await withThrowingTaskGroup(of: Void.self) { group in
             group.addTask {
-                try await self.runServer(binaryURL: binaryURL, box: serverBox)
+                try await cmd.runServer(binaryURL: binaryURL, box: serverBox)
             }
 
-            if !self.noHotReload {
+            if !cmd.noHotReload {
                 group.addTask {
-                    await self.watchForChanges(box: serverBox)
+                    await cmd.watchForChanges(box: serverBox)
                 }
             }
 
@@ -124,11 +125,11 @@ struct DevCommand: AsyncParsableCommand {
             URL(fileURLWithPath: "Localizable.xcstrings"),
         ].filter { FileManager.default.fileExists(atPath: $0.path) }
 
-        var lastModDates: [URL: Date] = [:]
+        var lastDates: [URL: Date] = [:]
 
         while !Task.isCancelled {
-            var changed = pollChanges(in: directories, lastDates: &lastModDates)
-            changed += pollFiles(singleFiles, lastDates: &lastModDates)
+            var changed = pollChanges(in: directories, lastDates: &lastDates)
+            changed += pollFiles(singleFiles, lastDates: &lastDates)
             if !changed.isEmpty {
                 let noora = Noora()
                 for url in changed {
@@ -161,11 +162,11 @@ struct DevCommand: AsyncParsableCommand {
                 guard let attrs = try? fileURL.resourceValues(forKeys: [.contentModificationDateKey]),
                       let modDate = attrs.contentModificationDate else { continue }
 
-                if let last = lastModDates[fileURL], modDate > last {
-                    lastModDates[fileURL] = modDate
+                if let last = lastDates[fileURL], modDate > last {
+                    lastDates[fileURL] = modDate
                     changed.append(fileURL)
-                } else if lastModDates[fileURL] == nil {
-                    lastModDates[fileURL] = modDate
+                } else if lastDates[fileURL] == nil {
+                    lastDates[fileURL] = modDate
                 }
             }
         }
@@ -180,11 +181,11 @@ struct DevCommand: AsyncParsableCommand {
         for fileURL in files {
             guard let attrs = try? fileURL.resourceValues(forKeys: [.contentModificationDateKey]),
                   let modDate = attrs.contentModificationDate else { continue }
-            if let last = lastModDates[fileURL], modDate > last {
-                lastModDates[fileURL] = modDate
+            if let last = lastDates[fileURL], modDate > last {
+                lastDates[fileURL] = modDate
                 changed.append(fileURL)
-            } else if lastModDates[fileURL] == nil {
-                lastModDates[fileURL] = modDate
+            } else if lastDates[fileURL] == nil {
+                lastDates[fileURL] = modDate
             }
         }
         return changed

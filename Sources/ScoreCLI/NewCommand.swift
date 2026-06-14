@@ -31,11 +31,12 @@ struct NewCommand: AsyncParsableCommand {
         }
 
         let scaffold = ProjectScaffolder(template: template)
+        let projectName = name
 
         try await noora.progressStep(
             message: "Creating \(name) (\(template.rawValue) template)…"
         ) { _ in
-            try scaffold.write(to: projectDir, projectName: name)
+            try scaffold.write(to: projectDir, projectName: projectName)
         }
 
         if !skipResolve {

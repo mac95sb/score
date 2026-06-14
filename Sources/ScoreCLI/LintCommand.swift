@@ -151,7 +151,7 @@ struct ScoreLinter: Sendable {
     }
 
     private func lintFile(_ url: URL, autoFix: Bool) throws -> ([LintDiagnostic], Int) {
-        var source = try String(contentsOf: url, encoding: .utf8)
+        let source = try String(contentsOf: url, encoding: .utf8)
         var lines = source.components(separatedBy: "\n")
         var diagnostics: [LintDiagnostic] = []
         let file = url.path

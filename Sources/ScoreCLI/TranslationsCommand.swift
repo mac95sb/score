@@ -39,11 +39,12 @@ struct TranslationsExtractCommand: AsyncParsableCommand {
     mutating func run() async throws {
         let noora = Noora()
         let extractor = TranslationExtractor()
+        let sourcePath = source
 
         let keys = try await noora.progressStep(
             message: "Extracting translatable strings from \(source)…"
         ) { _ in
-            try extractor.extract(from: URL(fileURLWithPath: source))
+            try extractor.extract(from: URL(fileURLWithPath: sourcePath))
         }
 
         let outputDir = URL(fileURLWithPath: output)
