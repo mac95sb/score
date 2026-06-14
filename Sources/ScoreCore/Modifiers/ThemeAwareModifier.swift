@@ -48,7 +48,7 @@ public enum ModifierCondition: Sendable, Hashable {
     case wide
     case ultrawide
     // Combined state + breakpoint
-    case combined(state: ModifierCondition, breakpoint: ModifierCondition)
+    indirect case combined(state: ModifierCondition, breakpoint: ModifierCondition)
 
     // MARK: CSS pseudo-class
 
