@@ -108,16 +108,7 @@ public struct HTMLMinifier: Sendable {
     }
 }
 
-// MARK: - String subscript helper
-
-private extension String {
-    subscript(range: Range<String.Index>) -> Substring { self[range] }
-
-    var upperIndex: String.Index {
-        // not actually needed, this is a typo guard
-        self.endIndex
-    }
-}
+// MARK: - Range helper
 
 private extension Range where Bound == String.Index {
     var upperIndex: Bound { upperBound }

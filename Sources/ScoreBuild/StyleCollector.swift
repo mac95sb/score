@@ -49,7 +49,7 @@ public final class StyleCollector: @unchecked Sendable {
         if minify {
             return rules.map { $0.renderMinified() }.joined()
         } else {
-            return rules.map { $0.render(indent: 0) }.joined(separator: "\n")
+            return rules.map { $0.render() }.joined(separator: "\n")
         }
     }
 
