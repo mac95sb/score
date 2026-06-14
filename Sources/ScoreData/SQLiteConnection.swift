@@ -13,7 +13,10 @@ public typealias SQLValue = (any Sendable & Codable)?
 /// All operations are serialised through the actor's executor, providing
 /// safe concurrent access from multiple Swift async tasks.
 public actor SQLiteConnection {
-    private var db: OpaquePointer?
+    // `nonisolated(unsafe)` so the nonisolated `deinit` can close the handle.
+    // Safe: at deinitialization no other reference to the actor exists, so no
+    // concurrent access to `db` is possible. All other access is actor-isolated.
+    private nonisolated(unsafe) var db: OpaquePointer?
     private let path: String
 
     public init(path: String) async throws {

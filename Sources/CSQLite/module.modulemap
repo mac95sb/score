@@ -1,4 +1,9 @@
-module CSQLite {
-    header "include/sqlite3.h"
+// System SQLite shim. Resolves to the platform's libsqlite3:
+//   - macOS: the copy in the active SDK
+//   - Linux: libsqlite3-dev (header on the default include path, linked via -lsqlite3)
+// Marked [system] so the C header's own warnings are suppressed.
+module CSQLite [system] {
+    header "shim.h"
+    link "sqlite3"
     export *
 }

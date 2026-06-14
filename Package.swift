@@ -15,6 +15,7 @@ let package = Package(
         .library(name: "ScoreData", targets: ["ScoreData"]),
         .library(name: "ScoreSSG", targets: ["ScoreSSG"]),
         .library(name: "ScoreBuild", targets: ["ScoreBuild"]),
+        .library(name: "ScorePackaging", targets: ["ScorePackaging"]),
         .executable(name: "score", targets: ["ScoreCLI"]),
     ],
     dependencies: [
@@ -34,27 +35,20 @@ let package = Package(
         .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.21.0"),
         .package(url: "https://github.com/apple/swift-markdown.git", from: "0.4.0"),
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
-        .package(url: "https://github.com/apple/swift-nio-transport-services.git", from: "1.21.0"),
-        .package(url: "https://github.com/apple/swift-distributed-tracing.git", from: "1.0.0"),
-        .package(url: "https://github.com/apple/swift-certificates.git", from: "1.0.0"),
         .package(url: "https://github.com/tuist/Noora.git", from: "0.56.0"),
         .package(url: "https://github.com/apple/swift-openapi-runtime.git", from: "1.0.0"),
     ],
     targets: [
-        // MARK: - Embedded SQLite amalgamation
-        // Self-contained C target — no system sqlite3 dependency required.
-        // To update: replace Sources/CSQLite/sqlite3.c and Sources/CSQLite/include/sqlite3.h
-        // with the latest amalgamation from https://sqlite.org/download.html (or `make update-sqlite`).
-        .target(
+        // MARK: - System SQLite
+        // Links the platform's libsqlite3 (macOS SDK; Linux via libsqlite3-dev)
+        // instead of vendoring the amalgamation. ScoreData uses only the core C
+        // API plus built-in JSON functions, both present in every modern SQLite.
+        .systemLibrary(
             name: "CSQLite",
             path: "Sources/CSQLite",
-            sources: ["sqlite3.c"],
-            publicHeadersPath: "include",
-            cSettings: [
-                .define("SQLITE_THREADSAFE", to: "2"),
-                .define("SQLITE_ENABLE_FTS5"),
-                .define("SQLITE_ENABLE_JSON1"),
-                .define("SQLITE_ENABLE_RTREE"),
+            providers: [
+                .apt(["libsqlite3-dev"]),
+                .brew(["sqlite"]),
             ]
         ),
 
@@ -146,11 +140,19 @@ let package = Package(
             ]
         ),
 
+        // MARK: - ScorePackaging
+        // Native WebView shell generators and the SwiftUI kit exporter.
+        // Standalone (Foundation only) — consumed by the CLI's `package` command.
+        .target(
+            name: "ScorePackaging"
+        ),
+
         // MARK: - ScoreCLI (executable)
         .executableTarget(
             name: "ScoreCLI",
             dependencies: [
                 "Score",
+                "ScorePackaging",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Logging", package: "swift-log"),
                 .product(name: "Noora", package: "Noora"),
