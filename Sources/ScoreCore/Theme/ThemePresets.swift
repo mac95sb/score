@@ -33,7 +33,7 @@ public struct ThemePalette: Sendable {
         primary: (Int) -> Color,
         accent: (Int) -> Color,
         tint: ((Int) -> Color)? = nil,
-        neutral: (Int) -> Color = Color.slate
+        neutral: @escaping (Int) -> Color = Color.slate
     ) {
         let surfaceTint = tint ?? neutral
         self.light = ThemeColors(
