@@ -86,7 +86,7 @@ public actor StaticSiteGenerator {
         requiresServer: Bool = false
     ) async throws {
         try fm.createDirectory(at: configuration.outputDirectory, withIntermediateDirectories: true)
-        try dependencyGraph.load()
+        try await dependencyGraph.load()
 
         var assetMap: [String: String] = extraAssets
         var pagePaths: [String] = []
@@ -117,7 +117,7 @@ public actor StaticSiteGenerator {
         let writer = ManifestWriter()
         try writer.write(manifest, to: configuration.outputDirectory)
 
-        try dependencyGraph.save()
+        try await dependencyGraph.save()
     }
 
     // MARK: - Incremental build
@@ -129,8 +129,11 @@ public actor StaticSiteGenerator {
         css: String = "",
         requiresServer: Bool = false
     ) async throws {
-        try dependencyGraph.load()
-        let affectedPaths = changedFiles.flatMap { await dependencyGraph.pagesAffectedBy(file: $0) }
+        try await dependencyGraph.load()
+        var affectedPaths: [String] = []
+        for file in changedFiles {
+            affectedPaths.append(contentsOf: await dependencyGraph.pagesAffectedBy(file: file))
+        }
         let affectedSet = Set(affectedPaths)
         let pagesToRebuild = allPages.filter { affectedSet.contains($0.path) }
         try await build(pages: pagesToRebuild, css: css, requiresServer: requiresServer)

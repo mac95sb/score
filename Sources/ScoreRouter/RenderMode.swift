@@ -1,7 +1,7 @@
 import Foundation
 
 /// Controls how a route renders its response.
-public enum RenderMode: Sendable {
+public enum RenderMode: Sendable, Equatable {
     /// Pre-rendered at build time. Default for `Page` / `View`-returning routes.
     case `static`
     /// Rendered on every request. Default for `Response`-returning routes.
