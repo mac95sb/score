@@ -56,7 +56,6 @@ public actor NIOServer: Service {
 
     public func run() async throws {
         let group = MultiThreadedEventLoopGroup(numberOfThreads: System.coreCount)
-        defer { try? group.syncShutdownGracefully() }
 
         let serverHandler = handler
         let staticDir = staticDirectory
@@ -105,14 +104,20 @@ public actor NIOServer: Service {
             .childChannelOption(ChannelOptions.socketOption(.so_reuseaddr), value: 1)
             .childChannelOption(ChannelOptions.maxMessagesPerRead, value: 1)
 
-        let channel = try await bootstrap.bind(host: host, port: port).get()
-        log.info("Score server listening on \(host):\(port)")
+        do {
+            let channel = try await bootstrap.bind(host: host, port: port).get()
+            log.info("Score server listening on \(host):\(port)")
 
-        try await withTaskCancellationHandler {
-            try await channel.closeFuture.get()
-        } onCancel: {
-            channel.close(promise: nil)
+            try await withTaskCancellationHandler {
+                try await channel.closeFuture.get()
+            } onCancel: {
+                channel.close(promise: nil)
+            }
+        } catch {
+            try? await group.shutdownGracefully()
+            throw error
         }
+        try? await group.shutdownGracefully()
     }
 }
 
@@ -196,28 +201,33 @@ final class ScoreHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
             let staticDir = staticDirectory
             let eventLoop = context.eventLoop
             let httpHandler = self
+            let isGet = head.method == .GET
+            // The channel context is non-Sendable; bind it to its event loop so
+            // the detached Task can hand it back safely. It is only ever touched
+            // inside `eventLoop.execute`, i.e. back on the loop that owns it.
+            let boundContext = NIOLoopBound(context, eventLoop: eventLoop)
 
             Task {
-                if let staticDir, head.method == .GET {
+                if let staticDir, isGet {
                     if let fileURL = httpHandler.resolveStaticFile(path: request.uri.path, in: staticDir),
                        let staticResponse = httpHandler.serveStaticFile(at: fileURL) {
-                        eventLoop.execute { httpHandler.writeResponse(staticResponse, to: context) }
+                        eventLoop.execute { httpHandler.writeResponse(staticResponse, to: boundContext.value) }
                         return
                     }
                 }
                 do {
                     let response = try await h(request)
-                    eventLoop.execute { httpHandler.writeResponse(response, to: context) }
+                    eventLoop.execute { httpHandler.writeResponse(response, to: boundContext.value) }
                 } catch let httpError as HTTPError {
                     let errResponse = Response(
                         status: httpError.status,
                         body: httpError.message.map { .text($0) } ?? .empty
                     )
-                    eventLoop.execute { httpHandler.writeResponse(errResponse, to: context) }
+                    eventLoop.execute { httpHandler.writeResponse(errResponse, to: boundContext.value) }
                 } catch {
                     log.error("Handler error: \(error)")
                     let errResponse = Response(status: .internalServerError, body: .text("Internal Server Error"))
-                    eventLoop.execute { httpHandler.writeResponse(errResponse, to: context) }
+                    eventLoop.execute { httpHandler.writeResponse(errResponse, to: boundContext.value) }
                 }
             }
         }

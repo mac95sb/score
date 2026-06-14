@@ -42,8 +42,11 @@ final class WebSocketFrameHandler: ChannelInboundHandler, @unchecked Sendable {
         case .connectionClose:
             // Echo the close frame back, then close the channel.
             let close = WebSocketFrame(fin: true, opcode: .connectionClose, data: frame.data)
+            // Capture the Sendable `channel` rather than the non-Sendable
+            // `context` so the @Sendable completion callback stays data-race free.
+            let channel = context.channel
             context.writeAndFlush(wrapOutboundOut(close)).whenComplete { _ in
-                context.close(promise: nil)
+                channel.close(promise: nil)
             }
             let ws = webSocket
             Task { await ws.finish() }
