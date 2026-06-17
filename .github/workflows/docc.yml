@@ -24,7 +24,9 @@ jobs:
 
       - name: Generate DocC
         run: |
-          swift package generate-documentation \
+          swift package \
+            --allow-writing-to-directory docs-output \
+            generate-documentation \
             --target Score \
             --disable-indexing \
             --transform-for-static-hosting \
