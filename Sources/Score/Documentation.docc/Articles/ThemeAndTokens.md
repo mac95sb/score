@@ -48,12 +48,12 @@ Color.emerald(400)   // light emerald
 Color.slate(100)     // near-white slate tint
 ```
 
-Semantic aliases accept the same shade numbers:
+Semantic aliases are single-value tokens — they resolve through the theme at runtime and do not accept shade numbers. To get a lighter or darker variant, use `.lighten()`, `.darken()`, or `.opacity()`:
 
 ```swift
-Color.primary(300)   // lighter tint of the primary colour
-Color.primary(600)   // the base primary token
-Color.primary(900)   // darkest primary shade
+Color.primary.opacity(0.1)        // 10% opacity overlay
+Color.primary.lighten(0.1)        // 10% lighter
+Color.accent.darken(0.15)         // 15% darker
 ```
 
 ### Custom Colour Scales
@@ -87,8 +87,8 @@ runtime without a page reload.
 
 ```swift
 Color(hex: "#6366F1")
-Color(rgb: 99, 102, 241)
-Color(hsl: 239, 84, 67)
+Color(rgb: 0.388, 0.400, 0.945)   // values in 0.0–1.0 range
+Color(hsl: 239, 84, 67)            // hue 0–360, saturation/lightness 0–100
 Color(oklch: 0.6, 0.2, 270)
 ```
 
@@ -96,7 +96,7 @@ Color(oklch: 0.6, 0.2, 270)
 
 ```swift
 Color.primary.opacity(0.1)
-Color.primary(300).opacity(0.5)
+Color.primary.opacity(0.5)
 Color.violet(500).lighten(0.15)
 Color.slate(900).darken(0.1)
 Color.primary.mix(.accent, by: 0.5)
@@ -110,28 +110,33 @@ Override `theme` on your `Application`:
 @main
 struct MySite: Application {
     var theme: SiteTheme {
-        SiteTheme {
-            colors {
-                primary:     .violet(600)
-                accent:      .emerald(400)
-                surface:     .white
-                muted:       .slate(500)
+        SiteTheme(
+            colors: ThemeColors(
+                primary:     .violet(600),
+                accent:      .emerald(400),
+                surface:     .white,
+                secondary:   .violet(50),
+                tertiary:    .violet(100),
+                text:        .slate(900),
+                muted:       .slate(500),
                 destructive: .rose(600)
-            }
-            fonts {
-                body:    .system
-                heading: .custom("Fraunces", url: "/fonts/Fraunces.woff2")
+            ),
+            fonts: ThemeFonts(
+                body:    .system,
+                heading: .custom("Fraunces", url: "/fonts/Fraunces.woff2"),
                 mono:    .systemMono
-            }
-            radii {
-                sm: 4; md: 8; lg: 12; xl: 16; twoXL: 24
-            }
-            breakpoints {
-                phone: 480; tablet: 768; desktop: 1024; wide: 1280; ultrawide: 1536
-            }
-        }
+            ),
+            radii: ThemeRadii(sm: 4, md: 8, lg: 12, xl: 16, twoXL: 24, full: 9999),
+            breakpoints: ThemeBreakpoints(phone: 480, tablet: 768, desktop: 1024, wide: 1280, ultrawide: 1536)
+        )
     }
 }
+```
+
+For most apps, `SiteTheme.preset(_:palette:)` is simpler — it fills in all the defaults from the chosen palette and preset:
+
+```swift
+var theme: SiteTheme { .preset(.modern, palette: .violet) }
 ```
 
 ## Custom Fonts
@@ -144,10 +149,13 @@ Provide a font name and the URL to your `.woff2` file. Score emits a
 `<link rel="preload">` and an `@font-face` rule automatically:
 
 ```swift
-fonts {
-    heading: .custom("Fraunces", url: "/fonts/Fraunces.woff2")
-    body:    .custom("Inter",    url: "/fonts/Inter.woff2")
-}
+SiteTheme(
+    fonts: ThemeFonts(
+        body:    .custom("Inter",     url: "/fonts/Inter.woff2"),
+        heading: .custom("Fraunces",  url: "/fonts/Fraunces.woff2"),
+        mono:    .systemMono
+    )
+)
 ```
 
 Place your font files in `Public/fonts/` so Score copies them verbatim to the
@@ -159,16 +167,20 @@ Pass the stylesheet URL as `url:` and the CDN origins as `supplementaryURLs:`
 so the browser can preconnect before it knows it needs the font:
 
 ```swift
-fonts {
-    heading: .custom(
-        "Playfair Display",
-        url: "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700",
-        supplementaryURLs: [
-            "https://fonts.googleapis.com",
-            "https://fonts.gstatic.com",
-        ]
+SiteTheme(
+    fonts: ThemeFonts(
+        body:    .system,
+        heading: .custom(
+            "Playfair Display",
+            url: "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700",
+            supplementaryURLs: [
+                "https://fonts.googleapis.com",
+                "https://fonts.gstatic.com",
+            ]
+        ),
+        mono: .systemMono
     )
-}
+)
 ```
 
 Score emits:
@@ -181,19 +193,13 @@ Score emits:
 
 ## Dark Mode
 
-The `dark {}` block emits both OS-preference and manual override CSS:
+Pass `darkColors` to emit both OS-preference and manual override CSS:
 
 ```swift
-SiteTheme {
-    colors {
-        surface: .white
-        text:    .slate(900)
-    }
-    dark {
-        surface: Color(oklch: 0.12, 0, 0)
-        text:    .slate(100)
-    }
-}
+SiteTheme(
+    colors: ThemeColors(surface: .white, text: .slate(900), ...),
+    darkColors: ThemeColors(surface: Color(oklch: 0.12, 0, 0), text: .slate(100), ...)
+)
 ```
 
 Score emits:
@@ -209,8 +215,8 @@ Score emits:
 }
 ```
 
-Toggle manually with `@State var theme: AppTheme` — Score wires the `data-theme`
-attribute automatically.
+Add a `ThemeSelector` to let users toggle manually — Score writes the
+`data-theme` attribute to `<html>` and persists the selection in `localStorage`.
 
 ## Spacing Scale
 

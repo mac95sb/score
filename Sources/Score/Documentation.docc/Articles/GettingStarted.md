@@ -199,10 +199,10 @@ any platform WebView. `score package` wraps your built site into a native app
 shell for desktop and mobile targets:
 
 ```sh
-score package --target macos     # macOS app using WKWebView
-score package --target windows   # Windows app using WebView2
-score package --target linux     # Linux app using WebKitGTK
-score package --target android   # Android app using WebView
+score package swiftui    # Swift package with Records + API client (macOS/iOS)
+score package windows    # Windows app using WebView2
+score package linux      # Linux app using WebKitGTK
+score package android    # Android app using WebView
 ```
 
 Each target produces a self-contained app bundle that loads your Score output

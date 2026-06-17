@@ -17,25 +17,18 @@ struct ArticleCard: View {
     let post: ContentPost
     @State var saved: Bool = false
 
+    @Action func toggleSaved() { saved.toggle() }
+
     var body: some View {
         VStack {
             Heading(3) { post.frontmatter.title }
             Text { post.frontmatter.excerpt ?? "" }.font(color: .muted)
-            SaveButton(saved: $saved)
+            Button(.ghost, action: toggleSaved) { saved ? "Saved" : "Save" }
         }
         .padding(6)
         .border(radius: .lg)
         .on(.hover) { $0.shadow(.md).translate(y: .px(-2)) }
         .animate(.all, duration: 150.ms)
-    }
-}
-
-struct SaveButton: View {
-    @Binding var saved: Bool
-
-    var body: some View {
-        Button(.ghost) { saved ? "Saved" : "Save" }
-            .on(.click) { saved.toggle() }
     }
 }
 ```

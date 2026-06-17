@@ -240,8 +240,8 @@ let contentType = req.headers[.contentType]
 ## Response
 
 ```swift
-Response.json(post)                              // 200 application/json
-Response.json(post, status: .created)            // 201 application/json
+try Response.json(post)                              // 200 application/json
+try Response.json(post, status: .created)            // 201 application/json
 Response.html(SomePage())                        // 200 text/html
 Response.redirect(to: "/login")                  // 302 Found
 Response.redirect(to: "/new-path", permanent: true) // 301 Moved Permanently
@@ -255,7 +255,7 @@ Throw ``HTTPError`` to return any HTTP status code, including `500`:
 ```swift
 GET("/posts/:id") { req in
     guard let id = UUID(uuidString: req.pathParameters["id"] ?? "")
-    else { throw HTTPError.badRequest("Invalid UUID.") }
+    else { throw HTTPError(status: .badRequest, message: "Invalid UUID.") }
 
     guard let post = try await db.find(Post.self, id: id)
     else { throw HTTPError.notFound }

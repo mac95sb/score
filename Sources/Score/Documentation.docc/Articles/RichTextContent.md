@@ -166,10 +166,10 @@ post.frontmatter.tags       // [String]
 post.frontmatter.published  // Bool
 ```
 
-Custom fields are available via `frontmatter.customFields`:
+Custom fields are available via `frontmatter.custom(_:)`:
 
 ```swift
-post.frontmatter.customFields["author"] as? String
+post.frontmatter.custom("author")   // String?
 ```
 
 ## Markdown Extensions

@@ -143,17 +143,15 @@ try await cache.flush(prefix: "featured-")
 
 ## Configuration
 
-Declare the database and cache on ``Application``:
+Declare the database on ``Application``. The in-memory cache is available via
+`InMemoryCacheConfig` and can be instantiated directly in route handlers or
+stored as a property on your application type:
 
 ```swift
 @main
 struct MySite: Application {
     var database: some DatabaseConfig {
         SQLiteDatabase(path: ".score/db.sqlite")
-    }
-
-    var cache: some CacheConfig {
-        InMemoryCache()
     }
 }
 ```
@@ -185,10 +183,8 @@ var database: some DatabaseConfig {
 // Package.swift
 .package(url: "https://github.com/mac95sb/score-redis", branch: "main")
 
-// Application.swift
-var cache: some CacheConfig {
-    RedisCache(url: Env.required("REDIS_URL"))
-}
+// Application.swift — store as a property so the context is shared across requests
+let cache = RedisCache(url: Env.required("REDIS_URL"))
 ```
 
 Both plugins conform to the same `DatabaseConfig` / `CacheConfig` protocols as

@@ -16,11 +16,14 @@ initial values and vanilla JavaScript wired by Score's runtime on page load.
 struct CounterView: View {
     @State var count: Int = 0
 
+    @Action func decrement() { count -= 1 }
+    @Action func increment() { count += 1 }
+
     var body: some View {
         HStack {
             Heading(2) { "\(count)" }
-            Button(.ghost) { "−" }.on(.click) { count -= 1 }
-            Button(.ghost) { "+" }.on(.click) { count += 1 }
+            Button(.ghost, action: decrement) { "−" }
+            Button(.ghost, action: increment) { "+" }
         }
         .flex(align: .center, gap: 4)
     }
@@ -70,8 +73,8 @@ struct CounterView: View {
     var body: some View {
         HStack {
             Heading(2) { "\(count)" }
-            Button(.ghost) { "+" }.on(.click, run: increment)
-            Button(.ghost) { "Reset" }.on(.click, run: reset)
+            Button(.ghost, action: increment) { "+" }
+            Button(.ghost, action: reset) { "Reset" }
         }
         .flex(align: .center, gap: 4)
     }
@@ -105,11 +108,18 @@ struct SearchInput: View {
 
 ## @Fetch — Server Data in Views
 
-Fetch data from an API endpoint and use it directly in a view:
+Fetch data from a typed ``APIEndpoint`` and use it directly in a view. The
+endpoint descriptor (defined alongside your routes) acts as the shared contract
+between server and client:
 
 ```swift
+// Shared endpoint descriptor
+enum Posts {
+    static let list = APIEndpoint<Void, [Post]>(.GET, "/posts")
+}
+
 struct BlogIndexPage: Page {
-    @Fetch("/api/v1/posts") var posts: [Post]
+    @Fetch(Posts.list) var posts: [Post]
 
     var body: some View {
         Grid { for post in posts { ArticleCard(post: post) } }
@@ -118,22 +128,9 @@ struct BlogIndexPage: Page {
 }
 ```
 
-Reactive refetch when a `@State` parameter changes:
-
-```swift
-struct PostList: View {
-    @State var tag: String = "all"
-    @Fetch("/api/v1/posts", params: ["tag": $tag]) var posts: [Post]
-
-    var body: some View {
-        if posts.isLoading {
-            Spinner()
-        } else {
-            for post in posts.value ?? [] { ArticleCard(post: post) }
-        }
-    }
-}
-```
+`wrappedValue` is always populated by the time `body` runs — on server-rendered
+pages Score awaits the response before evaluation; on client-reactive pages it
+generates a typed JS fetch and updates the UI when the response arrives.
 
 ## Static vs Reactive Components
 
