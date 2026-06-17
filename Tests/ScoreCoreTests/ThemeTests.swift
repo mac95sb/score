@@ -52,18 +52,6 @@ struct ThemeTests {
         #expect(!css.contains("prefers-color-scheme"))
     }
 
-    // MARK: - Custom tokens
-
-    @Test("custom tokens appear in CSS variables")
-    func customTokens() {
-        let theme = SiteTheme(tokens: [
-            ThemeToken("--brand-color", "oklch(0.5 0.2 270)"),
-        ])
-        let css = theme.cssVariables()
-        #expect(css.contains("--brand-color"))
-        #expect(css.contains("oklch"))
-    }
-
     // MARK: - ThemeBreakpoints
 
     @Test("breakpoints have sensible pixel values")

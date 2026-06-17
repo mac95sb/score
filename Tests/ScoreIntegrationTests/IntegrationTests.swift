@@ -164,13 +164,12 @@ struct IntegrationTests {
 
     // MARK: - Theme integration
 
-    @Test("custom theme CSS variables appear in rendered HTML")
+    @Test("theme CSS variables appear in rendered HTML")
     func themeVariablesInHTML() throws {
-        let customTheme = SiteTheme(tokens: [
-            ThemeToken("--brand", "oklch(0.6 0.2 270)"),
-        ])
+        var customTheme = SiteTheme.default
+        customTheme.colors.primary = .violet(700)
         let renderer = PageRenderer(theme: customTheme, siteMetadata: site)
         let html = try renderer.render(HomeView())
-        #expect(html.contains("--brand"))
+        #expect(html.contains("--color-primary"))
     }
 }

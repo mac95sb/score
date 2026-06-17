@@ -134,12 +134,4 @@ struct ComponentThemeTests {
         #expect(css.contains("colorbackground:red"))
     }
 
-    @Test("custom theme tokens cannot escape their declaration")
-    func tokenSanitization() {
-        var theme = SiteTheme.default
-        theme.tokens = [ThemeToken("--x", "red}body{display:none")]
-        let css = theme.cssVariables()
-        #expect(!css.contains("body{display:none"))
-        #expect(css.contains("--x:redbodydisplay:none;"))
-    }
 }

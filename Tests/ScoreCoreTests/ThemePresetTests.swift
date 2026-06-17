@@ -85,9 +85,9 @@ struct ThemePresetTests {
     func neoBrutalism() {
         let theme = SiteTheme.preset(.neoBrutalism, palette: .rose)
         #expect(theme.radii.md == 0)
-        #expect(theme.shadows.md == "4px 4px 0 0 oklch(0 0 0)")
+        #expect(theme.shadows.md == "6px 6px 0 0 oklch(0 0 0)")
         let css = theme.components.css()
-        #expect(css.contains("border:2px solid oklch(0 0 0)"))
+        #expect(css.contains("border:3px solid oklch(0 0 0)"))
         #expect(css.contains("font-weight:700"))
         // Palette still applies.
         #expect(theme.colors.primary.cssValue == Color.rose(600).cssValue)

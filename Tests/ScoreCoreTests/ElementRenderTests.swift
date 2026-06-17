@@ -130,7 +130,7 @@ struct ElementRenderTests {
     @Test("Code renders as <code>")
     func codeElement() throws {
         var ctx = RenderContext()
-        let html = Code("let x = 1")._renderInto(&ctx)
+        let html = Code { "let x = 1" }._renderInto(&ctx)
         #expect(html.contains("<code>"))
         #expect(html.contains("let x = 1"))
     }
