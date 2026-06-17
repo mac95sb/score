@@ -78,8 +78,13 @@ actor StaticFileServer {
     }
 
     func start() async throws {
-        // Create a TCP socket
+        // Create a TCP socket.
+        // SOCK_STREAM is Int32 on Darwin but __socket_type (an enum) on Linux.
+        #if canImport(Darwin)
         let serverFD = socket(AF_INET, SOCK_STREAM, 0)
+        #else
+        let serverFD = socket(AF_INET, Int32(SOCK_STREAM.rawValue), 0)
+        #endif
         guard serverFD >= 0 else {
             throw StaticServerError.socketCreation
         }

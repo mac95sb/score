@@ -21,9 +21,16 @@ struct ArticleCard: View {
 
     var body: some View {
         VStack {
-            Heading(3) { post.frontmatter.title }
-            Text { post.frontmatter.excerpt ?? "" }.font(color: .muted)
-            Button(.ghost, action: toggleSaved) { saved ? "Saved" : "Save" }
+            Heading(3) {
+                post.frontmatter.title
+            }
+            Text {
+                post.frontmatter.excerpt ?? ""
+            }
+            .font(color: .muted)
+            Button(.ghost, action: toggleSaved) {
+                saved ? "Saved" : "Save"
+            }
         }
         .padding(6)
         .border(radius: .lg)

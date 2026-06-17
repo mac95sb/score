@@ -10,8 +10,13 @@ struct ArticleCard: View {
     let post: ContentPost
     var body: some View {
         VStack {
-            Heading(3) { post.frontmatter.title }
-            Text { post.frontmatter.excerpt ?? "" }.font(color: .muted)
+            Heading(3) {
+                post.frontmatter.title
+            }
+            Text {
+                post.frontmatter.excerpt ?? ""
+            }
+            .font(color: .muted)
         }
         .padding(6)
         .border(radius: .lg)
