@@ -48,30 +48,45 @@ public struct RouteBuilder {
 
 // MARK: - Route constructor functions
 
-/// A GET route that renders a `View` as HTML.
+/// A GET route that renders a ``Page`` as a complete HTML document.
 ///
 /// The render mode defaults to `.static` (build-time), suitable for pages that
 /// do not depend on per-request data. Pass `.serverRendered` for dynamic pages.
-public func Page(
+///
+/// The page factory is stored on the route so the Score runtime can render it
+/// through `PageRenderer` (full document shell + theme CSS + component CSS).
+public func Page<P: ScoreCore.Page>(
     _ path: String,
     mode: RenderMode = .static,
-    handler: @escaping @Sendable (Request) async throws -> some View
+    handler: @escaping @Sendable (Request) async throws -> P
 ) -> Route {
-    Route(method: .GET, pathPattern: path, renderMode: mode) { req in
-        let view = try await handler(req)
-        return Response.html(view)
+    Route(
+        method: .GET,
+        pathPattern: path,
+        renderMode: mode,
+        pageFactory: { req in try await handler(req) }
+    ) { req in
+        // Bare fallback used when the route handler is called directly without
+        // the runtime's PageRenderer wrapping (e.g. in tests).
+        let page = try await handler(req)
+        return Response(status: .ok, body: .html(HTMLRenderer().render(page)))
     }
 }
 
-/// A GET route that renders a parameter-free `View` as HTML.
-public func Page(
+/// A GET route that renders a parameter-free ``Page`` as a complete HTML document.
+public func Page<P: ScoreCore.Page>(
     _ path: String,
     mode: RenderMode = .static,
-    handler: @escaping @Sendable () -> some View
+    handler: @escaping @Sendable () -> P
 ) -> Route {
-    Route(method: .GET, pathPattern: path, renderMode: mode) { _ in
-        let view = handler()
-        return Response.html(view)
+    Route(
+        method: .GET,
+        pathPattern: path,
+        renderMode: mode,
+        pageFactory: { _ in handler() }
+    ) { _ in
+        let page = handler()
+        return Response(status: .ok, body: .html(HTMLRenderer().render(page)))
     }
 }
 

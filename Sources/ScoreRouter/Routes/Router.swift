@@ -17,7 +17,12 @@ import ScoreHTTP
 /// }
 /// ```
 public actor Router {
-    private var routes: [Route] = []
+    private struct RegisteredRoute {
+        let route: Route
+        let matcher: PathMatcher
+    }
+
+    private var registered: [RegisteredRoute] = []
     private let globalMiddleware: [any Middleware]
 
     public init(globalMiddleware: [any Middleware] = []) {
@@ -28,12 +33,14 @@ public actor Router {
 
     /// Append all routes from a `RouteCollection`.
     public func register(_ collection: any RouteCollection) {
-        routes.append(contentsOf: collection.routes)
+        for route in collection.routes {
+            registered.append(RegisteredRoute(route: route, matcher: PathMatcher(pattern: route.pathPattern)))
+        }
     }
 
     /// Append a single route directly.
     public func register(_ route: Route) {
-        routes.append(route)
+        registered.append(RegisteredRoute(route: route, matcher: PathMatcher(pattern: route.pathPattern)))
     }
 
     // MARK: - Dispatch
@@ -63,20 +70,17 @@ public actor Router {
     // MARK: - Introspection
 
     /// All registered routes — used by the `score routes` CLI command.
-    public func allRoutes() -> [Route] { routes }
+    public func allRoutes() -> [Route] { registered.map(\.route) }
 
     // MARK: - Private
 
     private func findMatch(for request: Request) -> RouteMatch? {
-        for route in routes {
-            // Method check (nil means accept any method, e.g. WebSocket routes)
-            if let routeMethod = route.method {
+        for entry in registered {
+            if let routeMethod = entry.route.method {
                 guard request.method.rawValue == routeMethod.rawValue else { continue }
             }
-
-            let matcher = PathMatcher(pattern: route.pathPattern)
-            if let parameters = matcher.match(path: request.uri.path) {
-                return RouteMatch(route: route, parameters: parameters)
+            if let parameters = entry.matcher.match(path: request.uri.path) {
+                return RouteMatch(route: entry.route, parameters: parameters)
             }
         }
         return nil

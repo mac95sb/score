@@ -37,21 +37,7 @@ struct ManifestCommand: AsyncParsableCommand {
         guard built else { throw CLIError.buildFailed }
 
         let binaryURL = try locateExecutable()
-
-        // Ask the built binary to emit its route list as JSON.
-        let pipe = Pipe()
-        let process = Process()
-        process.executableURL = binaryURL
-        process.arguments = ["--list-routes", "--format=json"]
-        process.standardOutput = pipe
-        process.standardError = FileHandle.nullDevice
-        try process.run()
-        process.waitUntilExit()
-
-        let rawJSON = String(
-            data: pipe.fileHandleForReading.readDataToEndOfFile(),
-            encoding: .utf8
-        ) ?? "[]"
+        let rawJSON = try captureOutput(binary: binaryURL, arguments: ["--list-routes", "--format=json"])
 
         // Wrap in the manifest envelope.
         let routes = parseRouteList(rawJSON)

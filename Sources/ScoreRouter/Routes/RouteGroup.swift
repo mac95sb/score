@@ -19,14 +19,12 @@ import ScoreHTTP
 /// ```
 public struct RouteGroup: RouteCollection {
     let prefix: String
-    private var _middleware: [any Middleware]
     private var children: [Route]
 
     // MARK: - Init with plain prefix
 
     public init(_ prefix: String, @RouteBuilder content: () -> [Route]) {
         self.prefix = prefix
-        self._middleware = []
         self.children = content().map { route in
             Route(
                 method: route.method,
@@ -67,7 +65,6 @@ public struct RouteGroup: RouteCollection {
     /// Return a copy of this group with additional middleware prepended to every route.
     public func middleware(_ middleware: any Middleware...) -> RouteGroup {
         var copy = self
-        copy._middleware = middleware + self._middleware
         copy.children = children.map { route in
             Route(
                 method: route.method,

@@ -1,69 +1,4 @@
-import ArgumentParser
 import Foundation
-import Noora
-
-/// `score new <name>` — scaffold a new Score project.
-///
-/// Creates a ready-to-run project with the chosen template in a new directory
-/// named after the project.
-struct NewCommand: AsyncParsableCommand {
-    static let configuration = CommandConfiguration(
-        commandName: "new",
-        abstract: "Create a new Score project from a template."
-    )
-
-    @Argument(help: "Name of the new project.")
-    var name: String
-
-    @Option(name: .shortAndLong, help: "Template to use: default, static, minimal.")
-    var template: ProjectTemplate = .default
-
-    @Flag(name: .long, help: "Skip `swift package resolve` after scaffolding.")
-    var skipResolve: Bool = false
-
-    mutating func run() async throws {
-        let noora = Noora()
-        try validateName(name)
-        let projectDir = URL(fileURLWithPath: name)
-
-        guard !FileManager.default.fileExists(atPath: projectDir.path) else {
-            throw CLIError.directoryExists(name)
-        }
-
-        let scaffold = ProjectScaffolder(template: template)
-        let projectName = name
-
-        try await noora.progressStep(
-            message: "Creating \(name) (\(template.rawValue) template)…"
-        ) { _ in
-            try scaffold.write(to: projectDir, projectName: projectName)
-        }
-
-        if !skipResolve {
-            try await noora.progressStep(message: "Resolving dependencies…") { _ in
-                let p = Process()
-                p.executableURL = URL(fileURLWithPath: "/usr/bin/swift")
-                p.arguments = ["package", "resolve"]
-                p.currentDirectoryURL = projectDir
-                try p.run()
-                p.waitUntilExit()
-            }
-        }
-
-        noora.success(.alert("Created \(name)/", takeaways: [
-            "cd \(name)",
-            "score dev",
-        ]))
-    }
-}
-
-// MARK: - ProjectTemplate
-
-enum ProjectTemplate: String, ExpressibleByArgument, CaseIterable {
-    case `default`
-    case `static`
-    case minimal
-}
 
 // MARK: - ProjectScaffolder
 
@@ -80,9 +15,9 @@ struct ProjectScaffolder: Sendable {
         try writeFavicon(to: directory)
 
         switch template {
-        case .default:  try writeDefault(to: directory, name: projectName)
-        case .static:   try writeStatic(to: directory, name: projectName)
-        case .minimal:  try writeMinimal(to: directory, name: projectName)
+        case .default:     try writeDefault(to: directory, name: projectName)
+        case .static:      try writeStatic(to: directory, name: projectName)
+        case .kitchenSink: try writeKitchenSink(to: directory, name: projectName)
         }
     }
 
@@ -128,17 +63,10 @@ struct ProjectScaffolder: Sendable {
         try write(helloWorldPost(name), to: dir, "Content/posts/hello-world.md")
     }
 
-    // MARK: - Minimal template (single-page hello world)
-
-    private func writeMinimal(to dir: URL, name: String) throws {
-        try mkdir(dir, "Sources")
-        try mkdir(dir, "Public")
-        try write(minimalApplication(name), to: dir, "Sources/Application.swift")
-    }
-
     // MARK: - Default template sources
 
-    private func defaultApplication(_ name: String) -> String { """
+    private func defaultApplication(_ name: String) -> String {
+        """
         import Score
 
         @main
@@ -162,9 +90,12 @@ struct ProjectScaffolder: Sendable {
                 SQLiteDatabase(path: ".score/db.sqlite")
             }
         }
-        """ }
+        """
+    }
 
-    private var defaultPostModel: String { """
+    private var defaultPostModel: String {
+        """
+        import Foundation
         import Score
 
         struct Post: Record {
@@ -177,9 +108,12 @@ struct ProjectScaffolder: Sendable {
             var createdAt: Date = .now
             var updatedAt: Date = .now
         }
-        """ }
+        """
+    }
 
-    private var defaultAuthorModel: String { """
+    private var defaultAuthorModel: String {
+        """
+        import Foundation
         import Score
 
         struct Author: Record {
@@ -190,9 +124,11 @@ struct ProjectScaffolder: Sendable {
             var createdAt: Date = .now
             var updatedAt: Date = .now
         }
-        """ }
+        """
+    }
 
-    private func defaultHomePage(_ name: String) -> String { """
+    private func defaultHomePage(_ name: String) -> String {
+        """
         import Score
 
         struct HomePage: Page {
@@ -223,9 +159,11 @@ struct ProjectScaffolder: Sendable {
                 }
             }
         }
-        """ }
+        """
+    }
 
-    private var defaultBlogIndexPage: String { """
+    private var defaultBlogIndexPage: String {
+        """
         import Score
 
         struct BlogIndexPage: Page {
@@ -255,9 +193,11 @@ struct ProjectScaffolder: Sendable {
                 }
             }
         }
-        """ }
+        """
+    }
 
-    private var defaultBlogPostPage: String { """
+    private var defaultBlogPostPage: String {
+        """
         import Score
 
         struct BlogPostPage: Page {
@@ -292,9 +232,11 @@ struct ProjectScaffolder: Sendable {
                 }
             }
         }
-        """ }
+        """
+    }
 
-    private func defaultSiteNavigation(_ name: String) -> String { """
+    private func defaultSiteNavigation(_ name: String) -> String {
+        """
         import Score
 
         struct SiteNavigation: View {
@@ -321,9 +263,11 @@ struct ProjectScaffolder: Sendable {
                 .position(zIndex: 10)
             }
         }
-        """ }
+        """
+    }
 
-    private var defaultArticleCard: String { """
+    private var defaultArticleCard: String {
+        """
         import Score
 
         struct ArticleCard: View {
@@ -349,9 +293,11 @@ struct ProjectScaffolder: Sendable {
                 }
             }
         }
-        """ }
+        """
+    }
 
-    private func defaultSiteFooter(_ name: String) -> String { """
+    private func defaultSiteFooter(_ name: String) -> String {
+        """
         import Score
 
         struct SiteFooter: View {
@@ -371,9 +317,11 @@ struct ProjectScaffolder: Sendable {
                 .border(color: .muted.opacity(0.15), edge: .top)
             }
         }
-        """ }
+        """
+    }
 
-    private func defaultContentThemes(_ name: String) -> String { """
+    private func defaultContentThemes(_ name: String) -> String {
+        """
         import Score
 
         extension ContentTheme {
@@ -405,9 +353,11 @@ struct ProjectScaffolder: Sendable {
                 )
             }
         }
-        """ }
+        """
+    }
 
-    private var defaultPostsController: String { """
+    private var defaultPostsController: String {
+        """
         import Score
 
         struct PostsController: RouteCollection {
@@ -434,21 +384,23 @@ struct ProjectScaffolder: Sendable {
                             .filter(\\.published == true)
                             .orderBy(\\.createdAt, .descending)
                             .all()
-                        return Response.json(posts)
+                        return try Response.json(posts)
                     }
                     GET("/:id") { req in
                         guard let post = try await db.find(Post.self, id: req.pathParameter("id"))
                         else { throw HTTPError.notFound }
-                        return Response.json(post)
+                        return try Response.json(post)
                     }
                 }
             }
         }
-        """ }
+        """
+    }
 
     // MARK: - Static template sources
 
-    private func staticApplication(_ name: String) -> String { """
+    private func staticApplication(_ name: String) -> String {
+        """
         import Score
 
         @main
@@ -470,9 +422,11 @@ struct ProjectScaffolder: Sendable {
                 BlogPostPage.self
             }
         }
-        """ }
+        """
+    }
 
-    private func staticHomePage(_ name: String) -> String { """
+    private func staticHomePage(_ name: String) -> String {
+        """
         import Score
 
         struct HomePage: Page {
@@ -496,9 +450,11 @@ struct ProjectScaffolder: Sendable {
                 }
             }
         }
-        """ }
+        """
+    }
 
-    private var staticAboutPage: String { """
+    private var staticAboutPage: String {
+        """
         import Score
 
         struct AboutPage: Page {
@@ -521,9 +477,11 @@ struct ProjectScaffolder: Sendable {
                 }
             }
         }
-        """ }
+        """
+    }
 
-    private var staticBlogPostPage: String { """
+    private var staticBlogPostPage: String {
+        """
         import Score
 
         struct BlogPostPage: Page {
@@ -563,9 +521,11 @@ struct ProjectScaffolder: Sendable {
                     .map { BlogPostPage(post: $0) }
             }
         }
-        """ }
+        """
+    }
 
-    private func staticSiteNavigation(_ name: String) -> String { """
+    private func staticSiteNavigation(_ name: String) -> String {
+        """
         import Score
 
         struct SiteNavigation: View {
@@ -593,49 +553,13 @@ struct ProjectScaffolder: Sendable {
                 .position(zIndex: 10)
             }
         }
-        """ }
-
-    // MARK: - Minimal template sources
-
-    private func minimalApplication(_ name: String) -> String { """
-        import Score
-
-        @main
-        struct \(name): Application {
-            var metadata: SiteMetadata {
-                SiteMetadata(siteName: "\(name)", baseURL: "https://example.com")
-            }
-
-            var routes: some RouteCollection {
-                Page("/") { WelcomePage() }
-            }
-        }
-
-        struct WelcomePage: Page {
-            var metadata: PageMetadata? {
-                PageMetadata(title: "Welcome", description: "A Score site.")
-            }
-
-            var body: some View {
-                Main {
-                    Section {
-                        Heading(1) { "Hello from \(name)" }
-                            .font(size: .fourXL, weight: .bold)
-                        Text { "Edit Sources/Application.swift to get started." }
-                            .font(size: .lg, color: .muted)
-                            .margin(top: 4)
-                    }
-                    .frame(maxWidth: .px(720))
-                    .margin(x: .auto)
-                    .padding(8)
-                }
-            }
-        }
-        """ }
+        """
+    }
 
     // MARK: - Shared content
 
-    private func helloWorldPost(_ name: String) -> String { """
+    private func helloWorldPost(_ name: String) -> String {
+        """
         ---
         title: Hello World
         excerpt: My first post on \(name).
@@ -651,7 +575,8 @@ struct ProjectScaffolder: Sendable {
         Edit this file at `Content/posts/hello-world.md` or create new posts in the same directory.
 
         Run `score dev` to start the development server with live reload.
-        """ }
+        """
+    }
 
     private let faviconSVG: String = """
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
@@ -664,36 +589,37 @@ struct ProjectScaffolder: Sendable {
 
     private func writePackageSwift(to dir: URL, name: String) throws {
         let pkg = """
-        // swift-tools-version: 6.0
-        import PackageDescription
+            // swift-tools-version: 6.0
+            import PackageDescription
 
-        let package = Package(
-            name: "\(name)",
-            platforms: [.macOS(.v15)],
-            dependencies: [
-                .package(url: "https://github.com/mac95sb/score", branch: "main"),
-            ],
-            targets: [
-                .executableTarget(
-                    name: "\(name)",
-                    dependencies: [
-                        .product(name: "Score", package: "score"),
-                    ],
-                    path: "Sources"
-                ),
-            ]
-        )
-        """
+            let package = Package(
+                name: "\(name)",
+                platforms: [.macOS(.v15)],
+                dependencies: [
+                    .package(url: "https://github.com/mac95sb/score", branch: "main"),
+                ],
+                targets: [
+                    .executableTarget(
+                        name: "\(name)",
+                        dependencies: [
+                            .product(name: "Score", package: "score"),
+                        ],
+                        path: "Sources"
+                    ),
+                ]
+            )
+            """
         try write(pkg, to: dir, "Package.swift")
     }
 
     private func writeGitignore(to dir: URL) throws {
-        try write("""
-        .score/
-        .build/
-        *.o
-        *.d
-        """, to: dir, ".gitignore")
+        try write(
+            """
+            .score/
+            .build/
+            *.o
+            *.d
+            """, to: dir, ".gitignore")
     }
 
     private func writeAgentsMD(to dir: URL, name: String, template: ProjectTemplate) throws {
@@ -717,33 +643,306 @@ struct ProjectScaffolder: Sendable {
                 - `Content/posts/` — Markdown content
                 - `Public/` — Static assets
                 """
-        case .minimal:
+        case .kitchenSink:
             structure = """
-                - `Sources/Application.swift` — App entry point and page views
+                - `Sources/Views/Pages/` — Demo pages for each Score feature area
+                - `Sources/Views/Components/` — Shared navigation component
+                - `Sources/Application.swift` — App entry point
                 - `Public/` — Static assets
                 """
         }
-        try write("""
-        # \(name)
+        try write(
+            """
+            # \(name)
 
-        A Score web application.
+            A Score web application.
 
-        ## Project structure
+            ## Project structure
 
-        \(structure)
+            \(structure)
 
-        ## Running locally
+            ## Running locally
 
-        ```bash
-        score dev
-        ```
+            ```sh
+            score dev
+            ```
 
-        ## Building for production
+            ## Building for production
 
-        ```bash
-        score build
-        ```
-        """, to: dir, "AGENTS.md")
+            ```sh
+            score build
+            ```
+            """, to: dir, "AGENTS.md")
+    }
+
+    // MARK: - Kitchen-sink template
+
+    private func writeKitchenSink(to dir: URL, name: String) throws {
+        try mkdir(dir, "Sources/Views/Pages")
+        try mkdir(dir, "Sources/Views/Components")
+        try mkdir(dir, "Public")
+
+        try write(kitchenSinkApplication(name), to: dir, "Sources/Application.swift")
+        try write(kitchenSinkHomePage(name),    to: dir, "Sources/Views/Pages/HomePage.swift")
+        try write(kitchenSinkElementsPage,      to: dir, "Sources/Views/Pages/ElementsPage.swift")
+        try write(kitchenSinkFormsPage,         to: dir, "Sources/Views/Pages/FormsPage.swift")
+        try write(kitchenSinkNavigation(name),  to: dir, "Sources/Views/Components/SiteNavigation.swift")
+    }
+
+    private func kitchenSinkApplication(_ name: String) -> String {
+        """
+        import Score
+
+        @main
+        struct \(name): Application {
+            var metadata: SiteMetadata {
+                SiteMetadata(
+                    siteName: "\(name)",
+                    titleSeparator: " — ",
+                    description: "A kitchen-sink demo of Score's elements and features.",
+                    baseURL: "https://example.com"
+                )
+            }
+
+            var theme: SiteTheme {
+                var t = SiteTheme.default
+                t.components = .default
+                return t
+            }
+
+            var routes: some RouteCollection {
+                Page("/")          { HomePage() }
+                Page("/elements")  { ElementsPage() }
+                Page("/forms")     { FormsPage() }
+            }
+        }
+        """
+    }
+
+    private func kitchenSinkHomePage(_ name: String) -> String {
+        """
+        import Score
+
+        struct HomePage: Page {
+            var metadata: PageMetadata? {
+                PageMetadata(title: "Home", description: "Score kitchen-sink demo.")
+            }
+
+            var body: some View {
+                Main {
+                    Section(id: "hero") {
+                        VStack {
+                            Heading(1) { "Score Kitchen Sink" }
+                                .font(size: .fiveXL, weight: .bold, wrap: .balance)
+                            Text { "Every element, modifier, and layout primitive in one place." }
+                                .font(size: .xl, color: .muted)
+                                .margin(top: 4)
+                            HStack {
+                                Link(to: "/elements") { Button(.primary) { "Elements" } }
+                                Link(to: "/forms")    { Button(.secondary) { "Forms" } }
+                            }
+                            .flex(gap: 4)
+                            .margin(top: 8)
+                        }
+                        .flex(align: .center)
+                        .padding(16)
+                    }
+
+                    Section(id: "layout") {
+                        Heading(2) { "Layout" }
+                            .font(size: .threeXL, weight: .semibold)
+                            .margin(bottom: 6)
+
+                        Grid(columns: 3) {
+                            for label in ["HStack", "VStack", "Grid"] {
+                                VStack {
+                                    Text { label }
+                                        .font(weight: .semibold)
+                                    Text { "Flex / grid container" }
+                                        .font(size: .sm, color: .muted)
+                                }
+                                .padding(6)
+                                .border(radius: .lg)
+                                .background(color: .secondary)
+                            }
+                        }
+                        .flex(gap: 4)
+                    }
+                    .frame(maxWidth: .px(960))
+                    .margin(x: .auto)
+                    .padding(8)
+                }
+            }
+        }
+        """
+    }
+
+    private var kitchenSinkElementsPage: String {
+        """
+        import Score
+
+        struct ElementsPage: Page {
+            var metadata: PageMetadata? {
+                PageMetadata(title: "Elements", description: "All Score elements.")
+            }
+
+            var body: some View {
+                Main {
+                    VStack {
+                        Heading(1) { "Content Elements" }
+                            .font(size: .fourXL, weight: .bold)
+
+                        // Headings
+                        VStack {
+                            for level in 1...6 {
+                                Heading(level) { "Heading \\(level)" }
+                            }
+                        }
+                        .margin(top: 8)
+
+                        // Text and inline
+                        Text { "A block paragraph of body text with " }
+                        Text(inline: true) { "an inline span" }
+                        Blockquote { "A famous quote attributed to someone." }
+                            .border(color: .primary, width: 4, edge: .left)
+                            .padding(left: 4)
+                            .margin(y: 4)
+
+                        // Semantic containers
+                        Article {
+                            Heading(2) { "Article" }
+                            Text { "Self-contained content unit." }
+                        }
+                        .padding(6)
+                        .border(radius: .lg)
+                        .background(color: .secondary)
+                        .margin(top: 4)
+
+                        // Badges and highlights
+                        HStack {
+                            Badge(.neutral) { "Neutral" }
+                            Badge(.primary) { "Primary" }
+                            Badge(.success) { "Success" }
+                            Badge(.destructive) { "Destructive" }
+                        }
+                        .flex(gap: 2)
+                        .margin(top: 4)
+
+                        // Buttons
+                        HStack {
+                            Button(.primary)     { "Primary" }
+                            Button(.secondary)   { "Secondary" }
+                            Button(.ghost)       { "Ghost" }
+                            Button(.outline)     { "Outline" }
+                            Button(.destructive) { "Destructive" }
+                        }
+                        .flex(gap: 2)
+                        .margin(top: 4)
+
+                        // Navigation
+                        HStack {
+                            Link(to: "/") { "Home" }
+                            NavLink(to: "/elements") { "Elements" }
+                            NavLink(to: "/forms") { "Forms" }
+                        }
+                        .flex(gap: 4)
+                        .margin(top: 4)
+
+                        Divider().margin(y: 6)
+
+                        // RichText
+                        RichText(markdown: "## Markdown\\n\\nThis is rendered from **Markdown**. [Learn more](/elements).\\n\\n- Item one\\n- Item two\\n- Item three")
+                    }
+                    .frame(maxWidth: .px(720))
+                    .margin(x: .auto)
+                    .padding(8)
+                }
+            }
+        }
+        """
+    }
+
+    private var kitchenSinkFormsPage: String {
+        """
+        import Score
+
+        struct FormsPage: Page {
+            var metadata: PageMetadata? {
+                PageMetadata(title: "Forms", description: "Score form elements.")
+            }
+
+            var body: some View {
+                Main {
+                    VStack {
+                        Heading(1) { "Form Elements" }
+                            .font(size: .fourXL, weight: .bold)
+
+                        Form(action: "/submit", method: .post) {
+                            Fieldset {
+                                Legend { "Personal Details" }
+
+                                Label(for: "name") { "Full name" }
+                                Input(.text, id: "name", name: "name", placeholder: "Jane Smith")
+                                    .frame(width: .full)
+                                    .margin(top: 1, bottom: 4)
+
+                                Label(for: "email") { "Email" }
+                                Input(.email, id: "email", name: "email", placeholder: "jane@example.com")
+                                    .frame(width: .full)
+                                    .margin(top: 1, bottom: 4)
+
+                                Label(for: "bio") { "Bio" }
+                                Input(.textarea, id: "bio", name: "bio", placeholder: "Tell us about yourself…")
+                                    .frame(width: .full, height: .px(120))
+                                    .margin(top: 1)
+                            }
+                            .padding(6)
+                            .border(radius: .lg)
+                            .background(color: .secondary)
+
+                            Button(.submit, type: .submit) { "Save" }
+                                .margin(top: 6)
+                        }
+                    }
+                    .frame(maxWidth: .px(560))
+                    .margin(x: .auto)
+                    .padding(8)
+                }
+            }
+        }
+        """
+    }
+
+    private func kitchenSinkNavigation(_ name: String) -> String {
+        """
+        import Score
+
+        struct SiteNavigation: View {
+            var body: some View {
+                Nav(label: "Main navigation") {
+                    HStack {
+                        Link(to: "/") { "\\(name)" }
+                            .font(weight: .semibold)
+                        Spacer()
+                        HStack {
+                            NavLink(to: "/")         { "Home" }
+                            NavLink(to: "/elements") { "Elements" }
+                            NavLink(to: "/forms")    { "Forms" }
+                        }
+                        .flex(gap: 6)
+                    }
+                    .flex(align: .center)
+                    .padding(x: 6, y: 4)
+                    .frame(maxWidth: .px(1200))
+                    .margin(x: .auto)
+                }
+                .border(color: .muted.opacity(0.15), edge: .bottom)
+                .background(color: .surface)
+                .position(.sticky, top: 0)
+                .position(zIndex: 10)
+            }
+        }
+        """
     }
 
     private func writeFavicon(to dir: URL) throws {

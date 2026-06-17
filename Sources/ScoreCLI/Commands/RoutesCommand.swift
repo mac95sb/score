@@ -26,15 +26,7 @@ struct RoutesCommand: AsyncParsableCommand {
         if json { args.append("--format=json") }
         if showMiddleware { args.append("--show-middleware") }
 
-        let pipe = Pipe()
-        let process = Process()
-        process.executableURL = binaryURL
-        process.arguments = args
-        process.standardOutput = pipe
-        try process.run()
-        process.waitUntilExit()
-
-        let output = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+        let output = try captureOutput(binary: binaryURL, arguments: args)
         print(output.trimmingCharacters(in: .newlines))
     }
 }

@@ -26,6 +26,11 @@ public struct Route: Sendable {
     /// Invoked after a successful HTTP → WebSocket upgrade.
     public let webSocketHandler: (@Sendable (WebSocket, Request) async throws -> Void)?
 
+    /// When set, this route was declared with `Page()` and stores the original
+    /// page factory so the runtime can render it through `PageRenderer` (full
+    /// document shell + theme CSS + component CSS) rather than bare `HTMLRenderer`.
+    public let pageFactory: (@Sendable (Request) async throws -> any Page)?
+
     public init(
         method: Method?,
         pathPattern: String,
@@ -33,6 +38,7 @@ public struct Route: Sendable {
         middleware: [any Middleware] = [],
         staticPageType: (any StaticPage.Type)? = nil,
         webSocketHandler: (@Sendable (WebSocket, Request) async throws -> Void)? = nil,
+        pageFactory: (@Sendable (Request) async throws -> any Page)? = nil,
         handler: @escaping @Sendable (Request) async throws -> Response
     ) {
         self.method = method
@@ -41,6 +47,7 @@ public struct Route: Sendable {
         self.middleware = middleware
         self.staticPageType = staticPageType
         self.webSocketHandler = webSocketHandler
+        self.pageFactory = pageFactory
         self.handler = handler
     }
 }
