@@ -14,8 +14,8 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "ScoreCLI"
-               BuildableName = "ScoreCLI"
+               BlueprintIdentifier = "score"
+               BuildableName = "score"
                BlueprintName = "ScoreCLI"
                ReferencedContainer = "container:">
             </BuildableReference>
@@ -35,7 +35,7 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
       useCustomWorkingDirectory = "YES"
-      customWorkingDirectory = "$(SRCROOT)/Templates/static"
+      customWorkingDirectory = "/Users/mac/Developer/score/Templates/static"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
@@ -62,7 +62,7 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "YES"
-      customWorkingDirectory = "$(SRCROOT)/Templates/static"
+      customWorkingDirectory = "/Users/mac/Developer/score/Templates/static"
       debugDocumentVersioning = "YES">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">

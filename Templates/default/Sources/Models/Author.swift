@@ -1,3 +1,4 @@
+import Foundation
 import Score
 
 struct Author: Record {

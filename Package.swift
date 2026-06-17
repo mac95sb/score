@@ -35,6 +35,7 @@ let package = Package(
         .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.21.0"),
         .package(url: "https://github.com/apple/swift-markdown.git", from: "0.4.0"),
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
+        .package(url: "https://github.com/apple/swift-docc-plugin.git", from: "1.4.0"),
         .package(url: "https://github.com/tuist/Noora.git", from: "0.56.0"),
         .package(url: "https://github.com/apple/swift-openapi-runtime.git", from: "1.0.0"),
     ],

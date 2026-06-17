@@ -5,7 +5,7 @@ let package = Package(
     name: "__NAME__",
     platforms: [.macOS(.v15)],
     dependencies: [
-        .package(url: "https://github.com/mac95sb/score", branch: "main"),
+        .package(path: "../.."),
     ],
     targets: [
         .executableTarget(

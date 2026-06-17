@@ -19,6 +19,42 @@ The package requires Swift 6 / macOS 15 (Linux is supported; SQLite via
 - `Sources/ScorePackaging` — native WebView shell generators and the SwiftUI kit exporter
 - `Sources/ScoreCLI` — the `score` executable (ArgumentParser + Noora for terminal UI)
 
+## Adding a new element, modifier, or feature
+
+Follow these steps for every addition to the public API — agents and contributors
+alike:
+
+1. **Implementation** — add to the appropriate `Sources/ScoreCore/` subdirectory
+   (elements in `Elements/`, modifiers in `Modifiers/`, etc.).
+
+2. **DocC comments** — every public type, property, and method needs a doc
+   comment. Non-trivial APIs must include a usage code block so that DocC can
+   render it as a live example. See existing elements for the expected style.
+
+3. **Sources/Score/Documentation.docc article** — if the feature touches a documented system
+   (modifiers, theming, state, routing, data, animation), update the relevant
+   article in `Sources/Score/Documentation.docc/Articles/`. New systems get a new article.
+
+4. **Kitchen-sink demo** — add a section or live example to
+   `Templates/kitchen-sink/Sources/Application.swift`. The kitchen-sink is the
+   primary smoke test and visual changelog. If it is not in the kitchen-sink,
+   it does not exist for practical purposes.
+
+5. **Tests** — add tests in `Tests/ScoreCoreTests/` covering CSS emission and
+   any behaviour guarantees. See `ComponentThemeTests.swift` for the style.
+
+## CSS pipeline (dev vs. production)
+
+**Dev mode** (`score dev`): styles are injected as inline `<style>` tags on
+every request. This is intentional — no caching concern, instant hot-reload,
+no separate file-serving endpoint needed.
+
+**Production static build** (`score build`): the infrastructure for external
+CSS files already exists (`StyleCollector`, `CSSBundleSplitter`,
+`AssetFingerprinter` in `Sources/ScoreBuild/`) but is not yet wired up in
+`ApplicationMain.build()`. Currently the build output also uses inline `<style>`
+tags. Wiring up fingerprinted `styles.css` output is a pre-launch task.
+
 ## Conventions
 
 - CLI output goes through **Noora** (`ui.success/info/warning/error`,
@@ -51,7 +87,7 @@ Rules when extending:
   accent hues, a `tint` scale that washes secondary/tertiary surfaces, warm
   `stone` or cool `slate`/`zinc` neutrals). Every palette must provide a dark
   variant. Add new ones in `ThemePresets.swift` and list them in `README.md`
-  and `Documentation.docc`.
+  and `Sources/Score/Documentation.docc`.
 - **Presets**: a preset configures radii, shadows, and `components`, and must
   inherit whatever palette it is given (never hard-code colours other than
   true black/white accents like neo-brutalism borders). Presets must enable

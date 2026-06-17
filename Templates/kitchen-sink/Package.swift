@@ -2,14 +2,14 @@
 import PackageDescription
 
 let package = Package(
-    name: "__NAME__",
+    name: "KitchenSink",
     platforms: [.macOS(.v15)],
     dependencies: [
         .package(path: "../.."),
     ],
     targets: [
         .executableTarget(
-            name: "__NAME__",
+            name: "KitchenSink",
             dependencies: [
                 .product(name: "Score", package: "score"),
             ],

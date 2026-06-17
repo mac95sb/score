@@ -1,5 +1,5 @@
 {
-  "originHash" : "e13c63639230237dc4129c85892d2ca806da51980856b62b009f6f34ede94a00",
+  "originHash" : "f583929496e342235c7385a2e7f9cad35b8d4e1411f4a30d3bc968c51e29c65c",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -137,24 +137,6 @@
       }
     },
     {
-      "identity" : "swift-docc-plugin",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-docc-plugin.git",
-      "state" : {
-        "revision" : "647c708be89f834fa6a6d4945442793a77ddf5b6",
-        "version" : "1.5.0"
-      }
-    },
-    {
-      "identity" : "swift-docc-symbolkit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/swiftlang/swift-docc-symbolkit",
-      "state" : {
-        "revision" : "b45d1f2ed151d057b54504d653e0da5552844e34",
-        "version" : "1.0.0"
-      }
-    },
-    {
       "identity" : "swift-http-structured-headers",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-http-structured-headers.git",
@@ -285,8 +267,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-system.git",
       "state" : {
-        "revision" : "e402d5fa38d1524896e7d913ce1320384e0bedf7",
-        "version" : "1.7.0"
+        "revision" : "7502b711c92a17741fa625d722b0ccbd595d8ed1",
+        "version" : "1.7.2"
       }
     }
   ],

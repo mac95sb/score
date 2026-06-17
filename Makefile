@@ -8,21 +8,20 @@
 #   format-check   Check formatting without writing changes
 #   clean          Remove .build directory
 #   docs           Build DocC documentation
-#   update-sqlite  Download and embed the latest SQLite amalgamation
 #   release        Full quality gate: format-check + test + release build
+#   ks-build       Build the score CLI into an isolated build path for kitchen-sink
+#   ks-dev         Run the kitchen-sink template via score dev (hot-reload)
 #
 # Configuration via environment variables:
 #   SWIFT          Path to the swift binary (default: swift)
+#   DOCS_PORT      Starting port for docs-preview (default: 8080)
+#   KS_BUILD_PATH  Isolated build dir for ks-dev (default: .build/ks)
+#                  Using a separate directory lets ks-dev run alongside docs-preview,
+#                  which holds the main .build lock for its entire session.
 
 SWIFT ?= swift
-
-SQLITE_VERSION    ?= 3.53.2
-SQLITE_YEAR       ?= 2025
-SQLITE_VER_NODOT  ?= $(shell echo "$(SQLITE_VERSION)" | tr -d '.')
-SQLITE_URL        ?= https://www.sqlite.org/$(SQLITE_YEAR)/sqlite-amalgamation-$(SQLITE_VER_NODOT)00.zip
-
-CSQLITE_DIR  = Sources/CSQLite
-CSQLITE_INC  = $(CSQLITE_DIR)/include
+DOCS_PORT ?= 8080
+KS_BUILD_PATH ?= .build/ks
 
 .DEFAULT_GOAL := build
 
@@ -60,7 +59,7 @@ format-check:
 
 .PHONY: docs
 docs:
-	$(SWIFT) package generate-documentation \
+	$(SWIFT) package --allow-writing-to-directory .build/docs generate-documentation \
 		--target Score \
 		--disable-indexing \
 		--transform-for-static-hosting \
@@ -68,34 +67,15 @@ docs:
 
 .PHONY: docs-preview
 docs-preview:
-	$(SWIFT) package preview-documentation --target Score
-
-# ─── SQLite Update ────────────────────────────────────────────────────────────
-
-.PHONY: update-sqlite
-update-sqlite:
-	@echo "→ Fetching SQLite amalgamation $(SQLITE_VERSION)…"
-	@mkdir -p /tmp/sqlite-update
-	@if curl -fsSL "$(SQLITE_URL)" -o /tmp/sqlite-update/sqlite.zip; then \
-		unzip -o /tmp/sqlite-update/sqlite.zip -d /tmp/sqlite-update/; \
-		ADIR=$$(find /tmp/sqlite-update -maxdepth 1 -name "sqlite-amalgamation-*" -type d | head -1); \
-		if [ -d "$$ADIR" ]; then \
-			cp "$$ADIR/sqlite3.c" $(CSQLITE_DIR)/sqlite3.c; \
-			cp "$$ADIR/sqlite3.h" $(CSQLITE_INC)/sqlite3.h; \
-			echo "→ Updated to SQLite $$(grep 'SQLITE_VERSION ' $(CSQLITE_INC)/sqlite3.h | head -1)"; \
-		else \
-			echo "ERROR: Could not find amalgamation directory in zip"; exit 1; \
-		fi; \
-		rm -rf /tmp/sqlite-update; \
-	else \
-		echo ""; \
-		echo "sqlite.org is unreachable. Fetching from rusqlite mirror on GitHub…"; \
-		BASE=https://raw.githubusercontent.com/rusqlite/rusqlite/master/libsqlite3-sys/sqlite3; \
-		curl -fsSL "$$BASE/sqlite3.c" -o $(CSQLITE_DIR)/sqlite3.c; \
-		curl -fsSL "$$BASE/sqlite3.h" -o $(CSQLITE_INC)/sqlite3.h; \
-		echo "→ Updated to SQLite $$(grep 'SQLITE_VERSION ' $(CSQLITE_INC)/sqlite3.h | head -1)"; \
-		rm -rf /tmp/sqlite-update; \
-	fi
+	@PORT="$(DOCS_PORT)"; \
+	if command -v lsof >/dev/null 2>&1; then \
+		while lsof -iTCP:$$PORT -sTCP:LISTEN -Pn >/dev/null 2>&1; do \
+			PORT=$$((PORT + 1)); \
+		done; \
+	fi; \
+	echo "Previewing DocC at http://localhost:$$PORT/documentation/score"; \
+	echo "Tutorials will be at http://localhost:$$PORT/tutorials/score"; \
+	$(SWIFT) package --disable-sandbox preview-documentation --target Score --port $$PORT
 
 # ─── Clean ────────────────────────────────────────────────────────────────────
 
@@ -129,6 +109,16 @@ show-deps:
 reset:
 	$(SWIFT) package reset
 
+# ─── Kitchen Sink ─────────────────────────────────────────────────────────────
+
+.PHONY: ks-build
+ks-build:
+	$(SWIFT) build -c debug --build-path $(KS_BUILD_PATH)
+
+.PHONY: ks-dev
+ks-dev: ks-build
+	cd Templates/kitchen-sink && ../../$(KS_BUILD_PATH)/debug/score dev
+
 # ─── Help ─────────────────────────────────────────────────────────────────────
 
 .PHONY: help
@@ -153,8 +143,11 @@ help:
 	@echo "    docs            Build DocC static site to .build/docs"
 	@echo "    docs-preview    Preview DocC in browser"
 	@echo ""
+	@echo "  Kitchen Sink:"
+	@echo "    ks-build        Build score CLI into .build/ks (isolated from docs-preview)"
+	@echo "    ks-dev          score dev with hot-reload (uses .build/ks, runs alongside docs-preview)"
+	@echo ""
 	@echo "  Maintenance:"
-	@echo "    update-sqlite   Embed latest SQLite amalgamation"
 	@echo "    update          Update all Swift package dependencies"
 	@echo "    resolve         Resolve/re-pin package dependencies"
 	@echo "    show-deps       Print dependency tree"
