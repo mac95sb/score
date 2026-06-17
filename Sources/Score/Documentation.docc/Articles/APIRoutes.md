@@ -24,19 +24,20 @@ struct PostsController: RouteCollection {
         RouteGroup("/blog") {
             Page("/") { BlogIndexPage() }
             Page("/:slug") { req in
-                guard let post = try await db.query(Post.self)
-                    .filter(\.slug == req.pathParameters["slug"]!)
-                    .first()
+                guard
+                    let post = try await db.query(Post.self)
+                        .filter(\.slug == req.pathParameters["slug"]!)
+                        .first()
                 else { throw HTTPError.notFound }
                 return BlogPostPage(post: post)
             }
         }
 
         RouteGroup(api: "/posts") {
-            GET("/",      handle: list)
-            POST("/",     handle: create)
+            GET("/", handle: list)
+            POST("/", handle: create)
             PATCH("/:id", handle: update)
-            DELETE("/:id",handle: destroy)
+            DELETE("/:id", handle: destroy)
         }
     }
 }
@@ -72,11 +73,11 @@ Extract handler logic to methods on the controller when inline closures grow:
 struct PostsController: RouteCollection {
     var routes: [Route] {
         RouteGroup(api: "/posts") {
-            GET("/",      handle: list)
-            GET("/:id",   handle: read)
-            POST("/",     handle: create)
+            GET("/", handle: list)
+            GET("/:id", handle: read)
+            POST("/", handle: create)
             PATCH("/:id", handle: update)
-            DELETE("/:id",handle: destroy)
+            DELETE("/:id", handle: destroy)
         }
     }
 
@@ -120,10 +121,10 @@ and callers reference the descriptor instead of a literal string:
 import Score
 
 enum Posts {
-    static let list   = APIEndpoint<Void, [Post]>(   .GET,    "/posts")
-    static let create = APIEndpoint<CreatePost, Post>(.POST,   "/posts")
-    static let update = APIEndpoint<UpdatePost, Post>(.PATCH,  "/posts/:id")
-    static let delete = APIEndpoint<Void, Void>(      .DELETE, "/posts/:id")
+    static let list = APIEndpoint<Void, [Post]>(.GET, "/posts")
+    static let create = APIEndpoint<CreatePost, Post>(.POST, "/posts")
+    static let update = APIEndpoint<UpdatePost, Post>(.PATCH, "/posts/:id")
+    static let delete = APIEndpoint<Void, Void>(.DELETE, "/posts/:id")
 }
 ```
 
@@ -131,7 +132,7 @@ Register using the typed descriptor — the method and path come from the descri
 
 ```swift
 RouteGroup(api: "/") {
-    GET(Posts.list,   handle: list)
+    GET(Posts.list, handle: list)
     POST(Posts.create, handle: create)
 }
 ```
@@ -162,7 +163,7 @@ resolve it automatically:
 ```swift
 @main
 struct MySite: Application {
-    var apiPrefix: APIPrefix { .v1 }   // all api: groups resolve to /api/v1/*
+    var apiPrefix: APIPrefix { .v1 }  // all api: groups resolve to /api/v1/*
 }
 ```
 
@@ -240,14 +241,14 @@ let contentType = req.headers[.contentType]
 ## Response
 
 ```swift
-try Response.json(post)                              // 200 application/json
-try Response.json(post, status: .created)            // 201 application/json
-Response.html(SomePage())                        // 200 text/html
-Response.redirect(to: "/login")                  // 302 Found
-Response.redirect(to: "/new-path", permanent: true) // 301 Moved Permanently
-Response.notFound()                              // 404
-Response.badRequest("Missing required field.")   // 400
-Response.noContent()                             // 204
+try Response.json(post)  // 200 application/json
+try Response.json(post, status: .created)  // 201 application/json
+Response.html(SomePage())  // 200 text/html
+Response.redirect(to: "/login")  // 302 Found
+Response.redirect(to: "/new-path", permanent: true)  // 301 Moved Permanently
+Response.notFound()  // 404
+Response.badRequest("Missing required field.")  // 400
+Response.noContent()  // 204
 ```
 
 Throw ``HTTPError`` to return any HTTP status code, including `500`:
@@ -276,7 +277,7 @@ Apply middleware to a route group:
 
 ```swift
 RouteGroup("/admin") {
-    GET("/")      { req in AdminPage(user: req.context.user!) }
+    GET("/") { req in AdminPage(user: req.context.user!) }
     GET("/posts") { req in AdminPostsPage() }
 }
 .middleware(AuthMiddleware())
@@ -292,10 +293,11 @@ struct RateLimitMiddleware: Middleware {
         _ request: Request,
         next: @Sendable (Request) async throws -> Response
     ) async throws -> Response {
-        let count = (try? await cache.increment(
-            "ratelimit:\(request.remoteAddress)",
-            expiry: .seconds(60)
-        )) ?? 0
+        let count =
+            (try? await cache.increment(
+                "ratelimit:\(request.remoteAddress)",
+                expiry: .seconds(60)
+            )) ?? 0
         guard count <= requestsPerMinute
         else { return Response(status: .tooManyRequests) }
         return try await next(request)

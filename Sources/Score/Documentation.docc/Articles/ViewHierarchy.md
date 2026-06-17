@@ -153,7 +153,7 @@ struct CalloutCard: View {
 
     private var accentColor: Color {
         switch style {
-        case .info:    return .primary
+        case .info: return .primary
         case .warning: return .accent
         case .success: return Color.emerald(500)
         }

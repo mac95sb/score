@@ -28,29 +28,29 @@ The spacing scale converts step numbers to pixel values using a 4 pt base unit.
 Step 6 = 24px, step 8 = 32px, step 12 = 48px.
 
 ```swift
-.padding(6)                  // all sides — step 6 = 24px
-.padding(x: 4, y: 6)        // horizontal / vertical
-.padding(top: 8)             // single edge
-.padding(.px(14))            // explicit off-scale value
+.padding(6)  // all sides — step 6 = 24px
+    .padding(x: 4, y: 6)  // horizontal / vertical
+    .padding(top: 8)  // single edge
+    .padding(.px(14))  // explicit off-scale value
 
-.margin(x: .auto)            // horizontal centering
-.margin(y: 8)
-.margin(top: 4)
+    .margin(x: .auto)  // horizontal centering
+    .margin(y: 8)
+    .margin(top: 4)
 ```
 
 ## Sizing
 
 ```swift
-.frame(width: .full)             // width: 100%
-.frame(width: .px(320))         // explicit px value
-.frame(maxWidth: .px(1200))     // max-width constraint
-.frame(height: .screen)         // height: 100vh
-.frame(minHeight: .dvh(100))    // min-height: 100dvh
-.frame(aspectRatio: 16/9)       // aspect-ratio: 1.78
+.frame(width: .full)  // width: 100%
+    .frame(width: .px(320))  // explicit px value
+    .frame(maxWidth: .px(1200))  // max-width constraint
+    .frame(height: .screen)  // height: 100vh
+    .frame(minHeight: .dvh(100))  // min-height: 100dvh
+    .frame(aspectRatio: 16 / 9)  // aspect-ratio: 1.78
 
-// Spacing scale applies to frame too
-.frame(width: 64)               // step 64 = 256px
-.frame(height: 48)              // step 48 = 192px
+    // Spacing scale applies to frame too
+    .frame(width: 64)  // step 64 = 256px
+    .frame(height: 48)  // step 48 = 192px
 ```
 
 Available size values: `.px(n)`, `.rem(n)`, `.percent(n)`, `.vw(n)`, `.vh(n)`,
@@ -63,7 +63,7 @@ typographic decision:
 
 ```swift
 .font(size: .threeXL, weight: .bold)
-.font(size: .xl, color: .muted, leading: .relaxed)
+    .font(size: .xl, color: .muted, leading: .relaxed)
 ```
 
 | Modifier | Purpose |
@@ -88,7 +88,7 @@ Combine properties in a single call for a clear layout declaration:
 
 ```swift
 .flex(direction: .horizontal, align: .center, gap: 4)
-.flex(direction: .vertical, gap: 6)
+    .flex(direction: .vertical, gap: 6)
 ```
 
 | Modifier | Purpose |
@@ -106,10 +106,10 @@ Combine properties in a single call for a clear layout declaration:
 
 ```swift
 .grid(columns: 3)
-.grid(columns: "repeat(auto-fill, minmax(240px, 1fr))")
-.grid(gap: 6)
-.grid(span: 2)
-.grid(spanFull: true)
+    .grid(columns: "repeat(auto-fill, minmax(240px, 1fr))")
+    .grid(gap: 6)
+    .grid(span: 2)
+    .grid(spanFull: true)
 ```
 
 ## Visual — Borders, Backgrounds, Shadows
@@ -134,45 +134,45 @@ Combine border properties when they belong to the same declaration:
 
 ```swift
 .shadow(.sm)
-.shadow(.md)
-.shadow(.lg)
-.shadow(.md, color: .primary.opacity(0.3))
-.shadow(ring: 2, color: .primary.opacity(0.4))
+    .shadow(.md)
+    .shadow(.lg)
+    .shadow(.md, color: .primary.opacity(0.3))
+    .shadow(ring: 2, color: .primary.opacity(0.4))
 ```
 
 ## Effects
 
 ```swift
 .effect(opacity: 0.5)
-.effect(blur: .md)
-.effect(saturate: 150)
-.effect(cursor: .pointer)
-.effect(objectFit: .cover)
-.effect(userSelect: .none)
-.effect(pointerEvents: .none)
-.effect(willChange: .transform)
+    .effect(blur: .md)
+    .effect(saturate: 150)
+    .effect(cursor: .pointer)
+    .effect(objectFit: .cover)
+    .effect(userSelect: .none)
+    .effect(pointerEvents: .none)
+    .effect(willChange: .transform)
 ```
 
 ## Transforms
 
 ```swift
-.translate(y: -2)                // step -2 = -8px; negative values allowed
-.translate(x: .percent(-100))    // slide from offscreen
-.scale(0.98)
-.scale(x: 1.05, y: 0.95)
-.rotate(45)
-.skew(x: 6, y: 3)
-.transformOrigin(.center)
+.translate(y: -2)  // step -2 = -8px; negative values allowed
+    .translate(x: .percent(-100))  // slide from offscreen
+    .scale(0.98)
+    .scale(x: 1.05, y: 0.95)
+    .rotate(45)
+    .skew(x: 6, y: 3)
+    .transformOrigin(.center)
 ```
 
 ## Overflow and Positioning
 
 ```swift
 .overflow(.hidden)
-.overflow(.scroll)
-.position(.sticky, top: 0)
-.position(zIndex: 10)
-.position(.absolute, top: 0, right: 0)
+    .overflow(.scroll)
+    .position(.sticky, top: 0)
+    .position(zIndex: 10)
+    .position(.absolute, top: 0, right: 0)
 ```
 
 ## Transitions
@@ -182,8 +182,8 @@ after a state update, or when a class is toggled:
 
 ```swift
 .animate(.all, duration: 200.ms)
-.animate(.transform, duration: 300.ms, easing: .easeOut)
-.animate(.transform, duration: 400.ms, easing: .spring(stiffness: 300, damping: 30))
+    .animate(.transform, duration: 300.ms, easing: .easeOut)
+    .animate(.transform, duration: 400.ms, easing: .spring(stiffness: 300, damping: 30))
 ```
 
 ## Keyframe Animations
@@ -193,16 +193,16 @@ Pass a `KeyframeAnimation` value to the second overload of `.animate`:
 
 ```swift
 .animate(KeyframeAnimation.fadeUp, duration: 600.ms, easing: .easeOut)
-.animate(KeyframeAnimation.slideInLeft, duration: 400.ms)
-.animate(KeyframeAnimation.bounce, duration: 800.ms, iterations: .infinite)
+    .animate(KeyframeAnimation.slideInLeft, duration: 400.ms)
+    .animate(KeyframeAnimation.bounce, duration: 800.ms, iterations: .infinite)
 ```
 
 Define a custom sequence when the built-ins do not cover your case:
 
 ```swift
 let heroReveal = KeyframeAnimation("hero-reveal") {
-    KeyFrame(0)   { [AnimOpacity(0), AnimScale(0.95), AnimTranslateY(.px(12))] }
-    KeyFrame(100) { [AnimOpacity(1), AnimScale(1.0),  AnimTranslateY(.px(0))]  }
+    KeyFrame(0) { [AnimOpacity(0), AnimScale(0.95), AnimTranslateY(.px(12))] }
+    KeyFrame(100) { [AnimOpacity(1), AnimScale(1.0), AnimTranslateY(.px(0))] }
 }
 
 Heading(1) { "Welcome" }
@@ -226,11 +226,11 @@ Text { "Label" }
 Button(.primary) { "Submit" }
     .on(.hover) {
         $0.background(color: .primary(700))
-          .translate(y: .px(-1))
-          .shadow(.md)
+            .translate(y: .px(-1))
+            .shadow(.md)
     }
-    .on(.focus)    { $0.shadow(ring: 2, color: .primary.opacity(0.5)) }
-    .on(.active)   { $0.scale(0.97) }
+    .on(.focus) { $0.shadow(ring: 2, color: .primary.opacity(0.5)) }
+    .on(.active) { $0.scale(0.97) }
     .on(.disabled) { $0.effect(opacity: 0.5).effect(cursor: .notAllowed) }
 ```
 

@@ -49,12 +49,12 @@ var theme: SiteTheme {
 ### Styling variations
 
 ```swift
-theme.components.button = .pill                  // presets: .default, .pill, .compact
+theme.components.button = .pill  // presets: .default, .pill, .compact
 theme.components.button = ButtonTheme(size: .large, radius: .xl, fontWeight: 600)
-theme.components.link   = .underlined            // presets: .default, .underlined, .plain
+theme.components.link = .underlined  // presets: .default, .underlined, .plain
 theme.components.dialog = DialogTheme(backdropBlur: 4)
-theme.components.input  = .minimal
-theme.components.badge  = .outline
+theme.components.input = .minimal
+theme.components.badge = .outline
 ```
 
 ### Conflicts with per-usage modifiers
@@ -66,7 +66,7 @@ before the collected modifier CSS, so both specificity and source order
 resolve in the modifier's favour:
 
 ```swift
-theme.components.button = .default      // theme baseline: padding 0.5rem 1rem
+theme.components.button = .default  // theme baseline: padding 0.5rem 1rem
 Button(.primary) { "Save" }.padding(8)  // this instance: padding 32px wins
 ```
 

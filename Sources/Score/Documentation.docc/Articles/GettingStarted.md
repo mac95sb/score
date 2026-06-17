@@ -38,16 +38,16 @@ let package = Package(
     name: "MyApp",
     platforms: [.macOS(.v15)],
     dependencies: [
-        .package(url: "https://github.com/mac95sb/score", branch: "main"),
+        .package(url: "https://github.com/mac95sb/score", branch: "main")
     ],
     targets: [
         .executableTarget(
             name: "MyApp",
             dependencies: [
-                .product(name: "Score", package: "score"),
+                .product(name: "Score", package: "score")
             ],
             path: "Sources"
-        ),
+        )
     ]
 )
 ```
@@ -220,7 +220,7 @@ the Score app and the native app import:
 import ScoreRouter
 
 public enum Posts {
-    public static let list   = APIEndpoint<Void, [Post]>(.GET,    "/posts")
+    public static let list = APIEndpoint<Void, [Post]>(.GET, "/posts")
     public static let create = APIEndpoint<CreatePost, Post>(.POST, "/posts")
 }
 ```
@@ -229,7 +229,7 @@ The Score server imports `API` to register routes:
 
 ```swift
 RouteGroup(api: "/") {
-    GET(Posts.list,    handle: list)
+    GET(Posts.list, handle: list)
     POST(Posts.create, handle: create)
 }
 ```

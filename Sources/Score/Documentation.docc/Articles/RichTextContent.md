@@ -99,7 +99,7 @@ struct BlogPostPage: Page {
         Main {
             Article {
                 Heading(1) { post.frontmatter.title }
-                RichText(markdown: post.content)   // inherits .article
+                RichText(markdown: post.content)  // inherits .article
             }
         }
     }
@@ -159,17 +159,17 @@ Post body goes here.
 Access frontmatter through `ContentPost.frontmatter`:
 
 ```swift
-post.frontmatter.title      // String
-post.frontmatter.excerpt    // String?
-post.frontmatter.date       // Date?
-post.frontmatter.tags       // [String]
+post.frontmatter.title  // String
+post.frontmatter.excerpt  // String?
+post.frontmatter.date  // Date?
+post.frontmatter.tags  // [String]
 post.frontmatter.published  // Bool
 ```
 
 Custom fields are available via `frontmatter.custom(_:)`:
 
 ```swift
-post.frontmatter.custom("author")   // String?
+post.frontmatter.custom("author")  // String?
 ```
 
 ## Markdown Extensions
@@ -178,10 +178,11 @@ post.frontmatter.custom("author")   // String?
 Pass a custom config to the ``ContentStore`` static methods:
 
 ```swift
-let posts = try await ContentStore.posts(config: ContentStoreConfig(
-    tableOfContents: true,
-    footnotes: true
-))
+let posts = try await ContentStore.posts(
+    config: ContentStoreConfig(
+        tableOfContents: true,
+        footnotes: true
+    ))
 ```
 
 | Option | Default | Description |

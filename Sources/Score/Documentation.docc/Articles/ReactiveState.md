@@ -52,7 +52,7 @@ Score infers whether state is ephemeral or persistent from the type and app conf
 
 // Persistent — requires stateMode: .localFirst or a Record type
 @State var preferences: UserPreferences = UserPreferences()
-@State var post: Post                                        // Record → always persistent
+@State var post: Post  // Record → always persistent
 ```
 
 ## @Action
@@ -90,7 +90,7 @@ struct SearchForm: View {
     @State var query: String = ""
 
     var body: some View {
-        SearchInput(query: $query)   // $ prefix creates a Binding
+        SearchInput(query: $query)  // $ prefix creates a Binding
     }
 }
 
@@ -150,7 +150,7 @@ the same page contributes only the modules it uses, conditionally included.
 ```swift
 @main
 struct MySite: Application {
-    var stateMode: StateMode { .ephemeral }   // default — nothing persisted beyond Records
+    var stateMode: StateMode { .ephemeral }  // default — nothing persisted beyond Records
     // var stateMode: StateMode { .localFirst } // plain Codable @State → CRDT + IndexedDB
 }
 ```

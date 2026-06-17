@@ -20,12 +20,12 @@ theme-agnostic — change the alias once in `SiteTheme` and every component
 updates:
 
 ```swift
-Color.primary      // main brand colour
-Color.accent       // secondary highlight
-Color.surface      // card and panel backgrounds
-Color.secondary    // subtle backgrounds
-Color.tertiary     // extra-subtle backgrounds
-Color.muted        // placeholder and subdued text
+Color.primary  // main brand colour
+Color.accent  // secondary highlight
+Color.surface  // card and panel backgrounds
+Color.secondary  // subtle backgrounds
+Color.tertiary  // extra-subtle backgrounds
+Color.muted  // placeholder and subdued text
 Color.destructive  // errors and dangerous actions
 ```
 
@@ -43,17 +43,17 @@ Every hue ships with a complete 50–950 lightness scale (steps: 50, 100, 200,
 | Vivid | `fuchsia` · `pink` · `rose` |
 
 ```swift
-Color.violet(600)    // mid-dark violet
-Color.emerald(400)   // light emerald
-Color.slate(100)     // near-white slate tint
+Color.violet(600)  // mid-dark violet
+Color.emerald(400)  // light emerald
+Color.slate(100)  // near-white slate tint
 ```
 
 Semantic aliases are single-value tokens — they resolve through the theme at runtime and do not accept shade numbers. To get a lighter or darker variant, use `.lighten()`, `.darken()`, or `.opacity()`:
 
 ```swift
-Color.primary.opacity(0.1)        // 10% opacity overlay
-Color.primary.lighten(0.1)        // 10% lighter
-Color.accent.darken(0.15)         // 15% darker
+Color.primary.opacity(0.1)  // 10% opacity overlay
+Color.primary.lighten(0.1)  // 10% lighter
+Color.accent.darken(0.15)  // 15% darker
 ```
 
 ### Custom Colour Scales
@@ -66,13 +66,13 @@ var theme: SiteTheme {
     SiteTheme(
         customPalettes: [
             "brand": ThemeColors(
-                primary:     Color(hex: "#0F4C81"),
-                accent:      Color(hex: "#F4A300"),
-                surface:     .white,
-                secondary:   Color(hex: "#EFF4FA"),
-                tertiary:    Color(hex: "#E0EAF7"),
-                muted:       Color(hex: "#6B7C93"),
-                text:        Color(hex: "#1A202C"),
+                primary: Color(hex: "#0F4C81"),
+                accent: Color(hex: "#F4A300"),
+                surface: .white,
+                secondary: Color(hex: "#EFF4FA"),
+                tertiary: Color(hex: "#E0EAF7"),
+                muted: Color(hex: "#6B7C93"),
+                text: Color(hex: "#1A202C"),
                 destructive: Color(hex: "#C0392B")
             )
         ]
@@ -87,8 +87,8 @@ runtime without a page reload.
 
 ```swift
 Color(hex: "#6366F1")
-Color(rgb: 0.388, 0.400, 0.945)   // values in 0.0–1.0 range
-Color(hsl: 239, 84, 67)            // hue 0–360, saturation/lightness 0–100
+Color(rgb: 0.388, 0.400, 0.945)  // values in 0.0–1.0 range
+Color(hsl: 239, 84, 67)  // hue 0–360, saturation/lightness 0–100
 Color(oklch: 0.6, 0.2, 270)
 ```
 
@@ -112,19 +112,19 @@ struct MySite: Application {
     var theme: SiteTheme {
         SiteTheme(
             colors: ThemeColors(
-                primary:     .violet(600),
-                accent:      .emerald(400),
-                surface:     .white,
-                secondary:   .violet(50),
-                tertiary:    .violet(100),
-                text:        .slate(900),
-                muted:       .slate(500),
+                primary: .violet(600),
+                accent: .emerald(400),
+                surface: .white,
+                secondary: .violet(50),
+                tertiary: .violet(100),
+                text: .slate(900),
+                muted: .slate(500),
                 destructive: .rose(600)
             ),
             fonts: ThemeFonts(
-                body:    .system,
+                body: .system,
                 heading: .custom("Fraunces", url: "/fonts/Fraunces.woff2"),
-                mono:    .systemMono
+                mono: .systemMono
             ),
             radii: ThemeRadii(sm: 4, md: 8, lg: 12, xl: 16, twoXL: 24, full: 9999),
             breakpoints: ThemeBreakpoints(phone: 480, tablet: 768, desktop: 1024, wide: 1280, ultrawide: 1536)
@@ -151,9 +151,9 @@ Provide a font name and the URL to your `.woff2` file. Score emits a
 ```swift
 SiteTheme(
     fonts: ThemeFonts(
-        body:    .custom("Inter",     url: "/fonts/Inter.woff2"),
-        heading: .custom("Fraunces",  url: "/fonts/Fraunces.woff2"),
-        mono:    .systemMono
+        body: .custom("Inter", url: "/fonts/Inter.woff2"),
+        heading: .custom("Fraunces", url: "/fonts/Fraunces.woff2"),
+        mono: .systemMono
     )
 )
 ```
@@ -169,7 +169,7 @@ so the browser can preconnect before it knows it needs the font:
 ```swift
 SiteTheme(
     fonts: ThemeFonts(
-        body:    .system,
+        body: .system,
         heading: .custom(
             "Playfair Display",
             url: "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700",
@@ -296,12 +296,12 @@ a dark-mode palette or as named custom themes on `SiteTheme`:
 ```swift
 var theme: SiteTheme {
     SiteTheme(
-        darkColors: .tokyoNight,          // OS-dark-mode variant
+        darkColors: .tokyoNight,  // OS-dark-mode variant
         customThemes: [
-            "rose-pine":    .rosePine,
-            "vesper":       .vesper,
-            "one-dark":     .oneDark,
-            "gruvbox":      .gruvboxDark,
+            "rose-pine": .rosePine,
+            "vesper": .vesper,
+            "one-dark": .oneDark,
+            "gruvbox": .gruvboxDark,
         ]
     )
 }
@@ -329,11 +329,11 @@ writing a `data-theme` attribute to `<html>`. Selection is persisted in
 ```swift
 // In a navigation bar or settings panel
 ThemeSelector([
-    .init("Default",     themeKey: ""),
-    .init("Rosé Pine",   themeKey: "rose-pine"),
+    .init("Default", themeKey: ""),
+    .init("Rosé Pine", themeKey: "rose-pine"),
     .init("Tokyo Night", themeKey: "tokyo-night"),
-    .init("One Dark",    themeKey: "one-dark"),
-    .init("Gruvbox",     themeKey: "gruvbox"),
+    .init("One Dark", themeKey: "one-dark"),
+    .init("Gruvbox", themeKey: "gruvbox"),
 ])
 ```
 
@@ -344,8 +344,8 @@ choice):
 ```swift
 ThemeSelector(palette: [
     .init("Default", themeKey: ""),
-    .init("Warm",    themeKey: "warm"),
-    .init("Cool",    themeKey: "cool"),
+    .init("Warm", themeKey: "warm"),
+    .init("Cool", themeKey: "cool"),
 ])
 ```
 
@@ -357,9 +357,9 @@ Shadows are referenced through semantic tokens — use `.shadow(.sm)`,
 `SiteTheme`:
 
 ```swift
-.shadow(.md)                                        // var(--shadow-md)
-.shadow(.lg, color: .primary.opacity(0.2))          // coloured shadow
-.shadow(ring: 2, color: .primary.opacity(0.4))      // focus ring
+.shadow(.md)  // var(--shadow-md)
+    .shadow(.lg, color: .primary.opacity(0.2))  // coloured shadow
+    .shadow(ring: 2, color: .primary.opacity(0.4))  // focus ring
 ```
 
 ## See Also
