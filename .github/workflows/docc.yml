@@ -29,12 +29,12 @@ jobs:
             --disable-indexing \
             --transform-for-static-hosting \
             --hosting-base-path score \
-            --output-path .build/docs
+            --output-path docs-output
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .build/docs
+          path: docs-output
 
   deploy:
     name: Deploy to GitHub Pages
