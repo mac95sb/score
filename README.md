@@ -1,14 +1,9 @@
-<p align="center">
-  <!-- <img src="icon.png" width="64" height="64" alt="Score"> -->
-</p>
-
 # Score
 
 Compose web apps in Swift — rendered to vanilla HTML, CSS, and JavaScript.
 
 **[Documentation](https://mac95sb.github.io/score/documentation/score)** ·
-**[Tutorials](https://mac95sb.github.io/score/tutorials/score)** ·
-**[Showcase](#showcase)**
+**[Tutorials](https://mac95sb.github.io/score/tutorials/score)**
 
 ```swift
 struct ArticleCard: View {
@@ -29,9 +24,11 @@ struct ArticleCard: View {
 ## Quick Start
 
 ```bash
-# Install the CLI
-curl -fsSL https://github.com/mac95sb/score/releases/latest/download/score \
-  -o ~/.local/bin/score && chmod +x ~/.local/bin/score
+# Build the CLI from source
+git clone https://github.com/mac95sb/score
+cd score
+swift build -c release
+cp .build/release/score ~/.local/bin/score
 
 # Create and run a project
 score new my-site
@@ -46,23 +43,20 @@ For guides, tutorials, and the full API reference, see the
 
 ## Runnable Examples
 
-The packages under `Templates/` reference the local checkout and run without
+`Templates/kitchen-sink` references the local checkout and runs without
 installing Score:
 
 ```bash
-# Quick smoke test — covers every Score system
-make ks-dev           # score dev with hot-reload (builds Score debug first)
-make ks-run           # swift run, no hot-reload
-
-# Scaffold templates
-swift run --package-path Templates/static
-swift run --package-path Templates/default
+make ks-dev    # score dev with hot-reload (builds Score debug first)
 ```
 
-`Templates/kitchen-sink` is the canonical live showcase: every element,
-modifier, theme preset, state pattern, animation, and routing API should have
-a working example there. It doubles as a regression test — if a change breaks
-the kitchen-sink visually, it broke something real.
+It is the canonical live showcase: every element, modifier, theme preset,
+state pattern, animation, and routing API has a working example there. It
+doubles as a regression test — if a change breaks the kitchen-sink visually,
+it broke something real.
+
+`Templates/default` and `Templates/static` are scaffold templates used by
+`score new`; browse them as examples of the expected project structure.
 
 ## Contributing
 
