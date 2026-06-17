@@ -4,12 +4,11 @@ Use `@State`, `@Binding`, and `@Action` to build interactive components.
 
 ## Overview
 
-Score has one state primitive: `@State`. The developer declares state — Score
-infers what to do with it from the type and app configuration.
+Score has one state primitive: `@State`. Declare state on a view — Score infers
+what to do with it from the type and app configuration.
 
-`@State` and `@Action` are compile-time macros. They expand into HTML
-`data-state-*` attributes carrying initial values and vanilla JS wired by
-Score's runtime on page load. Nothing Swift runs in the browser. No WASM.
+`@State` and `@Action` expand into HTML `data-state-*` attributes carrying
+initial values and vanilla JavaScript wired by Score's runtime on page load.
 
 ## @State — UI State
 
@@ -23,8 +22,7 @@ struct CounterView: View {
             Button(.ghost) { "−" }.on(.click) { count -= 1 }
             Button(.ghost) { "+" }.on(.click) { count += 1 }
         }
-        .flex(align: .center)
-        .flex(gap: 4)
+        .flex(align: .center, gap: 4)
     }
 }
 ```
@@ -35,19 +33,7 @@ and updates it in place.
 
 ## Two Tiers, One Syntax
 
-```swift
-// Tier 1 — UI state (ephemeral, in-memory, resets on navigation)
-// Type: any primitive or Codable struct that is not a Record
-@State var isOpen: Bool = false
-@State var count: Int = 0
-@State var draft: PostDraft = PostDraft()   // PostDraft: Codable, not Record
-
-// Tier 2 — persistent state (requires stateMode: .localFirst or Record type)
-@State var preferences: UserPreferences = UserPreferences()  // Codable + localFirst
-@State var post: Post                                         // Record → always persistent
-```
-
-Score infers the tier from the type and app config. The developer never annotates it.
+Score infers whether state is ephemeral or persistent from the type and app config:
 
 | Type | Behaviour |
 |------|-----------|
@@ -55,39 +41,42 @@ Score infers the tier from the type and app config. The developer never annotate
 | `Codable` struct (not Record) | Persistent when `stateMode: .localFirst` |
 | ``Record`` conformer | Always persistent, always CRDT-synced |
 
+```swift
+// Ephemeral — in-memory, resets on navigation
+@State var isOpen: Bool = false
+@State var count: Int = 0
+@State var draft: PostDraft = PostDraft()
+
+// Persistent — requires stateMode: .localFirst or a Record type
+@State var preferences: UserPreferences = UserPreferences()
+@State var post: Post                                        // Record → always persistent
+```
+
 ## @Action
 
-Actions modify state or call server-side logic. Whether an `@Action` runs on
-the server or the client is determined by what it **captures**, not by inspecting
-its body:
+`@Action` marks a function as a reactive action. Whether it runs in the browser
+or on the server is determined by what it captures — not by how it's annotated.
+Actions that capture only `@State` values are emitted as vanilla JavaScript.
+Actions that capture server-only types (`db`, `cache`) are compiled server-side
+and invoked over an automatically generated endpoint.
 
 ```swift
-struct PostEditor: View {
-    @State var post: Post   // Record → persistent, CRDT synced
+struct CounterView: View {
+    @State var count: Int = 0
 
-    // Server action — captures db → compiler-enforced server-only
-    @Action func save() async throws {
-        try await db.update(post)
-    }
-
-    // Client action — no db/cache capture → emitted as vanilla JS
-    @Action func togglePublished() {
-        post.published.toggle()
-    }
+    @Action func increment() { count += 1 }
+    @Action func reset() { count = 0 }
 
     var body: some View {
-        VStack {
-            Input(type: .text, name: "title")
-                .bind(to: $post.title)
-            Button(.primary) { "Save" }.on(.click, run: save)
+        HStack {
+            Heading(2) { "\(count)" }
+            Button(.ghost) { "+" }.on(.click, run: increment)
+            Button(.ghost) { "Reset" }.on(.click, run: reset)
         }
+        .flex(align: .center, gap: 4)
     }
 }
 ```
-
-`db` and `cache` are server-only types. The Swift compiler enforces this — you
-cannot call `db.query()` in a client action because `db` is unavailable in the
-client build. No magic, no heuristics.
 
 ## @Binding — Sharing State
 
@@ -106,8 +95,7 @@ struct SearchInput: View {
     @Binding var query: String
 
     var body: some View {
-        Input(type: .search, name: "q")
-            .bind(to: $query)
+        Input(type: .search, name: "q", value: $query)
     }
 }
 ```
@@ -170,8 +158,8 @@ struct MySite: Application {
 }
 ```
 
-## Related Concepts
+## See Also
 
-- <doc:ViewHierarchy> — the view layer state drives
-- <doc:DataLayer> — persisting state with Records and the ORM
-- <doc:APIRoutes> — API endpoints that `@Fetch` calls
+- <doc:DataLayer>
+- <doc:APIRoutes>
+- <doc:ViewHierarchy>

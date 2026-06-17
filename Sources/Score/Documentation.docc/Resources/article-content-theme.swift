@@ -1,0 +1,1 @@
+var contentTheme: ContentTheme { .article }

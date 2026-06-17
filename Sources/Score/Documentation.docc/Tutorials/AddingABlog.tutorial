@@ -1,0 +1,125 @@
+@Tutorial(time: 25) {
+    @Intro(title: "Adding a Content Blog") {
+        In this tutorial you'll add a Markdown-powered blog to a Score site.
+        You'll write posts with YAML frontmatter, load them with `ContentStore`,
+        build a blog index page, a per-post page, and style the content with
+        `ContentTheme`.
+    }
+
+    @Section(title: "Write your first post") {
+        @ContentAndMedia {
+            Score reads Markdown files from `Content/posts/` and parses their
+            YAML frontmatter automatically. Posts are loaded at build time for
+            static sites and at request time for server-rendered pages.
+        }
+
+        @Steps {
+            @Step {
+                Create `Content/posts/hello-score.md` with YAML frontmatter for
+                `title`, `excerpt`, `date`, `tags`, and `published`, followed by
+                the Markdown post body.
+
+                @Code(name: "hello-score.md", file: "hello-score.markdown")
+            }
+
+            @Step {
+                Add a second post with `published: false` to see that unpublished
+                posts are filtered out automatically when you filter on
+                `$0.frontmatter.published`.
+            }
+        }
+    }
+
+    @Section(title: "Build the blog index page") {
+        @ContentAndMedia {
+            `ContentStore` loads all Markdown files from `Content/posts/` and
+            exposes them as `ContentPost` values. You filter, sort, and pass
+            them to your views like any other Swift collection.
+        }
+
+        @Steps {
+            @Step {
+                Create `Sources/Views/Pages/Blog/BlogIndexPage.swift` with a
+                `BlogIndexPage` that accepts `[ContentPost]` and renders each
+                post with an article card.
+
+                @Code(name: "BlogIndexPage.swift", file: "BlogIndexPage.swift")
+            }
+
+            @Step {
+                Create the `ArticleCard` component in
+                `Sources/Views/Components/ArticleCard.swift`, linking each card
+                to `/blog/<slug>`.
+
+                @Code(name: "ArticleCard.swift", file: "ArticleCard.swift")
+            }
+        }
+    }
+
+    @Section(title: "Build the blog post page") {
+        @ContentAndMedia {
+            `BlogPostPage` conforms to both `Page` (for metadata and rendering)
+            and `StaticPage` (so Score knows how to enumerate all post instances
+            at build time). `RichText` renders the Markdown body using the
+            active `ContentTheme`.
+        }
+
+        @Steps {
+            @Step {
+                Create `Sources/Views/Pages/Blog/BlogPostPage.swift` with
+                metadata, a `/blog/<slug>` path, a `RichText` body, and a
+                `StaticPage` conformance that returns published posts.
+
+                @Code(name: "BlogPostPage.swift", file: "BlogPostPage.swift")
+            }
+        }
+    }
+
+    @Section(title: "Wire up the routes") {
+        @ContentAndMedia {
+            Register the blog index page in your `Application` and add a route
+            that loads posts from `ContentStore` at request time.
+        }
+
+        @Steps {
+            @Step {
+                Update `Sources/Application.swift` with a `/blog` route that
+                loads and filters posts from `ContentStore`.
+
+                @Code(name: "Blog routes", file: "blog-routes.swift", previousFile: "about-routes.swift")
+            }
+
+            @Step {
+                Register `BlogPostPage.self`, run `score dev`, and visit
+                `http://localhost:8080/blog`.
+            }
+        }
+    }
+
+    @Section(title: "Style the post content") {
+        @ContentAndMedia {
+            `ContentTheme` styles the rendered Markdown — headings, paragraphs,
+            code blocks, blockquotes, and lists — using the active `SiteTheme`
+            tokens. You can customise it per page or define a shared instance.
+        }
+
+        @Steps {
+            @Step {
+                The default `ContentTheme` is conservative. Switch to the
+                article preset with `var contentTheme: ContentTheme { .article }`.
+
+                @Code(name: "Article content theme", file: "article-content-theme.swift")
+            }
+
+            @Step {
+                Define a custom `ContentTheme` in
+                `Sources/Views/ContentThemes.swift` using `ContentTheme(heading:paragraph:code:blockquote:)`
+                — each closure receives `any View` and returns a styled view
+                via `.erased()`. Share this extension across pages by referencing
+                it as a static property.
+
+                @Code(name: "Custom content theme", file: "custom-content-theme.swift", previousFile: "article-content-theme.swift")
+            }
+        }
+    }
+}

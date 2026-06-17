@@ -1,0 +1,31 @@
+@Tutorials(name: "Score") {
+    @Intro(title: "Build web apps with Score") {
+        Score lets you write full-stack web applications entirely in Swift.
+        These tutorials walk you from a fresh install through building real pages,
+        routing, and content-driven sites.
+    }
+
+    @Chapter(name: "Create a Static Site") {
+        Build and run your first Score static site in under 20 minutes.
+
+        @Image(source: "tutorial-getting-started.svg", alt: "A simple Score page layout.")
+
+        @TutorialReference(tutorial: "doc:BuildingYourFirstApp")
+    }
+
+    @Chapter(name: "Content and Routing") {
+        Add Markdown-powered blog posts and typed route collections to your site.
+
+        @Image(source: "tutorial-content-routing.svg", alt: "Markdown content flowing through Score routes.")
+
+        @TutorialReference(tutorial: "doc:AddingABlog")
+    }
+
+    @Chapter(name: "Create a Full Stack Application") {
+        Add a database, REST API, and page views to build a complete server-driven app.
+
+        @Image(source: "tutorial-getting-started.svg", alt: "A full-stack Score application with routes and a database.")
+
+        @TutorialReference(tutorial: "doc:FullStackApp")
+    }
+}

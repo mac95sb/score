@@ -1,0 +1,142 @@
+@Tutorial(time: 20) {
+    @Intro(title: "Create a Static Site") {
+        In this tutorial you'll install the Score CLI, create a new static
+        project, define your first pages, link between them, apply a theme,
+        and run the live-reload development server.
+    }
+
+    @Section(title: "Install Score") {
+        @ContentAndMedia {
+            Score requires Swift 6 (Xcode 16 or later on macOS, or the Swift 6
+            toolchain on Linux). The CLI is distributed as a single binary.
+        }
+
+        @Steps {
+            @Step {
+                Download the Score CLI binary to `~/.local/bin/score`. The
+                directory `~/.local/bin` must exist before running this command
+                — create it with `mkdir -p ~/.local/bin` if needed.
+
+                @Code(name: "Download the binary", file: "install-score-download.sh")
+            }
+
+            @Step {
+                Mark the binary executable. If `~/.local/bin` is not already on
+                your `PATH`, add `export PATH="$HOME/.local/bin:$PATH"` to your
+                shell profile (`.zshrc`, `.bashrc`, etc.).
+
+                @Code(name: "Make executable", file: "install-score.sh")
+            }
+
+            @Step {
+                Verify the installation by running `score --version`.
+
+                @Code(name: "Verify Score", file: "verify-score.sh")
+            }
+        }
+    }
+
+    @Section(title: "Create and run a project") {
+        @ContentAndMedia {
+            `score new` scaffolds a Swift package pre-wired with Score.
+            The `static` template is the simplest starting point — pages,
+            Markdown content, and no server-side logic required.
+        }
+
+        @Steps {
+            @Step {
+                Scaffold a new project with `score new MySite --template static`,
+                enter the new directory, and open `Package.swift` in your editor.
+
+                @Code(name: "Create a static project", file: "create-static-project.sh")
+            }
+
+            @Step {
+                Start the development server with `score dev`, then visit
+                `http://localhost:8080`.
+
+                @Code(name: "Run the development server", file: "run-dev-server.sh")
+            }
+        }
+    }
+
+    @Section(title: "Define a page") {
+        @ContentAndMedia {
+            Every page in Score is a Swift struct conforming to `Page`.
+            `Page` extends `View` with optional metadata (title, description,
+            Open Graph tags) that Score emits as `<head>` elements automatically.
+        }
+
+        @Steps {
+            @Step {
+                Open `Sources/Views/Pages/HomePage.swift`. You'll see a struct
+                that already renders a welcome heading. Extend it to show a
+                subtitle, then save the file to trigger browser refresh.
+            }
+
+            @Step {
+                Add a second page by creating `Sources/Views/Pages/AboutPage.swift`
+                with an `AboutPage` struct that conforms to `Page`.
+
+                @Code(name: "AboutPage.swift", file: "AboutPage.swift")
+            }
+
+            @Step {
+                Register `Page("/about") { AboutPage() }` in
+                `Sources/Application.swift`, then visit
+                `http://localhost:8080/about`.
+
+                @Code(name: "Application routes", file: "about-routes.swift", previousFile: "initial-routes.swift")
+            }
+
+            @Step {
+                Add a ``Link`` in `HomePage` pointing to `/about`. `Link`
+                renders an `<a>` element and accepts any string or view as
+                its label.
+
+                @Code(name: "Home page with link", file: "home-with-link.swift")
+            }
+        }
+    }
+
+    @Section(title: "Apply a theme preset") {
+        @ContentAndMedia {
+            `SiteTheme` is the single source of truth for every design token —
+            colours, fonts, radii, shadows, spacing. `ThemePreset` configures
+            all of these from a named preset paired with a colour palette.
+        }
+
+        @Steps {
+            @Step {
+                Open `Sources/Application.swift` and replace the default theme
+                with `SiteTheme.preset(.modern, palette: .indigo)`.
+
+                @Code(name: "Use a theme preset", file: "theme-preset.swift")
+            }
+
+            @Step {
+                Explore `.soft`, `.neoBrutalism`, and `.minimal` presets with
+                different palettes. See the theme and design token guide
+                for the full catalogue.
+
+                @Code(name: "Other preset combinations", file: "theme-combinations.swift")
+            }
+        }
+    }
+
+    @Section(title: "Build for production") {
+        @ContentAndMedia {
+            `score build` compiles a fully static site — HTML, CSS, and minimal
+            JavaScript. The output is ready to deploy to any static host.
+        }
+
+        @Steps {
+            @Step {
+                Run `score build` and inspect the generated `.score/build/`
+                output.
+
+                @Code(name: "Build the site", file: "build-site.sh")
+            }
+        }
+    }
+}

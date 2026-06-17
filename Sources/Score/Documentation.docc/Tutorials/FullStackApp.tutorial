@@ -1,0 +1,120 @@
+@Tutorial(time: 30) {
+    @Intro(title: "Create a Full Stack Application") {
+        In this tutorial you'll build a full-stack Score app with a SQLite
+        database, page routes, a REST API, and reusable page views — all in Swift.
+    }
+
+    @Section(title: "Create and configure the project") {
+        @ContentAndMedia {
+            The `default` template scaffolds a full-stack project: pages, API
+            routes, controllers, and a SQLite database preconfigured. Add a
+            `database` property to `Application` to enable persistence — Score
+            creates the schema from your `Record` types on first run.
+        }
+
+        @Steps {
+            @Step {
+                Scaffold a new project with `score new MyApp --template default`
+                and start the development server.
+
+                @Code(name: "Terminal", file: "fullstack-create.sh")
+            }
+
+            @Step {
+                Open `Sources/Application.swift`. Add a `database` property that
+                configures SQLite at `.score/db.sqlite`. Score bootstraps the
+                database before any route handler runs.
+
+                @Code(name: "Application.swift", file: "fullstack-application-2.swift", previousFile: "fullstack-application-1.swift")
+            }
+        }
+    }
+
+    @Section(title: "Define a model") {
+        @ContentAndMedia {
+            Conform a struct to `Record` to make it a database entity. Score
+            maps the type name to a table name (`posts`), each property to a
+            column, and creates the schema automatically on first run.
+
+            `id`, `createdAt`, and `updatedAt` are required by the protocol.
+            All other properties are your domain.
+        }
+
+        @Steps {
+            @Step {
+                Create `Sources/Models/Post.swift` conforming to `Record`.
+
+                @Code(name: "Post.swift", file: "fullstack-model.swift")
+            }
+        }
+    }
+
+    @Section(title: "Build a controller") {
+        @ContentAndMedia {
+            A `RouteCollection` controller owns all routes for one domain area.
+            Collocate page routes and API routes in the same controller file —
+            they concern the same `Post` type, so keeping them together makes
+            the surface area easy to reason about.
+        }
+
+        @Steps {
+            @Step {
+                Create `Sources/Controllers/PostsController.swift` with page
+                routes for the posts index and post detail. Route handlers that
+                return a ``Page`` render full HTML documents automatically.
+
+                @Code(name: "PostsController.swift", file: "fullstack-controller-1.swift")
+            }
+
+            @Step {
+                Add `RouteGroup(api: "/posts")` to expose a REST API alongside
+                the page routes. The `api:` label prefixes the path with
+                `apiPrefix` — `/api/v1` by default.
+
+                @Code(name: "PostsController.swift", file: "fullstack-controller-2.swift", previousFile: "fullstack-controller-1.swift")
+            }
+        }
+    }
+
+    @Section(title: "Create the page views") {
+        @ContentAndMedia {
+            Page views are plain Swift structs conforming to ``Page``.
+            ``PageMetadata`` drives the `<title>` tag and Open Graph meta
+            elements, which Score emits automatically in the `<head>`.
+        }
+
+        @Steps {
+            @Step {
+                Create `Sources/Views/Pages/PostsIndexPage.swift`. The controller
+                queries published posts and passes them to this view.
+
+                @Code(name: "PostsIndexPage.swift", file: "fullstack-index-page.swift")
+            }
+
+            @Step {
+                Create `Sources/Views/Pages/PostDetailPage.swift`. The controller
+                looks up a post by `id` and passes it to this view; a `404` is
+                thrown if the post is not found.
+
+                @Code(name: "PostDetailPage.swift", file: "fullstack-post-page.swift")
+            }
+        }
+    }
+
+    @Section(title: "Build for production") {
+        @ContentAndMedia {
+            `score build` compiles the production output. Full-stack apps that
+            have server-rendered routes include a compiled NIO server binary at
+            `.score/build/Server` alongside static assets. Deploy both to any
+            Linux or macOS host.
+        }
+
+        @Steps {
+            @Step {
+                Run `score build` and inspect the output in `.score/build/`.
+
+                @Code(name: "Terminal", file: "fullstack-build.sh")
+            }
+        }
+    }
+}

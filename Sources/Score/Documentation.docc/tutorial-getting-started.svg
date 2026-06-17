@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" role="img" aria-label="A simple Score page layout">
+  <rect width="640" height="360" fill="#f8fafc"/>
+  <rect x="64" y="54" width="512" height="252" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <rect x="96" y="88" width="160" height="18" rx="4" fill="#2563eb"/>
+  <rect x="96" y="126" width="360" height="16" rx="4" fill="#334155"/>
+  <rect x="96" y="156" width="296" height="12" rx="4" fill="#94a3b8"/>
+  <rect x="96" y="214" width="112" height="36" rx="6" fill="#0f172a"/>
+  <rect x="226" y="214" width="112" height="36" rx="6" fill="#e2e8f0"/>
+  <rect x="384" y="86" width="128" height="128" rx="12" fill="#dbeafe" stroke="#60a5fa" stroke-width="2"/>
+  <path d="M416 150h64M448 118v64" stroke="#2563eb" stroke-width="10" stroke-linecap="round"/>
+</svg>

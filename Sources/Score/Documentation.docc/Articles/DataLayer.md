@@ -4,10 +4,10 @@ Define models, query the database, and manage the key-value cache.
 
 ## Overview
 
-Score's data layer provides a minimal ORM backed by SQLite (default),
-with a ``QueryBuilder`` for common operations and a raw SQL escape hatch
-for complex queries. The cache layer defaults to in-memory storage with
-Redis available as a drop-in.
+Score's data layer provides a minimal ORM backed by SQLite (default), with a
+``QueryBuilder`` for common operations and a raw SQL interface for queries the
+builder does not cover. The cache layer defaults to in-memory storage, with Redis
+available as a drop-in replacement.
 
 ## Defining Models
 
@@ -149,13 +149,11 @@ Declare the database and cache on ``Application``:
 @main
 struct MySite: Application {
     var database: some DatabaseConfig {
-        SQLiteDatabase(path: ".score/db.sqlite")      // default
-        // PostgreSQLDatabase(url: Env.required("DATABASE_URL"))
+        SQLiteDatabase(path: ".score/db.sqlite")
     }
 
     var cache: some CacheConfig {
-        InMemoryCache()                               // default
-        // RedisCache(url: Env.required("REDIS_URL"))
+        InMemoryCache()
     }
 }
 ```
@@ -164,7 +162,40 @@ The SQLite database file is gitignored by default (`.score/db.sqlite`). For
 static sites driven entirely by content files, committing the database is safe
 and convenient — the `StaticPage.instances()` pattern loads records at build time.
 
-## Related Concepts
+## Database and Cache Plugins
 
-- <doc:APIRoutes> — exposing records over HTTP endpoints
-- <doc:ReactiveState> — `@State` with ``Record`` types and CRDT sync
+Score ships SQLite and in-memory adapters out of the box. Production deployments
+typically use the official plugins:
+
+**PostgreSQL** — drop-in `DatabaseConfig` backed by `PostgresNIO`:
+
+```swift
+// Package.swift
+.package(url: "https://github.com/mac95sb/score-postgres", branch: "main")
+
+// Application.swift
+var database: some DatabaseConfig {
+    PostgreSQLDatabase(url: Env.required("DATABASE_URL"))
+}
+```
+
+**Redis** — drop-in `CacheConfig` backed by `RediStack`:
+
+```swift
+// Package.swift
+.package(url: "https://github.com/mac95sb/score-redis", branch: "main")
+
+// Application.swift
+var cache: some CacheConfig {
+    RedisCache(url: Env.required("REDIS_URL"))
+}
+```
+
+Both plugins conform to the same `DatabaseConfig` / `CacheConfig` protocols as
+the built-in adapters, so all query and cache APIs work identically.
+
+## See Also
+
+- <doc:APIRoutes>
+- <doc:ReactiveState>
+- <doc:GettingStarted>

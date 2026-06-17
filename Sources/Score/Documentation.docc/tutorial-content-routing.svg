@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" role="img" aria-label="Markdown content flowing through Score routes">
+  <rect width="640" height="360" fill="#f8fafc"/>
+  <rect x="54" y="64" width="170" height="230" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <rect x="82" y="96" width="96" height="14" rx="4" fill="#475569"/>
+  <rect x="82" y="132" width="112" height="10" rx="4" fill="#94a3b8"/>
+  <rect x="82" y="156" width="86" height="10" rx="4" fill="#94a3b8"/>
+  <rect x="282" y="84" width="96" height="52" rx="8" fill="#ecfeff" stroke="#06b6d4" stroke-width="2"/>
+  <rect x="282" y="154" width="96" height="52" rx="8" fill="#ecfeff" stroke="#06b6d4" stroke-width="2"/>
+  <rect x="282" y="224" width="96" height="52" rx="8" fill="#ecfeff" stroke="#06b6d4" stroke-width="2"/>
+  <rect x="450" y="76" width="136" height="208" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <rect x="476" y="108" width="78" height="14" rx="4" fill="#2563eb"/>
+  <rect x="476" y="146" width="82" height="10" rx="4" fill="#94a3b8"/>
+  <rect x="476" y="170" width="64" height="10" rx="4" fill="#94a3b8"/>
+  <path d="M224 180h48M378 180h72" stroke="#334155" stroke-width="4" stroke-linecap="round"/>
+  <path d="M264 168l16 12-16 12M442 168l16 12-16 12" fill="none" stroke="#334155" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

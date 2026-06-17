@@ -9,6 +9,11 @@ to ``RouteCollection`` and owns all routes — both page-rendering and API — f
 a given feature. Score infers intent from the return type: a handler returning
 a ``View`` renders HTML; one returning ``Response`` serves data.
 
+Collocate page routes and their API endpoints in the same controller file.
+`PostsController.swift` owns `/blog` page routes and `/api/v1/posts` data
+routes together — they concern the same domain object, so keeping them together
+makes the surface area easy to reason about.
+
 ## Route Collections
 
 ```swift
@@ -79,21 +84,22 @@ struct PostsController: RouteCollection {
         let posts = try await db.query(Post.self)
             .filter(\.published == true)
             .all()
-        return Response.json(posts)
+        return try Response.json(posts)
     }
 
     func create(_ req: Request) async throws -> Response {
         let body = try await req.decode(CreatePostRequest.self)
         let post = try await db.insert(Post(from: body, authorId: req.context.user!.id))
-        return Response.json(post, status: .created)
+        return try Response.json(post, status: .created)
     }
 
     func update(_ req: Request) async throws -> Response {
         let id: UUID = try req.pathParameter("id")
+        let body = try await req.decode(UpdatePostRequest.self)
         var post = try await db.find(Post.self, id: id)!
         try body.apply(to: &post)
         try await db.update(post)
-        return Response.json(post)
+        return try Response.json(post)
     }
 
     func destroy(_ req: Request) async throws -> Response {
@@ -188,7 +194,7 @@ Score generates a machine-readable manifest of every registered route at
 build time, written to `.score/api-manifest.json`. Commit this file to give
 you a diff-visible record of every breaking change across versions:
 
-```bash
+```sh
 # .gitignore should NOT ignore this file
 .score/api-manifest.json   ← commit this
 ```
@@ -210,7 +216,7 @@ The manifest records method, path, version tag, and parameter names:
 
 Generate or update it manually:
 
-```bash
+```sh
 score manifest          # writes .score/api-manifest.json
 score manifest --diff   # shows what changed since last generation
 ```
@@ -243,6 +249,26 @@ Response.notFound()                              // 404
 Response.badRequest("Missing required field.")   // 400
 Response.noContent()                             // 204
 ```
+
+Throw ``HTTPError`` to return any HTTP status code, including `500`:
+
+```swift
+GET("/posts/:id") { req in
+    guard let id = UUID(uuidString: req.pathParameters["id"] ?? "")
+    else { throw HTTPError.badRequest("Invalid UUID.") }
+
+    guard let post = try await db.find(Post.self, id: id)
+    else { throw HTTPError.notFound }
+
+    // Any thrown error that is not HTTPError becomes a 500
+    // Internal Server Error with no body exposed to the client.
+    return try Response.json(post)
+}
+```
+
+Uncaught `Error` values that are not ``HTTPError`` are intercepted by Score's
+error middleware and returned as `500 Internal Server Error`. The error detail
+is logged server-side and never sent to the client.
 
 ## Middleware
 
@@ -306,7 +332,8 @@ struct MySite: Application {
 }
 ```
 
-## Related Concepts
+## See Also
 
-- <doc:DataLayer> — querying the database inside handlers
-- <doc:ReactiveState> — `@Action` for server-side mutations from views
+- <doc:DataLayer>
+- <doc:ReactiveState>
+- <doc:GettingStarted>
