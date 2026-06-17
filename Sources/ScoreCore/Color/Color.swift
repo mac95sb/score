@@ -25,24 +25,30 @@ public struct Color: Sendable, Hashable, Equatable {
     public let h: Double
     /// Alpha transparency 0 (transparent) … 1 (opaque).
     public let alpha: Double
+    /// When set, `cssValue` emits `var(--color-<tokenName>)` so the color responds
+    /// to palette, dark-mode, and preset switches at runtime. Only semantic theme
+    /// tokens (`.primary`, `.surface`, etc.) set this; raw palette colors do not.
+    public let tokenName: String?
 
     // MARK: - Designated initialiser
 
-    public init(oklch l: Double, _ c: Double, _ h: Double, alpha: Double = 1) {
-        self.l     = l
-        self.c     = c
-        self.h     = h
-        self.alpha = alpha
+    public init(oklch l: Double, _ c: Double, _ h: Double, alpha: Double = 1, tokenName: String? = nil) {
+        self.l         = l
+        self.c         = c
+        self.h         = h
+        self.alpha     = alpha
+        self.tokenName = tokenName
     }
 
-    // MARK: - RGB initialiser (0-255 per channel)
+    // MARK: - RGB initialiser (0–1 per channel)
 
     public init(rgb r: Double, _ g: Double, _ b: Double, alpha: Double = 1) {
-        let (l, c, h) = Self.rgbToOKLCh(r: r / 255, g: g / 255, b: b / 255)
-        self.l     = l
-        self.c     = c
-        self.h     = h
-        self.alpha = alpha
+        let (l, c, h) = Self.rgbToOKLCh(r: r, g: g, b: b)
+        self.l         = l
+        self.c         = c
+        self.h         = h
+        self.alpha     = alpha
+        self.tokenName = nil
     }
 
     // MARK: - HSL initialiser (h 0-360, s 0-100, l 0-100)
@@ -50,10 +56,11 @@ public struct Color: Sendable, Hashable, Equatable {
     public init(hsl hue: Double, _ saturation: Double, _ lightness: Double, alpha: Double = 1) {
         let (r, g, b) = Self.hslToRGB(h: hue, s: saturation / 100, l: lightness / 100)
         let (ol, oc, oh) = Self.rgbToOKLCh(r: r, g: g, b: b)
-        self.l     = ol
-        self.c     = oc
-        self.h     = oh
-        self.alpha = alpha
+        self.l         = ol
+        self.c         = oc
+        self.h         = oh
+        self.alpha     = alpha
+        self.tokenName = nil
     }
 
     // MARK: - Hex initialiser
@@ -70,9 +77,9 @@ public struct Color: Sendable, Hashable, Equatable {
             self.init(oklch: 0, 0, 0)
             return
         }
-        let r = Double((value >> 16) & 0xFF)
-        let g = Double((value >> 8)  & 0xFF)
-        let b = Double(value          & 0xFF)
+        let r = Double((value >> 16) & 0xFF) / 255.0
+        let g = Double((value >> 8)  & 0xFF) / 255.0
+        let b = Double(value          & 0xFF) / 255.0
         self.init(rgb: r, g, b)
     }
 
@@ -80,7 +87,7 @@ public struct Color: Sendable, Hashable, Equatable {
 
     /// Return a new color with the given alpha.
     public func opacity(_ alpha: Double) -> Color {
-        Color(oklch: l, c, h, alpha: alpha)
+        Color(oklch: l, c, h, alpha: alpha, tokenName: tokenName)
     }
 
     /// Increase the L channel by `amount` (clamped to 0…1).
@@ -110,17 +117,31 @@ public struct Color: Sendable, Hashable, Equatable {
 
     // MARK: - CSS output
 
-    /// CSS `oklch()` representation.
-    public var cssValue: String {
+    /// Raw `oklch()` value, always a concrete color — used when defining CSS variables
+    /// in `SiteTheme.cssVariables()`. Callers that write `--color-X: <value>` must use
+    /// this to avoid circular `var()` references.
+    public var rawCSSValue: String {
         let lStr = l.oklchStr
         let cStr = c.oklchStr
         let hStr = h.oklchStr
         if alpha >= 1 {
             return "oklch(\(lStr) \(cStr) \(hStr))"
         } else {
-            let aStr = alpha.oklchStr
-            return "oklch(\(lStr) \(cStr) \(hStr)/\(aStr))"
+            return "oklch(\(lStr) \(cStr) \(hStr) / \(alpha.oklchStr))"
         }
+    }
+
+    /// CSS color reference. For semantic theme tokens (those with a `tokenName`) this
+    /// emits `var(--color-X)` so the color responds to dark-mode and palette switches.
+    /// For opacity-modified tokens it uses CSS relative color syntax:
+    /// `oklch(from var(--color-X) l c h/alpha)`.
+    /// For raw colors (no tokenName) it falls back to `rawCSSValue`.
+    public var cssValue: String {
+        guard let token = tokenName else { return rawCSSValue }
+        if alpha >= 1 {
+            return "var(--color-\(token))"
+        }
+        return "oklch(from var(--color-\(token)) l c h/\(alpha.oklchStr))"
     }
 
     // MARK: - Private: Color conversions

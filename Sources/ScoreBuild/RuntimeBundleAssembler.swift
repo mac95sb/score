@@ -392,19 +392,12 @@ public struct RuntimeBundleAssembler: Sendable {
     // MARK: - Minification
 
     private func minifyJS(_ js: String) -> String {
-        var result = js
-        // Strip single-line comments (careful with URLs)
-        var lines = result.components(separatedBy: "\n")
-        lines = lines.map { line in
-            let trimmed = line.trimmingCharacters(in: .whitespaces)
-            if trimmed.hasPrefix("//") { return "" }
-            return line
-        }
-        result = lines.joined(separator: "\n")
-        // Collapse blank lines
-        while result.contains("\n\n") {
-            result = result.replacingOccurrences(of: "\n\n", with: "\n")
-        }
-        return result.trimmingCharacters(in: .whitespacesAndNewlines)
+        let lines = js.components(separatedBy: "\n")
+            .compactMap { line -> String? in
+                let trimmed = line.trimmingCharacters(in: .whitespaces)
+                if trimmed.hasPrefix("//") { return nil }
+                return trimmed.isEmpty ? nil : line
+            }
+        return lines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

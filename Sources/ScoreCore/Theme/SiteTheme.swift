@@ -15,7 +15,27 @@ public struct SiteTheme: Sendable {
     public var syntaxTheme: any SyntaxTheme
     public var darkColors: ThemeColors?
     public var customThemes: [String: ThemeColors]
-    public var tokens: [ThemeToken]
+    /// Palette overrides keyed by name. Set `data-palette="<key>"` on `<html>`
+    /// at runtime to swap the colour tokens while leaving radii and shadows
+    /// unchanged. Populate from ``ThemePalette`` light variants:
+    ///
+    /// ```swift
+    /// t.customPalettes = [
+    ///     "forest":   ThemePalette.forest.light,
+    ///     "sunset":   ThemePalette.sunset.light,
+    /// ]
+    /// ```
+    public var customPalettes: [String: ThemeColors]
+    /// Preset shape overrides keyed by name. Set `data-preset="<key>"` on `<html>`
+    /// at runtime to swap the radius and shadow tokens while leaving colours and
+    /// component variant classes unchanged. Populate from ``ThemePreset/presetOverride``:
+    ///
+    /// ```swift
+    /// t.customPresets = Dictionary(uniqueKeysWithValues:
+    ///     ThemePreset.allCases.map { ($0.rawValue, $0.presetOverride) }
+    /// )
+    /// ```
+    public var customPresets: [String: PresetOverride]
     public var components: ComponentTheme
 
     public static let `default` = SiteTheme()
@@ -30,20 +50,22 @@ public struct SiteTheme: Sendable {
         syntaxTheme: any SyntaxTheme = ScoreDarkSyntaxTheme(),
         darkColors: ThemeColors? = nil,
         customThemes: [String: ThemeColors] = [:],
-        tokens: [ThemeToken] = [],
+        customPalettes: [String: ThemeColors] = [:],
+        customPresets: [String: PresetOverride] = [:],
         components: ComponentTheme = .none
     ) {
-        self.colors       = colors
-        self.fonts        = fonts
-        self.spacing      = spacing
-        self.radii        = radii
-        self.shadows      = shadows
-        self.breakpoints  = breakpoints
-        self.syntaxTheme  = syntaxTheme
-        self.darkColors   = darkColors
-        self.customThemes = customThemes
-        self.tokens       = tokens
-        self.components   = components
+        self.colors         = colors
+        self.fonts          = fonts
+        self.spacing        = spacing
+        self.radii          = radii
+        self.shadows        = shadows
+        self.breakpoints    = breakpoints
+        self.syntaxTheme    = syntaxTheme
+        self.darkColors     = darkColors
+        self.customThemes   = customThemes
+        self.customPalettes = customPalettes
+        self.customPresets  = customPresets
+        self.components     = components
     }
 
     // MARK: - CSS variable emission
@@ -51,15 +73,15 @@ public struct SiteTheme: Sendable {
     /// Emit all CSS custom properties for this theme as a `<style>` block string.
     public func cssVariables() -> String {
         var out = ":root {"
-        // Color tokens
-        out += "--color-primary:\(colors.primary.cssValue);"
-        out += "--color-accent:\(colors.accent.cssValue);"
-        out += "--color-surface:\(colors.surface.cssValue);"
-        out += "--color-secondary:\(colors.secondary.cssValue);"
-        out += "--color-tertiary:\(colors.tertiary.cssValue);"
-        out += "--color-text:\(colors.text.cssValue);"
-        out += "--color-muted:\(colors.muted.cssValue);"
-        out += "--color-destructive:\(colors.destructive.cssValue);"
+        // Color tokens — must use rawCSSValue to avoid circular var() references.
+        out += "--color-primary:\(colors.primary.rawCSSValue);"
+        out += "--color-accent:\(colors.accent.rawCSSValue);"
+        out += "--color-surface:\(colors.surface.rawCSSValue);"
+        out += "--color-secondary:\(colors.secondary.rawCSSValue);"
+        out += "--color-tertiary:\(colors.tertiary.rawCSSValue);"
+        out += "--color-text:\(colors.text.rawCSSValue);"
+        out += "--color-muted:\(colors.muted.rawCSSValue);"
+        out += "--color-destructive:\(colors.destructive.rawCSSValue);"
         // Shadow tokens
         out += "--shadow-sm:\(shadows.sm);"
         out += "--shadow-md:\(shadows.md);"
@@ -74,51 +96,132 @@ public struct SiteTheme: Sendable {
         out += "--radius-xl:\(radii.xl.cssStr)px;"
         out += "--radius-2xl:\(radii.twoXL.cssStr)px;"
         out += "--radius-full:\(radii.full.cssStr)px;"
-        // Custom tokens — names and values are sanitised so a token can only
-        // ever express a single custom-property declaration and never break out
-        // of the `:root{}` block (part of the "no customCSS" guarantee).
-        for token in tokens {
-            out += "\(cssPropertySanitize(token.name)):\(cssValueSanitize(token.value));"
-        }
         out += "}"
 
-        // Dark mode — media-query variant
-        if let dark = darkColors {
-            out += "@media(prefers-color-scheme:dark){:root{"
-            out += "--color-primary:\(dark.primary.cssValue);"
-            out += "--color-accent:\(dark.accent.cssValue);"
-            out += "--color-surface:\(dark.surface.cssValue);"
-            out += "--color-secondary:\(dark.secondary.cssValue);"
-            out += "--color-tertiary:\(dark.tertiary.cssValue);"
-            out += "--color-text:\(dark.text.cssValue);"
-            out += "--color-muted:\(dark.muted.cssValue);"
-            out += "--color-destructive:\(dark.destructive.cssValue);"
-            out += "}}"
-            // Manual dark-mode toggle via data attribute
-            out += "[data-theme=\"dark\"]{--color-primary:\(dark.primary.cssValue);"
-            out += "--color-accent:\(dark.accent.cssValue);"
-            out += "--color-surface:\(dark.surface.cssValue);"
-            out += "--color-secondary:\(dark.secondary.cssValue);"
-            out += "--color-tertiary:\(dark.tertiary.cssValue);"
-            out += "--color-text:\(dark.text.cssValue);"
-            out += "--color-muted:\(dark.muted.cssValue);"
-            out += "--color-destructive:\(dark.destructive.cssValue);}"
+        // @font-face rules for self-hosted custom fonts
+        for family in [fonts.body, fonts.heading, fonts.mono] {
+            if case .custom(let name, let url?, _) = family,
+               url.hasSuffix(".woff2") || url.hasSuffix(".woff") || url.hasSuffix(".ttf") || url.hasSuffix(".otf") {
+                out += "@font-face{font-family:'\(name)';src:url('\(url)') format('woff2');font-display:swap;}"
+            }
         }
 
-        // Custom named themes — the theme name lands in a CSS selector, so
-        // restrict it to identifier characters to prevent selector breakout.
-        for (themeName, themeColors) in customThemes {
-            out += "[data-theme=\"\(cssIdentifierSanitize(themeName))\"]{--color-primary:\(themeColors.primary.cssValue);"
-            out += "--color-accent:\(themeColors.accent.cssValue);"
-            out += "--color-surface:\(themeColors.surface.cssValue);"
-            out += "--color-secondary:\(themeColors.secondary.cssValue);"
-            out += "--color-tertiary:\(themeColors.tertiary.cssValue);"
-            out += "--color-text:\(themeColors.text.cssValue);"
-            out += "--color-muted:\(themeColors.muted.cssValue);"
-            out += "--color-destructive:\(themeColors.destructive.cssValue);}"
+        // Dark mode — OS system preference (lowest priority of the dark-mode rules).
+        if let dark = darkColors {
+            out += "@media(prefers-color-scheme:dark){:root{"
+            out += "--color-primary:\(dark.primary.rawCSSValue);"
+            out += "--color-accent:\(dark.accent.rawCSSValue);"
+            out += "--color-surface:\(dark.surface.rawCSSValue);"
+            out += "--color-secondary:\(dark.secondary.rawCSSValue);"
+            out += "--color-tertiary:\(dark.tertiary.rawCSSValue);"
+            out += "--color-text:\(dark.text.rawCSSValue);"
+            out += "--color-muted:\(dark.muted.rawCSSValue);"
+            out += "--color-destructive:\(dark.destructive.rawCSSValue);"
+            out += "}}"
+        }
+
+        // Custom named themes — emit full colour token set under [data-theme="key"].
+        for (themeName, themeColors) in customThemes.sorted(by: { $0.key < $1.key }) {
+            out += colorBlock(selector: "[data-theme=\"\(cssIdentifierSanitize(themeName))\"]", colors: themeColors)
+        }
+
+        // Custom palettes — colour-only overrides under [data-palette="key"].
+        for (paletteName, paletteColors) in customPalettes.sorted(by: { $0.key < $1.key }) {
+            out += colorBlock(selector: "[data-palette=\"\(cssIdentifierSanitize(paletteName))\"]", colors: paletteColors)
+        }
+
+        // Manual dark/light toggles — emitted LAST so they beat both the media query
+        // and any active palette selection (equal specificity, last-wins cascade).
+        if let dark = darkColors {
+            // Force dark regardless of OS preference or palette.
+            out += "[data-theme=\"dark\"]{--color-primary:\(dark.primary.rawCSSValue);"
+            out += "--color-accent:\(dark.accent.rawCSSValue);"
+            out += "--color-surface:\(dark.surface.rawCSSValue);"
+            out += "--color-secondary:\(dark.secondary.rawCSSValue);"
+            out += "--color-tertiary:\(dark.tertiary.rawCSSValue);"
+            out += "--color-text:\(dark.text.rawCSSValue);"
+            out += "--color-muted:\(dark.muted.rawCSSValue);"
+            out += "--color-destructive:\(dark.destructive.rawCSSValue);}"
+            // Force light — overrides the dark media query so the user can pin light mode.
+            out += "[data-theme=\"light\"]{--color-primary:\(colors.primary.rawCSSValue);"
+            out += "--color-accent:\(colors.accent.rawCSSValue);"
+            out += "--color-surface:\(colors.surface.rawCSSValue);"
+            out += "--color-secondary:\(colors.secondary.rawCSSValue);"
+            out += "--color-tertiary:\(colors.tertiary.rawCSSValue);"
+            out += "--color-text:\(colors.text.rawCSSValue);"
+            out += "--color-muted:\(colors.muted.rawCSSValue);"
+            out += "--color-destructive:\(colors.destructive.rawCSSValue);}"
+        }
+
+        // Custom presets — radius + shadow token overrides under [data-preset="key"].
+        for (presetName, over) in customPresets.sorted(by: { $0.key < $1.key }) {
+            let sel = "[data-preset=\"\(cssIdentifierSanitize(presetName))\"]"
+            out += "\(sel){"
+            out += "--radius-sm:\(over.radii.sm.cssStr)px;"
+            out += "--radius-md:\(over.radii.md.cssStr)px;"
+            out += "--radius-lg:\(over.radii.lg.cssStr)px;"
+            out += "--radius-xl:\(over.radii.xl.cssStr)px;"
+            out += "--radius-2xl:\(over.radii.twoXL.cssStr)px;"
+            out += "--radius-full:\(over.radii.full.cssStr)px;"
+            out += "--shadow-sm:\(over.shadows.sm);"
+            out += "--shadow-md:\(over.shadows.md);"
+            out += "--shadow-lg:\(over.shadows.lg);"
+            out += "--shadow-xl:\(over.shadows.xl);"
+            out += "--shadow-2xl:\(over.shadows.twoXL);"
+            out += "--shadow-inner:\(over.shadows.inner);"
+            out += "}"
+        }
+
+        // Component theme CSS (buttons, inputs, badges, links, dialogs).
+        let componentCSS = components.css()
+        if !componentCSS.isEmpty {
+            out += componentCSS
         }
 
         return out
+    }
+
+    /// Emit `<link>` tags for custom fonts — preconnect hints and font file preloads.
+    ///
+    /// Inject the result into the `<head>` before the theme `<style>` block so
+    /// the browser can begin fetching fonts as early as possible.
+    public func fontLinkTags() -> String {
+        var tags = ""
+        var seenPreconnects: Set<String> = []
+
+        for family in [fonts.body, fonts.heading, fonts.mono] {
+            guard case .custom(_, let url, let supplementaryURLs) = family else { continue }
+
+            // Preconnect hints (e.g. Google Fonts domains)
+            for preconnect in supplementaryURLs where !seenPreconnects.contains(preconnect) {
+                tags += "<link rel=\"preconnect\" href=\"\(attributeEscape(preconnect))\" crossorigin>"
+                seenPreconnects.insert(preconnect)
+            }
+
+            // Preload self-hosted font files; load remote stylesheets directly
+            if let url {
+                let lower = url.lowercased()
+                if lower.hasSuffix(".woff2") || lower.hasSuffix(".woff") || lower.hasSuffix(".ttf") || lower.hasSuffix(".otf") {
+                    tags += "<link rel=\"preload\" href=\"\(attributeEscape(url))\" as=\"font\" crossorigin>"
+                } else {
+                    tags += "<link rel=\"stylesheet\" href=\"\(attributeEscape(url))\">"
+                }
+            }
+        }
+
+        return tags
+    }
+
+    private func colorBlock(selector: String, colors: ThemeColors) -> String {
+        "\(selector){"
+        + "--color-primary:\(colors.primary.rawCSSValue);"
+        + "--color-accent:\(colors.accent.rawCSSValue);"
+        + "--color-surface:\(colors.surface.rawCSSValue);"
+        + "--color-secondary:\(colors.secondary.rawCSSValue);"
+        + "--color-tertiary:\(colors.tertiary.rawCSSValue);"
+        + "--color-text:\(colors.text.rawCSSValue);"
+        + "--color-muted:\(colors.muted.rawCSSValue);"
+        + "--color-destructive:\(colors.destructive.rawCSSValue);}"
     }
 }
 
@@ -184,18 +287,29 @@ public struct ThemeFonts: Sendable {
 
 public enum FontFamily: Sendable {
     case system
-    case custom(String, url: String? = nil)
+    /// A named custom font.
+    ///
+    /// - Parameters:
+    ///   - name: The CSS font-family name (e.g. `"Fraunces"`).
+    ///   - url: URL to the font resource. A `.woff2`/`.woff`/`.ttf`/`.otf` path
+    ///     generates a `<link rel="preload">` and an `@font-face` rule. Any other
+    ///     URL (e.g. a Google Fonts stylesheet) generates a `<link rel="stylesheet">`.
+    ///   - supplementaryURLs: Additional URLs to preconnect to before the font
+    ///     loads — typically the CDN origins required by remote font services.
+    ///     For Google Fonts, pass `["https://fonts.googleapis.com",
+    ///     "https://fonts.gstatic.com"]`.
+    case custom(String, url: String? = nil, supplementaryURLs: [String] = [])
 
     public var css: String {
         switch self {
         case .system:
             return "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
-        case .custom(let name, _):
+        case .custom(let name, _, _):
             return "'\(name)',system-ui,sans-serif"
         }
     }
 
-    /// The mono-spaced system font stack.
+    /// The monospaced system font stack.
     public static var systemMono: FontFamily {
         .custom("ui-monospace,SFMono-Regular,'SF Mono',Consolas,'Liberation Mono',Menlo,monospace")
     }
@@ -215,6 +329,22 @@ public struct ThemeSpacing: Sendable {
 
     public func px(for step: Double) -> Double {
         spacingPx(step) * multiplier
+    }
+}
+
+// MARK: - PresetOverride
+
+/// The radius and shadow values for a theme preset.
+///
+/// Register these in ``SiteTheme/customPresets`` so the runtime ``ThemeSelector``
+/// can switch `--radius-*` and `--shadow-*` CSS variables live via `data-preset`.
+public struct PresetOverride: Sendable {
+    public var radii: ThemeRadii
+    public var shadows: ThemeShadows
+
+    public init(radii: ThemeRadii, shadows: ThemeShadows) {
+        self.radii = radii
+        self.shadows = shadows
     }
 }
 
@@ -305,14 +435,6 @@ public struct ThemeBreakpoints: Sendable {
 
 public enum Breakpoint: String, Sendable {
     case phone, tablet, desktop, wide, ultrawide
-}
-
-public struct ThemeToken: Sendable {
-    public let name: String
-    public let value: String
-    public init(_ name: String, _ value: String) {
-        self.name = name; self.value = value
-    }
 }
 
 public enum RadiusToken: String, Sendable {

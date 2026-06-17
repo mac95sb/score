@@ -128,6 +128,66 @@ public enum ThemePreset: String, Sendable, CaseIterable {
     case neoBrutalism
 }
 
+extension ThemePreset {
+
+    /// The radius and shadow values that define this preset's shape personality.
+    ///
+    /// Used both by ``SiteTheme/preset(_:palette:)`` at build time and by
+    /// ``SiteTheme/customPresets`` for registering runtime `data-preset` CSS overrides.
+    public var presetOverride: PresetOverride {
+        switch self {
+        case .minimal:
+            return PresetOverride(
+                radii: ThemeRadii(sm: 2, md: 4, lg: 6, xl: 8, twoXL: 12, full: 9999),
+                shadows: ThemeShadows(
+                    sm:    "0 1px 1px oklch(0 0 0/0.03)",
+                    md:    "0 1px 2px oklch(0 0 0/0.05)",
+                    lg:    "0 2px 4px oklch(0 0 0/0.06)",
+                    xl:    "0 4px 8px oklch(0 0 0/0.06)",
+                    twoXL: "0 8px 16px oklch(0 0 0/0.08)",
+                    inner: "inset 0 1px 2px oklch(0 0 0/0.04)"
+                )
+            )
+        case .modern:
+            return PresetOverride(
+                radii: ThemeRadii(sm: 6, md: 10, lg: 14, xl: 20, twoXL: 28, full: 9999),
+                shadows: ThemeShadows(
+                    sm:    "0 1px 2px oklch(0 0 0/0.04),0 1px 3px oklch(0 0 0/0.06)",
+                    md:    "0 2px 4px oklch(0 0 0/0.04),0 4px 8px oklch(0 0 0/0.06)",
+                    lg:    "0 4px 8px oklch(0 0 0/0.05),0 10px 20px oklch(0 0 0/0.08)",
+                    xl:    "0 8px 16px oklch(0 0 0/0.06),0 20px 32px oklch(0 0 0/0.09)",
+                    twoXL: "0 12px 24px oklch(0 0 0/0.08),0 28px 48px oklch(0 0 0/0.12)",
+                    inner: "inset 0 2px 4px oklch(0 0 0/0.05)"
+                )
+            )
+        case .soft:
+            return PresetOverride(
+                radii: ThemeRadii(sm: 8, md: 14, lg: 20, xl: 28, twoXL: 36, full: 9999),
+                shadows: ThemeShadows(
+                    sm:    "0 2px 8px oklch(0 0 0/0.05)",
+                    md:    "0 4px 16px oklch(0 0 0/0.06)",
+                    lg:    "0 8px 24px oklch(0 0 0/0.08)",
+                    xl:    "0 12px 32px oklch(0 0 0/0.09)",
+                    twoXL: "0 20px 48px oklch(0 0 0/0.12)",
+                    inner: "inset 0 2px 6px oklch(0 0 0/0.04)"
+                )
+            )
+        case .neoBrutalism:
+            return PresetOverride(
+                radii: ThemeRadii(sm: 0, md: 0, lg: 0, xl: 0, twoXL: 0, full: 9999),
+                shadows: ThemeShadows(
+                    sm:    "4px 4px 0 0 oklch(0 0 0)",
+                    md:    "6px 6px 0 0 oklch(0 0 0)",
+                    lg:    "8px 8px 0 0 oklch(0 0 0)",
+                    xl:    "12px 12px 0 0 oklch(0 0 0)",
+                    twoXL: "16px 16px 0 0 oklch(0 0 0)",
+                    inner: "inset 4px 4px 0 0 oklch(0 0 0)"
+                )
+            )
+        }
+    }
+}
+
 extension SiteTheme {
 
     /// Build a complete theme from a preset and a colour palette.
@@ -143,22 +203,13 @@ extension SiteTheme {
         _ preset: ThemePreset,
         palette: ThemePalette = .violet
     ) -> SiteTheme {
-        var theme = SiteTheme(
-            colors: palette.light,
-            darkColors: palette.dark
-        )
+        var theme = SiteTheme(colors: palette.light, darkColors: palette.dark)
+        let over = preset.presetOverride
+        theme.radii   = over.radii
+        theme.shadows = over.shadows
 
         switch preset {
         case .minimal:
-            theme.radii = ThemeRadii(sm: 2, md: 4, lg: 6, xl: 8, twoXL: 12, full: 9999)
-            theme.shadows = ThemeShadows(
-                sm:    "0 1px 1px oklch(0 0 0/0.03)",
-                md:    "0 1px 2px oklch(0 0 0/0.05)",
-                lg:    "0 2px 4px oklch(0 0 0/0.06)",
-                xl:    "0 4px 8px oklch(0 0 0/0.06)",
-                twoXL: "0 8px 16px oklch(0 0 0/0.08)",
-                inner: "inset 0 1px 2px oklch(0 0 0/0.04)"
-            )
             theme.components = ComponentTheme(
                 button: .compact,
                 link:   .plain,
@@ -168,15 +219,6 @@ extension SiteTheme {
             )
 
         case .modern:
-            theme.radii = ThemeRadii(sm: 6, md: 10, lg: 14, xl: 20, twoXL: 28, full: 9999)
-            theme.shadows = ThemeShadows(
-                sm:    "0 1px 2px oklch(0 0 0/0.04),0 1px 3px oklch(0 0 0/0.06)",
-                md:    "0 2px 4px oklch(0 0 0/0.04),0 4px 8px oklch(0 0 0/0.06)",
-                lg:    "0 4px 8px oklch(0 0 0/0.05),0 10px 20px oklch(0 0 0/0.08)",
-                xl:    "0 8px 16px oklch(0 0 0/0.06),0 20px 32px oklch(0 0 0/0.09)",
-                twoXL: "0 12px 24px oklch(0 0 0/0.08),0 28px 48px oklch(0 0 0/0.12)",
-                inner: "inset 0 2px 4px oklch(0 0 0/0.05)"
-            )
             theme.components = ComponentTheme(
                 button: ButtonTheme(radius: .lg),
                 link:   .default,
@@ -186,15 +228,6 @@ extension SiteTheme {
             )
 
         case .soft:
-            theme.radii = ThemeRadii(sm: 8, md: 14, lg: 20, xl: 28, twoXL: 36, full: 9999)
-            theme.shadows = ThemeShadows(
-                sm:    "0 2px 8px oklch(0 0 0/0.05)",
-                md:    "0 4px 16px oklch(0 0 0/0.06)",
-                lg:    "0 8px 24px oklch(0 0 0/0.08)",
-                xl:    "0 12px 32px oklch(0 0 0/0.09)",
-                twoXL: "0 20px 48px oklch(0 0 0/0.12)",
-                inner: "inset 0 2px 6px oklch(0 0 0/0.04)"
-            )
             theme.components = ComponentTheme(
                 button: .pill,
                 link:   .default,
@@ -204,40 +237,44 @@ extension SiteTheme {
             )
 
         case .neoBrutalism:
-            theme.radii = ThemeRadii(sm: 0, md: 0, lg: 0, xl: 0, twoXL: 0, full: 9999)
-            theme.shadows = ThemeShadows(
-                sm:    "2px 2px 0 0 oklch(0 0 0)",
-                md:    "4px 4px 0 0 oklch(0 0 0)",
-                lg:    "6px 6px 0 0 oklch(0 0 0)",
-                xl:    "8px 8px 0 0 oklch(0 0 0)",
-                twoXL: "12px 12px 0 0 oklch(0 0 0)",
-                inner: "inset 2px 2px 0 0 oklch(0 0 0)"
-            )
             theme.components = ComponentTheme(
                 button: ButtonTheme(
                     radius: .sm,
                     fontWeight: 700,
                     overrides: [
-                        "border": "2px solid oklch(0 0 0)",
-                        "box-shadow": "var(--shadow-sm)",
+                        "border": "3px solid oklch(0 0 0)",
+                        "box-shadow": "var(--shadow-md)",
+                        "transition": "transform .1s,box-shadow .1s",
+                        "letter-spacing": "0.03em",
+                    ],
+                    hoverOverrides: [
+                        "filter": "none",
+                        "transform": "translate(6px,6px)",
+                        "box-shadow": "0 0 0 0 oklch(0 0 0)",
                     ]
                 ),
                 link: LinkTheme(underline: .always),
                 dialog: DialogTheme(
                     radius: .sm,
-                    backdrop: "oklch(0 0 0/0.4)",
+                    backdrop: "oklch(0 0 0/0.5)",
                     overrides: [
-                        "border": "2px solid oklch(0 0 0)",
+                        "border": "3px solid oklch(0 0 0)",
                         "box-shadow": "var(--shadow-2xl)",
                     ]
                 ),
                 input: InputTheme(
                     radius: .sm,
-                    overrides: ["border": "2px solid oklch(0 0 0)"]
+                    overrides: ["border": "3px solid oklch(0 0 0)"]
                 ),
                 badge: BadgeTheme(
-                    border: "2px solid oklch(0 0 0)",
-                    radius: .sm
+                    border: "3px solid oklch(0 0 0)",
+                    radius: .sm,
+                    overrides: [
+                        "font-weight": "700",
+                        "letter-spacing": "0.05em",
+                        "text-transform": "uppercase",
+                        "font-size": "0.625rem",
+                    ]
                 )
             )
         }

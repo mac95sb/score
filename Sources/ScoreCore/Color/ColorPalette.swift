@@ -421,23 +421,27 @@ extension Color {
     }
 
     // MARK: - Semantic colors
+    //
+    // These emit `var(--color-X)` via Color.cssValue so they respond to dark-mode
+    // and palette switches. The oklch fallback is only used when defining the CSS
+    // variable itself (via rawCSSValue in SiteTheme.cssVariables()).
 
-    /// Default primary color (violet 600). Override via `SiteTheme`.
-    public static var primary: Color     { .violet(600) }
-    /// Default accent color (emerald 400). Override via `SiteTheme`.
-    public static var accent: Color      { .emerald(400) }
-    /// Surface color (white).
-    public static var surface: Color     { Color(oklch: 1.0, 0, 0) }
-    /// Secondary surface (slate 100).
-    public static var secondary: Color   { .slate(100) }
-    /// Tertiary surface (slate 50).
-    public static var tertiary: Color    { .slate(50) }
-    /// Default text color (slate 900).
-    public static var text: Color        { .slate(900) }
-    /// Muted / de-emphasised text (slate 500).
-    public static var muted: Color       { .slate(500) }
-    /// Destructive action color (rose 600).
-    public static var destructive: Color { .rose(600) }
+    /// Token for the primary brand color. Emits `var(--color-primary)`.
+    public static var primary: Color     { Color(oklch: 0.571, 0.152, 293.4, tokenName: "primary") }
+    /// Token for the accent color. Emits `var(--color-accent)`.
+    public static var accent: Color      { Color(oklch: 0.765, 0.154, 160.6, tokenName: "accent") }
+    /// Token for the background surface. Emits `var(--color-surface)`.
+    public static var surface: Color     { Color(oklch: 1.0, 0, 0, tokenName: "surface") }
+    /// Token for the secondary surface. Emits `var(--color-secondary)`.
+    public static var secondary: Color   { Color(oklch: 0.969, 0.006, 264.5, tokenName: "secondary") }
+    /// Token for the tertiary surface. Emits `var(--color-tertiary)`.
+    public static var tertiary: Color    { Color(oklch: 0.984, 0.003, 264.5, tokenName: "tertiary") }
+    /// Token for the primary text color. Emits `var(--color-text)`.
+    public static var text: Color        { Color(oklch: 0.129, 0.042, 264.7, tokenName: "text") }
+    /// Token for de-emphasised text. Emits `var(--color-muted)`.
+    public static var muted: Color       { Color(oklch: 0.554, 0.046, 257.4, tokenName: "muted") }
+    /// Token for destructive / danger actions. Emits `var(--color-destructive)`.
+    public static var destructive: Color { Color(oklch: 0.588, 0.214, 17.5, tokenName: "destructive") }
     /// Pure white.
     public static var white: Color       { Color(oklch: 1.0, 0, 0) }
     /// Pure black.

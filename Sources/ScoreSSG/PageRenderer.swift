@@ -19,6 +19,10 @@ public struct PageRenderer: Sendable {
     /// Inline `<script>` tags injected into every rendered page (e.g. dev hot-reload JS).
     public let defaultInlineScripts: [String]
 
+    // Pre-computed once from the immutable theme — avoids rebuilding on every render call.
+    private let themeCSS: String
+    private let themeFontLinks: String
+
     public init(
         theme: SiteTheme = .default,
         siteMetadata: SiteMetadata,
@@ -27,6 +31,8 @@ public struct PageRenderer: Sendable {
         self.theme = theme
         self.siteMetadata = siteMetadata
         self.defaultInlineScripts = defaultInlineScripts
+        self.themeCSS = theme.cssVariables()
+        self.themeFontLinks = theme.fontLinkTags()
     }
 
     // MARK: - Full page render
@@ -46,30 +52,32 @@ public struct PageRenderer: Sendable {
         inlineCSS: String = "",
         inlineScripts: [String] = []
     ) throws -> String {
-        // 1. Render the view body to HTML
+        // 1. Render the view body to HTML — per-element scoped CSS accumulates in ctx.cssBuffer
         var ctx = RenderContext()
         ctx.componentTypeName = String(describing: type(of: page))
         let bodyHTML = page.body._renderInto(&ctx)
 
         // 2. Build <head> content
         let pageMetadata = page.metadata
-        // headHTML from SiteMetadata already includes charset/viewport/title/meta,
-        // but we want to avoid duplicating charset/viewport since we emit them ourselves.
-        // We use a stripped version — just the SEO/OG tags.
         let seoHTML = siteMetadata.headHTML(pageMetadata: pageMetadata)
 
         var headParts: [String] = []
         headParts.append(seoHTML)
 
-        // Theme CSS variables
-        let themeCSS = theme.cssVariables()
+        // Font preconnect / preload / stylesheet links — must come before CSS
+        if !themeFontLinks.isEmpty {
+            headParts.append(themeFontLinks)
+        }
+
+        // Theme CSS variables (color tokens, radii, shadows, component styles, custom themes/palettes)
         if !themeCSS.isEmpty {
             headParts.append("<style>\(themeCSS)</style>")
         }
 
-        // Inline collected CSS
-        if !inlineCSS.isEmpty {
-            headParts.append("<style>\(inlineCSS)</style>")
+        // Per-element scoped CSS collected during rendering (hover, media, animation, dark-mode)
+        let scopedCSS = ctx.cssBuffer + inlineCSS
+        if !scopedCSS.isEmpty {
+            headParts.append("<style>\(scopedCSS)</style>")
         }
 
         // External CSS links

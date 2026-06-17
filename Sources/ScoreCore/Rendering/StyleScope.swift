@@ -18,12 +18,21 @@ public enum StyleScope {
     /// ```
     public static func cssClass(from typeName: String) -> String {
         guard !typeName.isEmpty else { return "" }
+        let chars = Array(typeName)
         var result = ""
-        for (index, char) in typeName.enumerated() {
-            if char.isUppercase && index > 0 {
-                result += "-"
+        for i in chars.indices {
+            let ch = chars[i]
+            if ch.isUppercase && i > 0 {
+                let prev = chars[i - 1]
+                let next = i + 1 < chars.count ? chars[i + 1] : nil
+                // Insert hyphen at lowercase→uppercase transitions (ArticleCard → article-card)
+                // and at acronym→word transitions where an uppercase letter precedes an
+                // uppercase+lowercase pair (APIPrefix → api-prefix, HTMLParser → html-parser).
+                if prev.isLowercase || (prev.isUppercase && next?.isLowercase == true) {
+                    result += "-"
+                }
             }
-            result += char.lowercased()
+            result += ch.lowercased()
         }
         return result
     }

@@ -63,8 +63,8 @@ func validateName(_ name: String) throws {
 /// - Returns: `true` on success, `false` on build failure.
 func buildPackage(configuration: String, verbose: Bool) async throws -> Bool {
     let process = Process()
-    process.executableURL = URL(fileURLWithPath: "/usr/bin/swift")
-    process.arguments = ["build", "-c", configuration]
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/xcrun")
+    process.arguments = ["swift", "build", "-c", configuration]
 
     if !verbose {
         process.standardOutput = FileHandle.nullDevice
@@ -114,48 +114,16 @@ private func detectPackageName() -> String? {
     return nil
 }
 
-// MARK: - FileWatcher
+// MARK: - Process output capture
 
-/// A simple polling-based file watcher for development hot-reload.
-actor FileWatcher {
-    private let directories: [URL]
-    private let onChange: @Sendable (URL) -> Void
-    private var lastModificationDates: [URL: Date] = [:]
-
-    init(directories: [URL], onChange: @Sendable @escaping (URL) -> Void) {
-        self.directories = directories
-        self.onChange = onChange
-    }
-
-    func start() async {
-        while !Task.isCancelled {
-            checkForChanges()
-            try? await Task.sleep(for: .milliseconds(500))
-        }
-    }
-
-    private func checkForChanges() {
-        let fm = FileManager.default
-        for dir in directories {
-            guard let enumerator = fm.enumerator(
-                at: dir,
-                includingPropertiesForKeys: [.contentModificationDateKey],
-                options: .skipsHiddenFiles
-            ) else { continue }
-
-            while let fileURL = enumerator.nextObject() as? URL {
-                guard let attrs = try? fileURL.resourceValues(forKeys: [.contentModificationDateKey]),
-                      let modDate = attrs.contentModificationDate else { continue }
-
-                if let lastDate = lastModificationDates[fileURL] {
-                    if modDate > lastDate {
-                        lastModificationDates[fileURL] = modDate
-                        onChange(fileURL)
-                    }
-                } else {
-                    lastModificationDates[fileURL] = modDate
-                }
-            }
-        }
-    }
+/// Run a process and return its standard-output as a string.
+func captureOutput(binary: URL, arguments: [String]) throws -> String {
+    let pipe = Pipe()
+    let process = Process()
+    process.executableURL = binary
+    process.arguments = arguments
+    process.standardOutput = pipe
+    try process.run()
+    process.waitUntilExit()
+    return String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
 }
