@@ -60,7 +60,11 @@ public struct ConditionGroupView<Content: View>: View, _HTMLRenderable {
     public var body: Swift.Never { fatalError() }
 
     public func renderHTML(context: inout RenderContext) -> String {
-        content._renderInto(&context)
+        let saved = context.conditionOverride
+        context.conditionOverride = condition
+        let result = content._renderInto(&context)
+        context.conditionOverride = saved
+        return result
     }
 
     public func collectCSS(context: inout CSSCollectionContext) {

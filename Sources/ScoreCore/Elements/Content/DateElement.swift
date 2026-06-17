@@ -1,6 +1,6 @@
 import Foundation
 
-/// Controls how a `DateElement` formats its date value.
+/// Controls how a ``DateElement`` formats its date value for display.
 public enum DateFormat: Sendable {
     /// "Jan 15, 2026"
     case short
@@ -43,12 +43,40 @@ public enum DateFormat: Sendable {
     }
 }
 
-/// Renders a `Date` as HTML text.
+/// Renders a `Date` value as localised HTML text.
+///
+/// `DateElement` formats a Swift `Date` into a human-readable string using
+/// the current locale. Choose from the built-in ``DateFormat`` cases — short
+/// ("Jan 15, 2026"), long ("January 15, 2026"), relative ("3 days ago"), or
+/// ISO ("2026-01-15") — or supply any `DateFormatter` format string via
+/// `.custom(_:)`. The formatted text is HTML-escaped before output.
+///
+/// When semantic date markup matters (e.g. publish dates, event times), prefer
+/// ``TimeElement``, which wraps the display text in a `<time datetime="…">`
+/// element that search engines and screen readers understand.
+///
+/// - Parameters:
+///   - date: The `Date` value to display.
+///   - format: How to format the date. Defaults to `.short` ("Jan 15, 2026").
+///
+/// ## Example
 ///
 /// ```swift
-/// DateElement(post.publishedAt, format: .long)
-/// DateElement(post.publishedAt, format: .relative)
+/// HStack {
+///     Text { "Published:" }
+///     DateElement(post.publishedAt, format: .long)
+/// }
+///
+/// Text { DateElement(event.startsAt, format: .custom("EEEE, MMMM d")) }
 /// ```
+///
+/// ## HTML output
+///
+/// ```html
+/// January 15, 2026
+/// ```
+///
+/// - SeeAlso: ``TimeElement``, ``NumberElement``
 public struct DateElement: View, _HTMLRenderable {
     let date: Date
     let format: DateFormat

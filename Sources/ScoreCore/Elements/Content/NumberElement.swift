@@ -1,6 +1,6 @@
 import Foundation
 
-/// Controls how a `NumberElement` formats its numeric value.
+/// Controls how a ``NumberElement`` formats its numeric value for display.
 public enum NumberFormat: Sendable {
     case decimal(places: Int)
     case currency(code: String)
@@ -29,13 +29,40 @@ public enum NumberFormat: Sendable {
     }
 }
 
-/// Renders a numeric value as HTML text with optional formatting.
+/// Renders a numeric value as formatted HTML text.
+///
+/// Use `NumberElement` when you want locale-aware or precision-controlled
+/// number rendering — decimal rounding, currency symbols, percentages, or
+/// scientific notation — without writing the formatting logic yourself.
+/// When no `format` is provided, the number's default `description` is used.
+///
+/// The formatted string is HTML-escaped before output, so it is safe to use
+/// with any numeric value.
+///
+/// - Parameters:
+///   - value: Any `Numeric & CustomStringConvertible` value (`Int`, `Double`, `Float`, etc.).
+///   - format: How to format the number. Pass `nil` to use the value's default description.
+///
+/// ## Example
 ///
 /// ```swift
-/// NumberElement(3.14159, format: .decimal(places: 2))
-/// NumberElement(9.99,    format: .currency(code: "USD"))
-/// NumberElement(0.85,    format: .percent(places: 0))
+/// HStack {
+///     Text { "Price:" }
+///     NumberElement(product.price, format: .currency(code: "USD"))
+/// }
+///
+/// NumberElement(0.732, format: .percent(places: 1))   // "73.2%"
+/// NumberElement(6.022e23, format: .scientific)         // "6.022000e+23"
+/// NumberElement(1_000_000, format: .decimal(places: 0)) // "1000000"
 /// ```
+///
+/// ## HTML output
+///
+/// ```html
+/// $9.99
+/// ```
+///
+/// - SeeAlso: ``DateElement``, ``TimeElement``, ``Text``
 public struct NumberElement: View, _HTMLRenderable {
     let valueString: String
 

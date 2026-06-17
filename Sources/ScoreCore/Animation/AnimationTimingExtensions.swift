@@ -1,6 +1,6 @@
 // MARK: - AnimationTiming extensions
 //
-// The base `AnimationTiming` enum is defined in Modifiers/CSSValue.swift.
+// The base `AnimationTiming` enum is defined in Modifiers/Values/AnimationValues.swift.
 // This file adds factory helpers and additional derived timing functions
 // that are useful when authoring `KeyframeAnimation` definitions.
 

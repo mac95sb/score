@@ -26,29 +26,29 @@ public actor ContentStore {
     // MARK: - Public API (static convenience)
 
     /// Load all posts from `Content/posts/`, sorted newest-first.
-    public static func posts() async throws -> [ContentPost] {
-        try await shared.loadContent(in: "posts")
+    public static func posts(config: ContentStoreConfig = .default) async throws -> [ContentPost] {
+        try await shared.loadContent(in: "posts", config: config)
     }
 
     /// Load a single post by slug from `Content/posts/`.
-    public static func post(slug: String) async throws -> ContentPost? {
-        try await shared.loadPost(slug: slug, in: "posts")
+    public static func post(slug: String, config: ContentStoreConfig = .default) async throws -> ContentPost? {
+        try await shared.loadPost(slug: slug, in: "posts", config: config)
     }
 
     /// Load all content files from `Content/<directory>/`, sorted newest-first.
-    public static func content(in directory: String) async throws -> [ContentPost] {
-        try await shared.loadContent(in: directory)
+    public static func content(in directory: String, config: ContentStoreConfig = .default) async throws -> [ContentPost] {
+        try await shared.loadContent(in: directory, config: config)
     }
 
     // MARK: - Private loading
 
-    private func loadPost(slug: String, in directory: String) async throws -> ContentPost? {
+    private func loadPost(slug: String, in directory: String, config: ContentStoreConfig) async throws -> ContentPost? {
         if let cached = cache[slug] { return cached }
-        let posts = try await loadContent(in: directory)
+        let posts = try await loadContent(in: directory, config: config)
         return posts.first { $0.slug == slug }
     }
 
-    private func loadContent(in directory: String) async throws -> [ContentPost] {
+    private func loadContent(in directory: String, config: ContentStoreConfig) async throws -> [ContentPost] {
         if let cached = directoryCache[directory] { return cached }
 
         let contentDir = URL(fileURLWithPath: "Content/\(directory)")
@@ -70,14 +70,12 @@ public actor ContentStore {
         }
 
         var posts: [ContentPost] = []
-        // Parse files sequentially to avoid actor reentrancy issues with the cache.
         for file in files {
             if let post = try await parseFile(at: file) {
                 posts.append(post)
             }
         }
 
-        // Sort newest-first by publication date; files without a date sink to the bottom.
         posts.sort {
             ($0.frontmatter.date ?? .distantPast) > ($1.frontmatter.date ?? .distantPast)
         }

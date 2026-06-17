@@ -1,12 +1,34 @@
-/// A selectable option inside an `Input(type: .select)` element (`<option>`).
+/// A selectable choice inside an `Input(type: .select)` dropdown (`<option>`).
+///
+/// Each `Option` represents one item in a `<select>` element. The `value`
+/// string is what the browser sends in the form submission; the child content
+/// is the visible label. Mark the pre-selected item with `selected: true`.
+/// Use ``OptionGroup`` to cluster related options under a labelled header.
+///
+/// - Parameters:
+///   - value: The value submitted with the form when this option is selected.
+///   - selected: Whether this option is selected by default. Defaults to `false`.
+///   - disabled: Whether this option is unselectable. Defaults to `false`.
+///   - content: The visible label for the option.
+///
+/// ## Example
 ///
 /// ```swift
-/// Input(type: .select, name: "size") {
-///     Option(value: "sm") { "Small" }
-///     Option(value: "md", selected: true) { "Medium" }
-///     Option(value: "lg") { "Large" }
+/// Input(type: .select, name: "plan") {
+///     Option(value: "free", selected: true) { "Free" }
+///     Option(value: "pro")                  { "Pro — $9/mo" }
+///     Option(value: "team")                 { "Team — $29/mo" }
+///     Option(value: "enterprise", disabled: true) { "Enterprise (contact us)" }
 /// }
 /// ```
+///
+/// ## HTML output
+///
+/// ```html
+/// <option value="pro">Pro — $9/mo</option>
+/// ```
+///
+/// - SeeAlso: ``OptionGroup``, ``Input``
 public struct Option: View, _HTMLRenderable {
     let value: String
     let selected: Bool

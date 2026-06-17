@@ -1,4 +1,8 @@
-/// Supported programming / markup languages for `CodeBlock`.
+/// The programming or markup language used for syntax-highlighting a ``CodeBlock``.
+///
+/// Pass one of these cases to `CodeBlock(language:)` to attach a
+/// `language-*` CSS class that syntax-highlighting libraries such as
+/// Highlight.js or Prism can target.
 public enum CodeLanguage: String, Sendable, CaseIterable {
     case swift
     case js
@@ -18,16 +22,48 @@ public enum CodeLanguage: String, Sendable, CaseIterable {
     case text
 }
 
-/// A fenced code block with optional syntax highlighting.
+/// A multi-line, fenced code block with optional language annotation (`<pre><code>`).
+///
+/// Use `CodeBlock` for displaying source code, terminal output, configuration
+/// snippets, or any verbatim content that requires a monospace font and
+/// preserved whitespace. The element renders as `<pre><code>` which browsers
+/// display in a monospace font and preserve newlines and spaces exactly.
+/// Specifying a `language` adds a `language-*` CSS class that syntax-highlighting
+/// libraries (Highlight.js, Prism, etc.) use to colourize tokens automatically.
+///
+/// Content is HTML-escaped before rendering, so you can safely pass untrusted
+/// source code strings.
+///
+/// - Parameters:
+///   - language: The source language used for a `language-*` CSS class. `nil` omits the class.
+///   - syntaxTheme: An optional ``SyntaxTheme`` for server-side highlighting.
+///   - content: The source code string, or a `@ViewBuilder` closure whose
+///     rendered text becomes the code content.
+///
+/// ## Example
 ///
 /// ```swift
 /// CodeBlock(language: .swift) {
 ///     """
-///     let x = 42
-///     print(x)
+///     struct Greeting: View {
+///         var body: some View {
+///             Text { "Hello, world!" }
+///         }
+///     }
 ///     """
 /// }
+/// .margin(y: 4)
+///
+/// CodeBlock(language: .bash, "npm install && npm run build")
 /// ```
+///
+/// ## HTML output
+///
+/// ```html
+/// <pre><code class="language-swift">…</code></pre>
+/// ```
+///
+/// - SeeAlso: ``Code``, ``RichText``, ``CodeLanguage``
 public struct CodeBlock: View, _HTMLRenderable {
     let language: CodeLanguage?
     let syntaxTheme: (any SyntaxTheme)?

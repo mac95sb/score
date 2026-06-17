@@ -1,4 +1,4 @@
-/// The style (type) of a `List`.
+/// The visual and semantic style of a ``List``, controlling which HTML element and marker type to use.
 public enum ListStyle: Sendable, Equatable {
     /// A bulleted list (`<ul>`).
     case unordered

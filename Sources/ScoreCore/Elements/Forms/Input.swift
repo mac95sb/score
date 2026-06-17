@@ -1,4 +1,4 @@
-/// The type of an `Input` element.
+/// The type of an ``Input`` element, mapping to the HTML `type` attribute or special rendering.
 public enum InputType: Sendable {
     case text
     case email
@@ -49,25 +49,68 @@ extension InputType: CustomStringConvertible {
     }
 }
 
-/// Accepted file types for a file `Input`.
+/// Accepted file types for a file ``Input``.
 public enum FileAccept: String, Sendable {
     case images    = "image/*"
     case documents = ".pdf,.doc,.docx"
     case all       = "*"
 }
 
-/// A form input element supporting all 16 input types.
+/// A versatile form control supporting text, select, textarea, and all standard HTML input types.
 ///
-/// For `select` inputs, pass `Option` elements in the `content` closure.
-/// For `textarea`, the `rows` and `value` parameters are respected.
+/// `Input` is a single element that handles every form control variant. The
+/// `type` parameter drives which HTML element or `type` attribute is emitted:
+/// - Most types render as `<input type="…">`.
+/// - `.textarea` renders as a multi-line `<textarea>` respecting `rows` and `value`.
+/// - `.select` renders as `<select>` and expects ``Option`` or ``OptionGroup``
+///   children in the `content` closure.
+/// - `.checkbox` and `.radio` render an `<input>` followed by an inline
+///   `<label>` when `label` is supplied.
+///
+/// Always associate an input with a visible ``Label`` (via matching `id`/`for`
+/// attributes) for accessibility. Use ``Fieldset`` and ``Legend`` to group
+/// related controls.
+///
+/// - Parameters:
+///   - type: The kind of input control to render.
+///   - name: The `name` attribute sent with the form submission.
+///   - placeholder: Hint text shown when the field is empty.
+///   - value: Pre-filled value for the control. Pass a `Binding<String>` (via the `$` prefix) to keep an `@State` variable in sync with the field's value.
+///   - rows: Number of visible rows for `.textarea`. Ignored by other types.
+///   - min: Minimum value for `.number`, `.range`, `.date`, and similar types.
+///   - max: Maximum value for `.number`, `.range`, `.date`, and similar types.
+///   - label: Inline label text appended after `.checkbox` and `.radio` inputs.
+///   - required: Adds the `required` attribute; browsers block submission if empty.
+///   - disabled: Greys out the control and prevents user interaction.
+///   - accept: Restricts accepted file types for `.file` inputs.
+///   - content: Child views (``Option`` / ``OptionGroup``) for `.select` inputs.
+///
+/// ## Example
 ///
 /// ```swift
-/// Input(type: .email, name: "email", placeholder: "you@example.com", required: true)
-/// Input(type: .select, name: "country") {
-///     Option(value: "us") { "United States" }
-///     Option(value: "gb") { "United Kingdom" }
+/// Form(action: "/register", method: .post) {
+///     Input(type: .text,     name: "name",     placeholder: "Full name",         required: true)
+///     Input(type: .email,    name: "email",    placeholder: "you@example.com",   required: true)
+///     Input(type: .password, name: "password", placeholder: "Min 8 characters",  required: true)
+///     Input(type: .textarea, name: "bio",      placeholder: "Tell us about you", rows: 4)
+///     Input(type: .select,   name: "role") {
+///         Option(value: "dev")     { "Developer" }
+///         Option(value: "design")  { "Designer" }
+///         Option(value: "pm")      { "Product" }
+///     }
+///     Input(type: .checkbox, name: "terms", value: "1", label: "I accept the terms")
+///     Button(.primary, type: .submit) { "Create account" }
 /// }
 /// ```
+///
+/// ## HTML output
+///
+/// ```html
+/// <input type="email" name="email" placeholder="you@example.com" required>
+/// <select name="role"><option value="dev">Developer</option>…</select>
+/// ```
+///
+/// - SeeAlso: ``Label``, ``Fieldset``, ``Form``, ``Option``, ``OptionGroup``
 public struct Input: View, _HTMLRenderable {
     let type: InputType
     let name: String
@@ -100,6 +143,35 @@ public struct Input: View, _HTMLRenderable {
         self.name = name
         self.placeholder = placeholder
         self.value = value
+        self.rows = rows
+        self.min = min
+        self.max = max
+        self.label = label
+        self.required = required
+        self.disabled = disabled
+        self.accept = accept
+        self.content = nil
+    }
+
+    /// Initialiser that accepts a `Binding<String>` for the value, keeping an
+    /// `@State` variable in sync with the field's rendered initial value.
+    public init(
+        type: InputType,
+        name: String,
+        placeholder: String? = nil,
+        value: Binding<String>,
+        rows: Int? = nil,
+        min: Double? = nil,
+        max: Double? = nil,
+        label: String? = nil,
+        required: Bool = false,
+        disabled: Bool = false,
+        accept: FileAccept? = nil
+    ) {
+        self.type = type
+        self.name = name
+        self.placeholder = placeholder
+        self.value = value.wrappedValue
         self.rows = rows
         self.min = min
         self.max = max

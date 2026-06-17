@@ -1,11 +1,45 @@
 import Foundation
 
-/// Renders markdown content as HTML.
+/// Renders a Markdown string as a block of HTML wrapped in `<div class="rich-text">`.
+///
+/// Use `RichText` for user-authored or CMS-sourced content where the full
+/// range of Markdown syntax is expected: headings, paragraphs, ordered and
+/// unordered lists, fenced code blocks, blockquotes, horizontal rules, and
+/// inline formatting (bold, italic, inline code, links, strikethrough).
+///
+/// Links with dangerous schemes (`javascript:`, `data:`, `vbscript:`) are
+/// sanitised and rendered as plain text instead of anchors, preventing XSS
+/// from untrusted Markdown input.
+///
+/// For individual Score view elements (not freeform author content), compose
+/// ``Heading``, ``Text``, ``List``, and other elements directly instead.
+///
+/// - Parameters:
+///   - markdown: A Markdown-formatted string to parse and render as HTML.
+///   - theme: An optional ``ContentTheme`` for additional typography styling.
+///
+/// ## Example
 ///
 /// ```swift
-/// RichText(markdown: post.content)
-/// RichText(markdown: post.content, theme: .default)
+/// Article {
+///     Heading(1) { post.title }
+///     HStack {
+///         Text { "By \(post.author)" }
+///         TimeElement(post.publishedAt)
+///     }
+///     RichText(markdown: post.body)
+/// }
+/// .frame(maxWidth: .px(720))
+/// .margin(x: .auto)
 /// ```
+///
+/// ## HTML output
+///
+/// ```html
+/// <div class="rich-text"><h1>…</h1><p>…</p></div>
+/// ```
+///
+/// - SeeAlso: ``Heading``, ``Text``, ``Blockquote``, ``CodeBlock``, ``List``
 public struct RichText: View, _HTMLRenderable {
     let markdown: String
     let theme: ContentTheme?

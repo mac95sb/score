@@ -1,10 +1,41 @@
 import Foundation
 
-/// Renders a `<time>` element with a machine-readable `datetime` attribute.
+/// A semantic time element with a machine-readable `datetime` attribute (`<time>`).
+///
+/// Use `TimeElement` whenever you display a date or time that has semantic
+/// significance — publication dates, event times, deadlines, or timestamps.
+/// The element renders its ISO 8601 datetime in the `datetime` attribute
+/// (which search engines, calendar apps, and assistive technologies can parse)
+/// and a localised, human-readable string as the visible text.
+///
+/// For pure display formatting without semantic markup, use ``DateElement``
+/// instead. For arbitrary time strings outside of a full `Date` value, write
+/// a raw `<time>` string using ``Text`` with a `datetime` attribute set via
+/// `.attribute(_:_:)`.
+///
+/// - Parameters:
+///   - date: The `Date` value to display and encode.
+///
+/// ## Example
 ///
 /// ```swift
-/// TimeElement(post.publishedAt)
+/// Article {
+///     Heading(1) { post.title }
+///     HStack {
+///         Text { "Published on" }
+///         TimeElement(post.publishedAt)
+///     }
+///     .font(size: .sm, color: .muted)
+/// }
 /// ```
+///
+/// ## HTML output
+///
+/// ```html
+/// <time datetime="2026-01-15T00:00:00Z">Jan 15, 2026</time>
+/// ```
+///
+/// - SeeAlso: ``DateElement``, ``NumberElement``, ``Article``
 public struct TimeElement: View, _HTMLRenderable {
     let date: Date
 

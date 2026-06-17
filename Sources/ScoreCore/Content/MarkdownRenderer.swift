@@ -154,7 +154,8 @@ public struct MarkdownRenderer {
             let inner = AnyView(Stack { ForEach(inners) { $0 } })
             return AnyView(theme.strikethrough(inner))
         case let code as Markdown.InlineCode:
-            return AnyView(theme.code(AnyView(ScoreCore.Code(code.code))))
+            let codeStr = code.code
+            return AnyView(theme.code(AnyView(ScoreCore.Code { codeStr })))
         case let link as Markdown.Link:
             let dest = link.destination ?? "#"
             let label = link.plainText

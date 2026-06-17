@@ -1,10 +1,19 @@
 // MARK: - ThemeSelector
 
-/// A dropdown that switches the active theme or colour palette at runtime.
+/// A runtime theme-switching dropdown rendered as a `<select>` with inline JavaScript.
 ///
-/// `ThemeSelector` writes a `data-theme` attribute on `<html>` when the user
-/// picks an option. Your `SiteTheme.customThemes` dictionary must register
-/// matching keys so the CSS variables are emitted.
+/// `ThemeSelector` writes a `data-theme`, `data-palette`, or `data-preset`
+/// attribute on `<html>` when the user picks an option, and persists the
+/// selection to `localStorage` so it survives page navigation. Your
+/// `SiteTheme.customThemes` dictionary must register matching keys so the CSS
+/// variables are emitted.
+///
+/// Choose the appropriate mode:
+/// - `.theme` — switches complete named themes registered in `SiteTheme.customThemes`.
+/// - `.palette` — switches colour-only palette overrides without changing other theme tokens.
+/// - `.preset` — swaps `--radius-*` and `--shadow-*` CSS variables for shape/depth presets.
+///
+/// ## Example
 ///
 /// ```swift
 /// // Palette picker — pre-built dev-theme presets
@@ -35,6 +44,18 @@
 ///     )
 /// }
 /// ```
+///
+/// ## HTML output
+///
+/// ```html
+/// <select id="score-theme-selector" onchange="…">
+///   <option value="">Default</option>
+///   <option value="dark">Dark</option>
+/// </select>
+/// <script>…</script>
+/// ```
+///
+/// - SeeAlso: ``Button``, ``NavLink``
 public struct ThemeSelector: View, _HTMLRenderable {
 
     /// A single option in the selector.
@@ -55,6 +76,8 @@ public struct ThemeSelector: View, _HTMLRenderable {
         case theme
         /// Sets `data-palette` on `<html>` — for palette-only overrides separate from full themes.
         case palette
+        /// Sets `data-preset` on `<html>` — swaps `--radius-*` and `--shadow-*` CSS vars at runtime.
+        case preset
     }
 
     let options: [Option]
@@ -99,11 +122,25 @@ public struct ThemeSelector: View, _HTMLRenderable {
         self.init(options, mode: .theme, label: label, id: id)
     }
 
+    /// Convenience: preset mode — swaps `--radius-*` and `--shadow-*` CSS vars.
+    public init(
+        preset options: [Option],
+        label: String? = nil,
+        id: String = "score-preset-selector"
+    ) {
+        self.init(options, mode: .preset, label: label, id: id)
+    }
+
     public typealias Body = Never
     public var body: Never { fatalError() }
 
     public func renderHTML(context: inout RenderContext) -> String {
-        let attr = mode == .theme ? "data-theme" : "data-palette"
+        let attr: String
+        switch mode {
+        case .theme:   attr = "data-theme"
+        case .palette: attr = "data-palette"
+        case .preset:  attr = "data-preset"
+        }
         var html = ""
 
         if let label {
