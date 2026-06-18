@@ -257,34 +257,51 @@ public struct SwiftUIKitExporter: Sendable {
     }
 
     private func parseEndpoints(in body: String) -> [Endpoint] {
-        let pattern = #"Route\s*\(\s*method:\s*\.(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s*,\s*pathPattern:\s*"([^"]+)""#
-        guard let regex = try? NSRegularExpression(pattern: pattern) else { return [] }
-        let nsBody = body as NSString
-        let matches = regex.matches(in: body, range: NSRange(location: 0, length: nsBody.length))
-
         var endpoints: [Endpoint] = []
         var usedNames: Set<String> = []
-        for match in matches {
-            let method = nsBody.substring(with: match.range(at: 1))
-            let path = nsBody.substring(with: match.range(at: 2))
+        let nsBody = body as NSString
 
-            // Look in the text following the match for a `handler:` label to name
-            // the endpoint after (e.g. `handler: list` → `list`).
-            let tailStart = match.range.location + match.range.length
-            let tailLength = min(200, nsBody.length - tailStart)
-            let tail = nsBody.substring(with: NSRange(location: tailStart, length: tailLength))
-            let handlerName = firstCapture(#"handler:\s*([A-Za-z_]\w*)"#, in: tail)
-
-            var name = handlerName ?? derivedEndpointName(method: method, path: path)
-            var suffix = 2
-            while usedNames.contains(name) {
-                name = (handlerName ?? derivedEndpointName(method: method, path: path)) + "\(suffix)"
-                suffix += 1
+        // Pattern 1: explicit Route(method: .GET, pathPattern: "…") syntax
+        let explicitPattern = #"Route\s*\(\s*method:\s*\.(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s*,\s*pathPattern:\s*"([^"]+)""#
+        if let regex = try? NSRegularExpression(pattern: explicitPattern) {
+            let matches = regex.matches(in: body, range: NSRange(location: 0, length: nsBody.length))
+            for match in matches {
+                let method = nsBody.substring(with: match.range(at: 1))
+                let path = nsBody.substring(with: match.range(at: 2))
+                let tailStart = match.range.location + match.range.length
+                let tailLength = min(200, nsBody.length - tailStart)
+                let tail = nsBody.substring(with: NSRange(location: tailStart, length: tailLength))
+                let handlerName = firstCapture(#"handler:\s*([A-Za-z_]\w*)"#, in: tail)
+                let name = uniqueName(handlerName ?? derivedEndpointName(method: method, path: path), usedNames: &usedNames)
+                endpoints.append(Endpoint(method: method, path: path, name: name))
             }
-            usedNames.insert(name)
-            endpoints.append(Endpoint(method: method, path: path, name: name))
         }
+
+        // Pattern 2: DSL shorthand — GET("/path") { … }, POST("/path") { … }, etc.
+        // This is the dominant usage pattern in RouteBuilder-based controllers.
+        let dslPattern = #"\b(GET|POST|PUT|PATCH|DELETE)\s*\(\s*"([^"]+)"\s*\)"#
+        if let regex = try? NSRegularExpression(pattern: dslPattern) {
+            let matches = regex.matches(in: body, range: NSRange(location: 0, length: nsBody.length))
+            for match in matches {
+                let method = nsBody.substring(with: match.range(at: 1))
+                let path = nsBody.substring(with: match.range(at: 2))
+                let name = uniqueName(derivedEndpointName(method: method, path: path), usedNames: &usedNames)
+                endpoints.append(Endpoint(method: method, path: path, name: name))
+            }
+        }
+
         return endpoints
+    }
+
+    private func uniqueName(_ base: String, usedNames: inout Set<String>) -> String {
+        var name = base
+        var suffix = 2
+        while usedNames.contains(name) {
+            name = base + "\(suffix)"
+            suffix += 1
+        }
+        usedNames.insert(name)
+        return name
     }
 
     private func derivedEndpointName(method: String, path: String) -> String {

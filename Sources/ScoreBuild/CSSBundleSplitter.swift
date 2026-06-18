@@ -74,14 +74,16 @@ public struct CSSBundleSplitter: Sendable {
             }
         }
 
-        // Group pages with identical remaining rule sets into shared chunks
-        var groupedChunks: [[String]: [String]] = [:]
-        for (_, rules) in perPageRules {
+        // Group pages with identical remaining rule sets into shared chunks.
+        // Key is the sorted rule list (co-occurrence fingerprint); value tracks
+        // which pages share this exact set so the chunk name can be derived.
+        var groupedChunks: [[String]: Set<String>] = [:]
+        for (page, rules) in perPageRules {
             let sorted = rules.sorted()
-            groupedChunks[sorted, default: []].append(contentsOf: rules)
+            groupedChunks[sorted, default: []].insert(page)
         }
 
-        // Build chunk filenames from page paths
+        // Build chunk filenames from the shared rule set
         var chunks: [String: String] = [:]
         for (rules, _) in groupedChunks {
             let css = rules.joined(separator: "\n")

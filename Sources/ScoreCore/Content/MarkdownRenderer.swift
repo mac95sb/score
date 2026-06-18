@@ -117,12 +117,16 @@ public struct MarkdownRenderer {
 
     private func renderTable(_ table: Markdown.Table) -> AnyView {
         // swift-markdown: table.head.children = cells; table.body.children = rows
-        let headerCells = Array(table.head.cells).map { cell in
-            AnyView(ScoreCore.TableCell(.header) { cell.plainText })
+        let headerCells = Array(table.head.cells).map { cell -> AnyView in
+            let inlines = cell.children.map { renderInline($0) }
+            let inner = AnyView(Stack { ForEach(inlines) { $0 } })
+            return AnyView(ScoreCore.TableCell(.header) { inner })
         }
         let bodyRows = Array(table.body.rows).map { row -> AnyView in
-            let cells = Array(row.cells).map { cell in
-                AnyView(ScoreCore.TableCell { cell.plainText })
+            let cells = Array(row.cells).map { cell -> AnyView in
+                let inlines = cell.children.map { renderInline($0) }
+                let inner = AnyView(Stack { ForEach(inlines) { $0 } })
+                return AnyView(ScoreCore.TableCell { inner })
             }
             return AnyView(ScoreCore.TableRow { ForEach(cells) { $0 } })
         }
@@ -158,8 +162,12 @@ public struct MarkdownRenderer {
             return AnyView(theme.code(AnyView(ScoreCore.Code { codeStr })))
         case let link as Markdown.Link:
             let dest = link.destination ?? "#"
-            let label = link.plainText
-            return AnyView(theme.link(AnyView(ScoreCore.Link(to: dest) { label })))
+            // Reject unsafe schemes that RichText already blocks — AST rendering
+            // must apply the same safety invariant.
+            let safeDest = isSafeURL(dest) ? dest : "#"
+            let inners = link.children.map { renderInline($0) }
+            let inner = AnyView(Stack { ForEach(inners) { $0 } })
+            return AnyView(theme.link(AnyView(ScoreCore.Link(to: safeDest) { inner })))
         case let image as Markdown.Image:
             let src = image.source ?? ""
             let alt = image.plainText
@@ -171,5 +179,16 @@ public struct MarkdownRenderer {
         default:
             return AnyView(ScoreCore.Text(inline: true) { markup.format() })
         }
+    }
+
+    // MARK: - URL safety
+
+    /// Returns `false` for schemes that must not appear in rendered links
+    /// (`javascript:`, `data:`, `vbscript:`, etc.). Mirrors the same check in
+    /// `RichText` so every rendering path enforces the same invariant.
+    private func isSafeURL(_ url: String) -> Bool {
+        let lower = url.lowercased().trimmingCharacters(in: .whitespaces)
+        let blockedSchemes = ["javascript:", "data:", "vbscript:", "blob:"]
+        return !blockedSchemes.contains(where: { lower.hasPrefix($0) })
     }
 }

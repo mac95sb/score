@@ -41,10 +41,12 @@ public struct URI: Sendable, Hashable {
     }
 
     public var string: String {
-        var s = path
-        if !query.isEmpty {
-            s += "?" + query.map { "\($0.key)=\($0.value)" }.joined(separator: "&")
-        }
-        return s
+        guard !query.isEmpty else { return path }
+        var components = URLComponents()
+        components.path = path
+        // Sort keys for deterministic output; use URLQueryItem for proper percent-encoding.
+        components.queryItems = query.sorted(by: { $0.key < $1.key })
+            .map { URLQueryItem(name: $0.key, value: $0.value) }
+        return components.string ?? path
     }
 }

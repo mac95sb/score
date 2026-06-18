@@ -197,8 +197,12 @@ struct ScoreLinter: Sendable {
                 }
             }
 
-            // A003: Input without an associated Label
-            if isEnabled("form-label") && trimmed.contains("Input(") && !trimmed.contains("id:") && !trimmed.hasPrefix("//") {
+            // A003: Input without an associated id — no `id:` parameter and no `.attribute("id"` modifier
+            if isEnabled("form-label") && trimmed.contains("Input(")
+                && !trimmed.contains("id:")
+                && !trimmed.contains(".attribute(\"id\"")
+                && !trimmed.hasPrefix("//")
+            {
                 diagnostics.append(
                     LintDiagnostic(
                         file: file, line: lineNumber, column: 1,

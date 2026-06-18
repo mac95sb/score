@@ -15,6 +15,7 @@ struct ScoreCLI: AsyncParsableCommand {
             DevCommand.self,
             BuildCommand.self,
             NewCommand.self,
+            PackageCommand.self,
             PreviewCommand.self,
             RoutesCommand.self,
             ManifestCommand.self,

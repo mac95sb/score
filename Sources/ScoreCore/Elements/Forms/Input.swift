@@ -113,6 +113,7 @@ public enum FileAccept: String, Sendable {
 /// - SeeAlso: ``Label``, ``Fieldset``, ``Form``, ``Option``, ``OptionGroup``
 public struct Input: View, _HTMLRenderable {
     let type: InputType
+    let id: String?
     let name: String
     let placeholder: String?
     let value: String?
@@ -128,6 +129,7 @@ public struct Input: View, _HTMLRenderable {
     // Initialiser without content — used for all non-select, non-textarea types.
     public init(
         type: InputType,
+        id: String? = nil,
         name: String,
         placeholder: String? = nil,
         value: String? = nil,
@@ -140,6 +142,7 @@ public struct Input: View, _HTMLRenderable {
         accept: FileAccept? = nil
     ) {
         self.type = type
+        self.id = id
         self.name = name
         self.placeholder = placeholder
         self.value = value
@@ -157,6 +160,7 @@ public struct Input: View, _HTMLRenderable {
     /// `@State` variable in sync with the field's rendered initial value.
     public init(
         type: InputType,
+        id: String? = nil,
         name: String,
         placeholder: String? = nil,
         value: Binding<String>,
@@ -169,6 +173,7 @@ public struct Input: View, _HTMLRenderable {
         accept: FileAccept? = nil
     ) {
         self.type = type
+        self.id = id
         self.name = name
         self.placeholder = placeholder
         self.value = value.wrappedValue
@@ -185,6 +190,7 @@ public struct Input: View, _HTMLRenderable {
     // Initialiser with content — used for select inputs (Option children).
     public init(
         type: InputType,
+        id: String? = nil,
         name: String,
         placeholder: String? = nil,
         value: String? = nil,
@@ -198,6 +204,7 @@ public struct Input: View, _HTMLRenderable {
         @ViewBuilder content: () -> some View
     ) {
         self.type = type
+        self.id = id
         self.name = name
         self.placeholder = placeholder
         self.value = value
@@ -219,6 +226,7 @@ public struct Input: View, _HTMLRenderable {
 
         case .textarea:
             var attrs = "name=\"\(attributeEscape(name))\""
+            if let id { attrs = "id=\"\(attributeEscape(id))\" " + attrs }
             if let rows = rows { attrs += " rows=\"\(rows)\"" }
             if let ph = placeholder { attrs += " placeholder=\"\(attributeEscape(ph))\"" }
             if required { attrs += " required" }
@@ -227,6 +235,7 @@ public struct Input: View, _HTMLRenderable {
 
         case .select:
             var attrs = "name=\"\(attributeEscape(name))\""
+            if let id { attrs = "id=\"\(attributeEscape(id))\" " + attrs }
             if required { attrs += " required" }
             if disabled { attrs += " disabled" }
             let inner = content?.renderHTML(context: &context) ?? ""
@@ -234,6 +243,7 @@ public struct Input: View, _HTMLRenderable {
 
         case .checkbox, .radio:
             var attrs = "type=\"\(type.description)\" name=\"\(attributeEscape(name))\""
+            if let id { attrs = "id=\"\(attributeEscape(id))\" " + attrs }
             if let v = value { attrs += " value=\"\(attributeEscape(v))\"" }
             if required { attrs += " required" }
             if disabled { attrs += " disabled" }
@@ -243,6 +253,7 @@ public struct Input: View, _HTMLRenderable {
 
         default:
             var attrs = "type=\"\(type.description)\" name=\"\(attributeEscape(name))\""
+            if let id { attrs = "id=\"\(attributeEscape(id))\" " + attrs }
             if let ph = placeholder { attrs += " placeholder=\"\(attributeEscape(ph))\"" }
             if let v = value { attrs += " value=\"\(attributeEscape(v))\"" }
             if let mn = min { attrs += " min=\"\(mn)\"" }

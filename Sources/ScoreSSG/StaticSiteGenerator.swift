@@ -85,6 +85,10 @@ public actor StaticSiteGenerator {
         extraAssets: [String: String] = [:],
         requiresServer: Bool = false
     ) async throws {
+        // Remove stale output before writing so deleted routes don't linger.
+        if fm.fileExists(atPath: configuration.outputDirectory.path) {
+            try fm.removeItem(at: configuration.outputDirectory)
+        }
         try fm.createDirectory(at: configuration.outputDirectory, withIntermediateDirectories: true)
         try await dependencyGraph.load()
 

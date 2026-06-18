@@ -136,24 +136,42 @@ actor StaticFileServer {
         let parts = firstLine.components(separatedBy: " ")
         guard parts.count >= 2 else { return }
 
+        let method = parts[0].uppercased()
         var urlPath = parts[1].components(separatedBy: "?").first ?? "/"
 
         // Resolve the file
         if urlPath.hasSuffix("/") { urlPath += "index.html" }
         if !urlPath.contains(".") { urlPath += "/index.html" }
 
-        let fileURL = root.appendingPathComponent(urlPath)
+        let resolvedRoot = root.standardized
+        let fileURL = root.appendingPathComponent(urlPath).standardized
+
+        // Guard against path traversal — reject any path that escapes the root
+        guard fileURL.path.hasPrefix(resolvedRoot.path + "/") || fileURL.path == resolvedRoot.path else {
+            let body = Data("<h1>404 Not Found</h1>".utf8)
+            let header = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: \(body.count)\r\nConnection: close\r\n\r\n"
+            sendResponse(fd: fd, header: header, body: body)
+            return
+        }
 
         if let data = try? Data(contentsOf: fileURL) {
             let mime = mimeType(for: fileURL.pathExtension)
-            let isFingerprinted = fileURL.lastPathComponent.split(separator: ".").count >= 3
+            let components = fileURL.lastPathComponent.split(separator: ".")
+            // A fingerprinted asset has an 8-character lowercase hex segment inserted by AssetFingerprinter
+            let isFingerprinted = components.dropFirst().dropLast()
+                .contains { $0.count == 8 && $0.allSatisfy(\.isHexDigit) }
             let cacheControl =
                 isFingerprinted
                 ? "max-age=31536000, immutable"
                 : "no-cache, must-revalidate"
 
-            let header = "HTTP/1.1 200 OK\r\nContent-Type: \(mime)\r\nContent-Length: \(data.count)\r\nCache-Control: \(cacheControl)\r\nConnection: close\r\n\r\n"
-            sendResponse(fd: fd, header: header, body: data)
+            if method == "HEAD" {
+                let header = "HTTP/1.1 200 OK\r\nContent-Type: \(mime)\r\nContent-Length: \(data.count)\r\nCache-Control: \(cacheControl)\r\nConnection: close\r\n\r\n"
+                sendResponse(fd: fd, header: header, body: Data())
+            } else {
+                let header = "HTTP/1.1 200 OK\r\nContent-Type: \(mime)\r\nContent-Length: \(data.count)\r\nCache-Control: \(cacheControl)\r\nConnection: close\r\n\r\n"
+                sendResponse(fd: fd, header: header, body: data)
+            }
         } else {
             let body = Data("<h1>404 Not Found</h1>".utf8)
             let header = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: \(body.count)\r\nConnection: close\r\n\r\n"

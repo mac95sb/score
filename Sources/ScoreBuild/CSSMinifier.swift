@@ -110,17 +110,16 @@ public struct CSSMinifier: Sendable {
     private func removeStructuralSpaces(_ css: String) -> String {
         var result = css
 
-        // Remove spaces before and after structural characters
+        // Remove spaces before and after structural characters.
+        // Removing spaces around `:` is intentionally lossy for property values
+        // (e.g. `transition: all 0.3s ease` → `transition:all 0.3s ease`), but
+        // this is valid CSS and Score only produces machine-generated values that
+        // don't require a restored space for correctness.
         let structuralChars = ["{", "}", ";", ",", ":"]
         for char in structuralChars {
             result = result.replacingOccurrences(of: " \(char)", with: char)
             result = result.replacingOccurrences(of: "\(char) ", with: char)
         }
-
-        // Restore single space after colons in property values (not selectors)
-        // This is a best-effort heuristic — Score's CSS is machine-generated
-        // and uses short-hand values that need spaces preserved.
-        // We re-add space after : when preceded by a known property-like token.
 
         return result
     }

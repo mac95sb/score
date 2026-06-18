@@ -2,6 +2,10 @@ import Foundation
 
 // MARK: - ProjectScaffolder
 
+/// The canonical Score package URL used in scaffolded `Package.swift` files.
+/// Update this when the repository moves to its public home.
+let scorePackageURL = "https://github.com/swiftscore/score"
+
 struct ProjectScaffolder: Sendable {
     let template: ProjectTemplate
 
@@ -306,7 +310,7 @@ struct ProjectScaffolder: Sendable {
                     HStack {
                         Text { "© 2026 \(name). Built with " }
                             .font(size: .sm, color: .muted)
-                        Link(to: "https://github.com/mac95sb/score") { "Score" }
+                        Link(to: "https://github.com/swiftscore/score") { "Score" }
                             .font(size: .sm, color: .primary)
                         Text { "." }
                             .font(size: .sm, color: .muted)
@@ -596,7 +600,7 @@ struct ProjectScaffolder: Sendable {
                 name: "\(name)",
                 platforms: [.macOS(.v15)],
                 dependencies: [
-                    .package(url: "https://github.com/mac95sb/score", branch: "main"),
+                    .package(url: "\(scorePackageURL)", branch: "main"),
                 ],
                 targets: [
                     .executableTarget(
@@ -882,17 +886,17 @@ struct ProjectScaffolder: Sendable {
                                 Legend { "Personal Details" }
 
                                 Label(for: "name") { "Full name" }
-                                Input(.text, id: "name", name: "name", placeholder: "Jane Smith")
+                                Input(type: .text, id: "name", name: "name", placeholder: "Jane Smith")
                                     .frame(width: .full)
                                     .margin(top: 1, bottom: 4)
 
                                 Label(for: "email") { "Email" }
-                                Input(.email, id: "email", name: "email", placeholder: "jane@example.com")
+                                Input(type: .email, id: "email", name: "email", placeholder: "jane@example.com")
                                     .frame(width: .full)
                                     .margin(top: 1, bottom: 4)
 
                                 Label(for: "bio") { "Bio" }
-                                Input(.textarea, id: "bio", name: "bio", placeholder: "Tell us about yourself…")
+                                Input(type: .textarea, id: "bio", name: "bio", placeholder: "Tell us about yourself…")
                                     .frame(width: .full, height: .px(120))
                                     .margin(top: 1)
                             }

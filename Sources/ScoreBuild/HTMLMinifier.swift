@@ -65,12 +65,35 @@ public struct HTMLMinifier: Sendable {
     }
 
     private func collapseWhitespace(_ html: String) -> String {
-        // Replace sequences of whitespace between > and < with a single space
+        // Replace sequences of whitespace between > and < with a single space.
+        // Content between <script>…</script> and <style>…</style> is passed
+        // through verbatim to avoid corrupting inline JS or CSS.
         var result = ""
         var inTag = false
         var prevWasSpace = false
+        var index = html.startIndex
 
-        for ch in html {
+        while index < html.endIndex {
+            // Check for the start of a raw-content block
+            for rawTag in ["script", "style"] {
+                let open = "<\(rawTag)"
+                if html[index...].lowercased().hasPrefix(open) {
+                    let close = "</\(rawTag)>"
+                    // Find the matching closing tag
+                    let searchFrom = html.index(index, offsetBy: open.count, limitedBy: html.endIndex) ?? html.endIndex
+                    if let closeRange = html.range(of: close, options: .caseInsensitive, range: searchFrom..<html.endIndex) {
+                        // Emit everything up to and including the closing tag verbatim
+                        result += html[index...closeRange.upperBound]
+                        index = html.index(after: closeRange.upperBound)
+                        prevWasSpace = false
+                        inTag = false
+                        // Skip normal per-character processing for this stretch
+                        continue
+                    }
+                }
+            }
+
+            let ch = html[index]
             switch ch {
             case "<":
                 if prevWasSpace && !result.isEmpty && result.last != ">" {
@@ -100,6 +123,7 @@ public struct HTMLMinifier: Sendable {
                 prevWasSpace = false
                 result.append(ch)
             }
+            index = html.index(after: index)
         }
 
         return result

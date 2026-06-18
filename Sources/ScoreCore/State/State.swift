@@ -1,10 +1,14 @@
 import Foundation
 
-/// Declares a reactive state variable on a Score view.
+/// Declares a state variable on a Score view.
 ///
-/// Score infers whether state is UI-only (ephemeral) or persistent based on
-/// the type: plain `Codable` types are persistent only when `stateMode: .localFirst`
-/// is set on `Application`. Primitive types (Bool, Int, String) are always UI state.
+/// On the server side `@State` provides a snapshot value for the current
+/// render. The `projectedValue` (`$` binding) captures mutations but they
+/// are not propagated back to the server — state changes in response to
+/// user interaction require a client-side runtime (not yet available).
+///
+/// `stateMode: .localFirst` on `Application` is reserved for a future CRDT
+/// runtime; it has no effect today.
 ///
 /// ```swift
 /// struct Counter: View {

@@ -7,6 +7,10 @@ import Foundation
 /// entry if the manifest doesn't already mention the kit. When no `products:`
 /// section exists (Score's scaffolded apps rely on the implicit executable
 /// product), one is inserted after the package `name:` line.
+///
+/// - Note: Text-based, not AST — inserts by pattern matching brace depth.
+///   False positives/negatives are possible on manifests that deviate from
+///   Score's scaffolded structure.
 public enum PackageManifestPatcher {
 
     /// Returns `true` when the manifest was modified, `false` when the kit
