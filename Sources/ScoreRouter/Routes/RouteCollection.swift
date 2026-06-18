@@ -31,5 +31,6 @@ public protocol RouteCollection: Sendable {
 extension Array: RouteCollection where Element == Route {
     // The explicit `return` suppresses the result-builder transform that would
     // otherwise recurse through `buildExpression(_: any RouteCollection)`.
-    public var routes: [Route] { self }
+    // swift-format-ignore
+    public var routes: [Route] { return self }
 }

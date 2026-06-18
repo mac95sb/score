@@ -58,7 +58,8 @@ public struct RouteGroup: RouteCollection {
 
     // The explicit `return` suppresses the result-builder transform applied to
     // witnesses of the `@RouteBuilder` protocol requirement.
-    public var routes: [Route] { children }
+    // swift-format-ignore
+    public var routes: [Route] { return children }
 
     // MARK: - Middleware attachment
 
