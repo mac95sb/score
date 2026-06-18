@@ -29,12 +29,12 @@ public struct DialogTheme: Sendable {
         backdropBlur: Double? = nil,
         overrides: [String: String] = [:]
     ) {
-        self.radius       = radius
-        self.padding      = padding
-        self.maxWidth     = maxWidth
-        self.backdrop     = backdrop
+        self.radius = radius
+        self.padding = padding
+        self.maxWidth = maxWidth
+        self.backdrop = backdrop
         self.backdropBlur = backdropBlur
-        self.overrides    = overrides
+        self.overrides = overrides
     }
 
     public func css() -> String {

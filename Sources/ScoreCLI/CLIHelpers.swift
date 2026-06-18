@@ -16,9 +16,9 @@ enum CLIError: Error, CustomStringConvertible {
         switch self {
         case .invalidName(let name):
             return """
-            Invalid name '\(name)'. Names must start with a letter and contain \
-            only letters, numbers, hyphens, or underscores.
-            """
+                Invalid name '\(name)'. Names must start with a letter and contain \
+                only letters, numbers, hyphens, or underscores.
+                """
         case .buildFailed:
             return "Swift build failed. Check compiler output above."
         case .buildNotFound(let dir):

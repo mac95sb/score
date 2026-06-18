@@ -16,7 +16,8 @@ public struct BackgroundColorModifier: ThemeAwareModifier {
     let condition: ModifierCondition?
 
     public init(color: Color, condition: ModifierCondition? = nil) {
-        self.color = color; self.condition = condition
+        self.color = color
+        self.condition = condition
     }
 
     public func declarations(theme: SiteTheme) -> [ConditionedDeclaration] {
@@ -31,7 +32,8 @@ public struct BackgroundGradientModifier: ThemeAwareModifier {
     let condition: ModifierCondition?
 
     public init(gradient: Gradient, condition: ModifierCondition? = nil) {
-        self.gradient = gradient; self.condition = condition
+        self.gradient = gradient
+        self.condition = condition
     }
 
     public func declarations(theme: SiteTheme) -> [ConditionedDeclaration] {
@@ -48,14 +50,17 @@ public struct BackgroundImageModifier: ThemeAwareModifier {
     let condition: ModifierCondition?
 
     public init(url: String, size: BackgroundSize = .cover, position: BackgroundPosition = .center, condition: ModifierCondition? = nil) {
-        self.url = url; self.size = size; self.position = position; self.condition = condition
+        self.url = url
+        self.size = size
+        self.position = position
+        self.condition = condition
     }
 
     public func declarations(theme: SiteTheme) -> [ConditionedDeclaration] {
         [
-            ConditionedDeclaration("background-image",    "url(\(url))",       condition: condition),
-            ConditionedDeclaration("background-size",     size.css,            condition: condition),
-            ConditionedDeclaration("background-position", position.rawValue,   condition: condition)
+            ConditionedDeclaration("background-image", "url(\(url))", condition: condition),
+            ConditionedDeclaration("background-size", size.css, condition: condition),
+            ConditionedDeclaration("background-position", position.rawValue, condition: condition),
         ]
     }
 }
@@ -67,7 +72,8 @@ public struct BackgroundClipModifier: ThemeAwareModifier {
     let condition: ModifierCondition?
 
     public init(clip: BackgroundClip, condition: ModifierCondition? = nil) {
-        self.clip = clip; self.condition = condition
+        self.clip = clip
+        self.condition = condition
     }
 
     public func declarations(theme: SiteTheme) -> [ConditionedDeclaration] {
@@ -90,7 +96,8 @@ public struct BackgroundAttachmentModifier: ThemeAwareModifier {
     let condition: ModifierCondition?
 
     public init(attachment: Attachment, condition: ModifierCondition? = nil) {
-        self.attachment = attachment; self.condition = condition
+        self.attachment = attachment
+        self.condition = condition
     }
 
     public func declarations(theme: SiteTheme) -> [ConditionedDeclaration] {

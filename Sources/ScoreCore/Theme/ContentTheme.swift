@@ -25,19 +25,19 @@ public struct ContentTheme: Sendable {
     public var strikethrough: ElementStyle
 
     public static let `default` = ContentTheme(
-        heading:      { _, v in v },
-        paragraph:    { v in v },
-        code:         { v in v },
-        codeBlock:    { _, v in v },
-        blockquote:   { v in v },
-        list:         { _, v in v },
-        listItem:     { v in v },
-        table:        { v in v },
-        link:         { v in v },
-        image:        { v in v },
-        divider:      { v in v },
-        strong:       { v in v },
-        emphasis:     { v in v },
+        heading: { _, v in v },
+        paragraph: { v in v },
+        code: { v in v },
+        codeBlock: { _, v in v },
+        blockquote: { v in v },
+        list: { _, v in v },
+        listItem: { v in v },
+        table: { v in v },
+        link: { v in v },
+        image: { v in v },
+        divider: { v in v },
+        strong: { v in v },
+        emphasis: { v in v },
         strikethrough: { v in v }
     )
 
@@ -90,34 +90,34 @@ public struct ContentTheme: Sendable {
     )
 
     public init(
-        heading:       @escaping HeadingStyle                              = { _, v in v },
-        paragraph:     @escaping ElementStyle                              = { v in v },
-        code:          @escaping ElementStyle                              = { v in v },
-        codeBlock:     @escaping @Sendable (String?, any View) -> any View = { _, v in v },
-        blockquote:    @escaping ElementStyle                              = { v in v },
-        list:          @escaping @Sendable (ListStyle, any View) -> any View = { _, v in v },
-        listItem:      @escaping ElementStyle                              = { v in v },
-        table:         @escaping ElementStyle                              = { v in v },
-        link:          @escaping ElementStyle                              = { v in v },
-        image:         @escaping ElementStyle                              = { v in v },
-        divider:       @escaping ElementStyle                              = { v in v },
-        strong:        @escaping ElementStyle                              = { v in v },
-        emphasis:      @escaping ElementStyle                              = { v in v },
-        strikethrough: @escaping ElementStyle                              = { v in v }
+        heading: @escaping HeadingStyle = { _, v in v },
+        paragraph: @escaping ElementStyle = { v in v },
+        code: @escaping ElementStyle = { v in v },
+        codeBlock: @escaping @Sendable (String?, any View) -> any View = { _, v in v },
+        blockquote: @escaping ElementStyle = { v in v },
+        list: @escaping @Sendable (ListStyle, any View) -> any View = { _, v in v },
+        listItem: @escaping ElementStyle = { v in v },
+        table: @escaping ElementStyle = { v in v },
+        link: @escaping ElementStyle = { v in v },
+        image: @escaping ElementStyle = { v in v },
+        divider: @escaping ElementStyle = { v in v },
+        strong: @escaping ElementStyle = { v in v },
+        emphasis: @escaping ElementStyle = { v in v },
+        strikethrough: @escaping ElementStyle = { v in v }
     ) {
-        self.heading       = heading
-        self.paragraph     = paragraph
-        self.code          = code
-        self.codeBlock     = codeBlock
-        self.blockquote    = blockquote
-        self.list          = list
-        self.listItem      = listItem
-        self.table         = table
-        self.link          = link
-        self.image         = image
-        self.divider       = divider
-        self.strong        = strong
-        self.emphasis      = emphasis
+        self.heading = heading
+        self.paragraph = paragraph
+        self.code = code
+        self.codeBlock = codeBlock
+        self.blockquote = blockquote
+        self.list = list
+        self.listItem = listItem
+        self.table = table
+        self.link = link
+        self.image = image
+        self.divider = divider
+        self.strong = strong
+        self.emphasis = emphasis
         self.strikethrough = strikethrough
     }
 }

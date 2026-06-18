@@ -12,7 +12,9 @@ public struct Response: Sendable {
         headers: [String: String] = [:],
         body: ResponseBody = .empty
     ) {
-        self.status = status; self.headers = headers; self.body = body
+        self.status = status
+        self.headers = headers
+        self.body = body
     }
 
     // MARK: - Static factories

@@ -93,14 +93,14 @@ public struct Image: View, _HTMLRenderable {
     public func renderHTML(context: inout RenderContext) -> String {
         var imgAttrs = "src=\"\(attributeEscape(src))\" alt=\"\(attributeEscape(alt))\""
         if loading != .auto { imgAttrs += " loading=\"\(loading.rawValue)\"" }
-        if let w = width    { imgAttrs += " width=\"\(w)\"" }
-        if let h = height   { imgAttrs += " height=\"\(h)\"" }
+        if let w = width { imgAttrs += " width=\"\(w)\"" }
+        if let h = height { imgAttrs += " height=\"\(h)\"" }
         let img = "<img \(imgAttrs)>"
 
         if caption != nil || credit != nil {
             var figcap = "<figcaption>"
             if let caption = caption { figcap += htmlEscape(caption) }
-            if let credit = credit   { figcap += " <cite>\(htmlEscape(credit))</cite>" }
+            if let credit = credit { figcap += " <cite>\(htmlEscape(credit))</cite>" }
             figcap += "</figcaption>"
             return "<figure>\(img)\(figcap)</figure>"
         }

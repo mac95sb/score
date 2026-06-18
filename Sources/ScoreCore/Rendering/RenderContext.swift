@@ -100,7 +100,8 @@ public struct RenderContext: Sendable {
                 }
             } else {
                 let ownCSSCondition = modifier.cssCondition()
-                let effectiveCSSCondition: CSSCondition? = ownCSSCondition
+                let effectiveCSSCondition: CSSCondition? =
+                    ownCSSCondition
                     ?? conditionOverride?.cssCondition(theme: theme)
                 if let condition = effectiveCSSCondition {
                     hasConditional = true

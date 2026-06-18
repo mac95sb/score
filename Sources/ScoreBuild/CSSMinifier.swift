@@ -63,12 +63,11 @@ public struct CSSMinifier: Sendable {
             } else if css[index...].hasPrefix("/*") {
                 // Find closing */
                 let searchStart = css.index(index, offsetBy: 2, limitedBy: css.endIndex) ?? css.endIndex
-                if let closeRange = css.range(of: "*/", range: searchStart..<css.endIndex) {
-                    index = closeRange.upperBound
-                } else {
+                guard let closeRange = css.range(of: "*/", range: searchStart..<css.endIndex) else {
                     // Unterminated comment — drop the rest
                     break
                 }
+                index = closeRange.upperBound
             } else {
                 result.append(ch)
                 index = css.index(after: index)

@@ -46,11 +46,10 @@ public final class StyleCollector: @unchecked Sendable {
     public func buildCSS(minify: Bool = false) -> String {
         lock.lock()
         defer { lock.unlock() }
-        if minify {
-            return rules.map { $0.renderMinified() }.joined()
-        } else {
+        guard minify else {
             return rules.map { $0.render() }.joined(separator: "\n")
         }
+        return rules.map { $0.renderMinified() }.joined()
     }
 
     /// Reset all collected data.

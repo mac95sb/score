@@ -1,16 +1,18 @@
-import Testing
-@testable import ScoreRouter
-@testable import ScoreHTTP
 import Foundation
+import Testing
+
+@testable import ScoreHTTP
+@testable import ScoreRouter
 
 @Suite("Router")
 struct RouterTests {
     @Test("matches exact path and returns 200")
     func exactPathMatch() async throws {
         let router = Router()
-        await router.register(Route(method: .GET, pathPattern: "/about") { _ in
-            Response.ok(.text("About"))
-        })
+        await router.register(
+            Route(method: .GET, pathPattern: "/about") { _ in
+                Response.ok(.text("About"))
+            })
 
         let request = Request(method: .get, uri: URI(path: "/about"))
         let response = try await router.handle(request)
@@ -20,10 +22,11 @@ struct RouterTests {
     @Test("matches path with parameter")
     func parameterMatch() async throws {
         let router = Router()
-        await router.register(Route(method: .GET, pathPattern: "/posts/:slug") { req in
-            let slug: String = try req.pathParameter("slug")
-            return Response.ok(.text(slug))
-        })
+        await router.register(
+            Route(method: .GET, pathPattern: "/posts/:slug") { req in
+                let slug: String = try req.pathParameter("slug")
+                return Response.ok(.text(slug))
+            })
 
         let request = Request(method: .get, uri: URI(path: "/posts/hello-world"))
         let response = try await router.handle(request)
@@ -33,9 +36,10 @@ struct RouterTests {
     @Test("returns 404 for unmatched path")
     func noMatch() async throws {
         let router = Router()
-        await router.register(Route(method: .GET, pathPattern: "/home") { _ in
-            Response.ok()
-        })
+        await router.register(
+            Route(method: .GET, pathPattern: "/home") { _ in
+                Response.ok()
+            })
 
         let request = Request(method: .get, uri: URI(path: "/unknown"))
         let response = try await router.handle(request)
@@ -45,9 +49,10 @@ struct RouterTests {
     @Test("returns 404 for wrong HTTP method")
     func methodMismatch() async throws {
         let router = Router()
-        await router.register(Route(method: .POST, pathPattern: "/users") { _ in
-            Response(status: .created)
-        })
+        await router.register(
+            Route(method: .POST, pathPattern: "/users") { _ in
+                Response(status: .created)
+            })
 
         let request = Request(method: .get, uri: URI(path: "/users"))
         let response = try await router.handle(request)
@@ -57,9 +62,10 @@ struct RouterTests {
     @Test("wildcard matches any sub-path")
     func wildcardMatch() async throws {
         let router = Router()
-        await router.register(Route(method: .GET, pathPattern: "/files/*") { _ in
-            Response.ok(.text("file"))
-        })
+        await router.register(
+            Route(method: .GET, pathPattern: "/files/*") { _ in
+                Response.ok(.text("file"))
+            })
 
         let request = Request(method: .get, uri: URI(path: "/files/images/photo.jpg"))
         let response = try await router.handle(request)

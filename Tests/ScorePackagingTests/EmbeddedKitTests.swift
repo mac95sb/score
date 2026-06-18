@@ -1,27 +1,28 @@
 import Foundation
 import Testing
+
 @testable import ScorePackaging
 
 @Suite("Embedded kit export")
 struct EmbeddedKitTests {
 
     static let appSource = """
-    import Score
-    import Foundation
+        import Score
+        import Foundation
 
-    struct Post: Record {
-        var id: UUID = UUID()
-        var title: String
-        var createdAt: Date = .now
-        var updatedAt: Date = .now
-    }
-
-    struct PostsController: RouteCollection {
-        var routes: [Route] {
-            [Route(method: .GET, pathPattern: "/posts", handler: list)]
+        struct Post: Record {
+            var id: UUID = UUID()
+            var title: String
+            var createdAt: Date = .now
+            var updatedAt: Date = .now
         }
-    }
-    """
+
+        struct PostsController: RouteCollection {
+            var routes: [Route] {
+                [Route(method: .GET, pathPattern: "/posts", handler: list)]
+            }
+        }
+        """
 
     private func makeProject() throws -> URL {
         let fm = FileManager.default
@@ -38,11 +39,12 @@ struct EmbeddedKitTests {
         let root = try makeProject()
         defer { try? FileManager.default.removeItem(at: root) }
 
-        let exporter = SwiftUIKitExporter(options: .init(
-            kitName: "AppKit",
-            sourcesDirectory: root.appendingPathComponent("Sources").path,
-            excludedDirectories: ["AppKit"]
-        ))
+        let exporter = SwiftUIKitExporter(
+            options: .init(
+                kitName: "AppKit",
+                sourcesDirectory: root.appendingPathComponent("Sources").path,
+                excludedDirectories: ["AppKit"]
+            ))
         let target = root.appendingPathComponent("Sources/AppKit")
         let result = try exporter.exportTarget(into: target)
 
@@ -60,11 +62,12 @@ struct EmbeddedKitTests {
         defer { try? FileManager.default.removeItem(at: root) }
         let sourcesPath = root.appendingPathComponent("Sources").path
 
-        let exporter = SwiftUIKitExporter(options: .init(
-            kitName: "AppKit",
-            sourcesDirectory: sourcesPath,
-            excludedDirectories: ["AppKit"]
-        ))
+        let exporter = SwiftUIKitExporter(
+            options: .init(
+                kitName: "AppKit",
+                sourcesDirectory: sourcesPath,
+                excludedDirectories: ["AppKit"]
+            ))
         let target = root.appendingPathComponent("Sources/AppKit")
         _ = try exporter.exportTarget(into: target)
         // Second run scans a tree that now contains the generated kit; the
@@ -78,11 +81,12 @@ struct EmbeddedKitTests {
         let root = try makeProject()
         defer { try? FileManager.default.removeItem(at: root) }
 
-        let exporter = SwiftUIKitExporter(options: .init(
-            kitName: "AppKit",
-            sourcesDirectory: root.appendingPathComponent("Sources").path,
-            excludedDirectories: ["AppKit"]
-        ))
+        let exporter = SwiftUIKitExporter(
+            options: .init(
+                kitName: "AppKit",
+                sourcesDirectory: root.appendingPathComponent("Sources").path,
+                excludedDirectories: ["AppKit"]
+            ))
         let target = root.appendingPathComponent("Sources/AppKit")
         let stale = target.appendingPathComponent("Models/Deleted.swift")
         try FileManager.default.createDirectory(
@@ -102,23 +106,24 @@ struct EmbeddedKitTests {
         // No kit yet — nothing to regenerate.
         #expect(KitRegenerator.regenerateEmbeddedKits(sourcesDirectory: sourcesPath).isEmpty)
 
-        let exporter = SwiftUIKitExporter(options: .init(
-            kitName: "AppKit",
-            sourcesDirectory: sourcesPath,
-            excludedDirectories: ["AppKit"]
-        ))
+        let exporter = SwiftUIKitExporter(
+            options: .init(
+                kitName: "AppKit",
+                sourcesDirectory: sourcesPath,
+                excludedDirectories: ["AppKit"]
+            ))
         _ = try exporter.exportTarget(into: root.appendingPathComponent("Sources/AppKit"))
 
         // Add a record, then regenerate.
         let newRecord = """
-        import Foundation
-        struct Comment: Record {
-            var id: UUID = UUID()
-            var body: String
-            var createdAt: Date = .now
-            var updatedAt: Date = .now
-        }
-        """
+            import Foundation
+            struct Comment: Record {
+                var id: UUID = UUID()
+                var body: String
+                var createdAt: Date = .now
+                var updatedAt: Date = .now
+            }
+            """
         try newRecord.write(
             to: root.appendingPathComponent("Sources/App/Comment.swift"),
             atomically: true, encoding: .utf8)
@@ -134,25 +139,25 @@ struct EmbeddedKitTests {
 struct PackageManifestPatcherTests {
 
     static let scaffoldManifest = """
-    // swift-tools-version: 6.0
-    import PackageDescription
+        // swift-tools-version: 6.0
+        import PackageDescription
 
-    let package = Package(
-        name: "MyApp",
-        platforms: [.macOS(.v15)],
-        dependencies: [
-            .package(url: "https://github.com/mac95sb/score.git", branch: "main"),
-        ],
-        targets: [
-            .executableTarget(
-                name: "MyApp",
-                dependencies: [
-                    .product(name: "Score", package: "score"),
-                ]
-            ),
-        ]
-    )
-    """
+        let package = Package(
+            name: "MyApp",
+            platforms: [.macOS(.v15)],
+            dependencies: [
+                .package(url: "https://github.com/mac95sb/score.git", branch: "main"),
+            ],
+            targets: [
+                .executableTarget(
+                    name: "MyApp",
+                    dependencies: [
+                        .product(name: "Score", package: "score"),
+                    ]
+                ),
+            ]
+        )
+        """
 
     private func writeManifest(_ contents: String) throws -> URL {
         let url = FileManager.default.temporaryDirectory
@@ -194,16 +199,16 @@ struct PackageManifestPatcherTests {
     @Test("inserts into an existing products section")
     func existingProducts() throws {
         let manifest = """
-        let package = Package(
-            name: "MyApp",
-            products: [
-                .executable(name: "myapp", targets: ["MyApp"]),
-            ],
-            targets: [
-                .executableTarget(name: "MyApp"),
-            ]
-        )
-        """
+            let package = Package(
+                name: "MyApp",
+                products: [
+                    .executable(name: "myapp", targets: ["MyApp"]),
+                ],
+                targets: [
+                    .executableTarget(name: "MyApp"),
+                ]
+            )
+            """
         let url = try writeManifest(manifest)
         defer { try? FileManager.default.removeItem(at: url) }
 

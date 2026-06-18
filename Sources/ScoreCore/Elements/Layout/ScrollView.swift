@@ -70,8 +70,8 @@ public struct ScrollView: View, _HTMLRenderable {
         let (extra, cls, savedStack, savedCond) = context.takeStyles()
         let base: String
         switch axis {
-        case .y:    base = "overflow-y:auto"
-        case .x:    base = "overflow-x:auto"
+        case .y: base = "overflow-y:auto"
+        case .x: base = "overflow-x:auto"
         case .both: base = "overflow:auto"
         }
         let style = extra.isEmpty ? base : "\(base);\(extra)"

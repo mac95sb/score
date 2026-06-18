@@ -21,12 +21,18 @@ public struct MarginModifier: ThemeAwareModifier {
     let condition: ModifierCondition?
 
     public init(all: SpacingValue, condition: ModifierCondition? = nil) {
-        self.top = all; self.right = all; self.bottom = all; self.left = all
+        self.top = all
+        self.right = all
+        self.bottom = all
+        self.left = all
         self.condition = condition
     }
 
     public init(x: SpacingValue? = nil, y: SpacingValue? = nil, condition: ModifierCondition? = nil) {
-        self.top = y; self.right = x; self.bottom = y; self.left = x
+        self.top = y
+        self.right = x
+        self.bottom = y
+        self.left = x
         self.condition = condition
     }
 
@@ -37,7 +43,10 @@ public struct MarginModifier: ThemeAwareModifier {
         left: SpacingValue? = nil,
         condition: ModifierCondition? = nil
     ) {
-        self.top = top; self.right = right; self.bottom = bottom; self.left = left
+        self.top = top
+        self.right = right
+        self.bottom = bottom
+        self.left = left
         self.condition = condition
     }
 
@@ -52,10 +61,10 @@ public struct MarginModifier: ThemeAwareModifier {
             return [ConditionedDeclaration("margin", "\(t.css) \(r.css) \(b.css) \(l.css)", condition: condition)]
         }
         var result: [ConditionedDeclaration] = []
-        if let t = top    { result.append(ConditionedDeclaration("margin-top",    t.css, condition: condition)) }
-        if let r = right  { result.append(ConditionedDeclaration("margin-right",  r.css, condition: condition)) }
+        if let t = top { result.append(ConditionedDeclaration("margin-top", t.css, condition: condition)) }
+        if let r = right { result.append(ConditionedDeclaration("margin-right", r.css, condition: condition)) }
         if let b = bottom { result.append(ConditionedDeclaration("margin-bottom", b.css, condition: condition)) }
-        if let l = left   { result.append(ConditionedDeclaration("margin-left",   l.css, condition: condition)) }
+        if let l = left { result.append(ConditionedDeclaration("margin-left", l.css, condition: condition)) }
         return result
     }
 }

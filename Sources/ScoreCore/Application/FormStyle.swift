@@ -41,8 +41,8 @@ public struct FormStyle: Sendable {
     /// A pass-through style that applies no additional styling.
     public static let `default` = FormStyle(
         fieldWrapper: { v in v },
-        label:        { v in v },
-        input:        { _, v in v },
+        label: { v in v },
+        input: { _, v in v },
         errorMessage: { v in v }
     )
 
@@ -50,13 +50,13 @@ public struct FormStyle: Sendable {
 
     public init(
         fieldWrapper: @escaping FieldWrapperStyle = { v in v },
-        label:        @escaping FieldWrapperStyle = { v in v },
-        input:        @escaping InputStyle        = { _, v in v },
+        label: @escaping FieldWrapperStyle = { v in v },
+        input: @escaping InputStyle = { _, v in v },
         errorMessage: @escaping FieldWrapperStyle = { v in v }
     ) {
         self.fieldWrapper = fieldWrapper
-        self.label        = label
-        self.input        = input
+        self.label = label
+        self.input = input
         self.errorMessage = errorMessage
     }
 }

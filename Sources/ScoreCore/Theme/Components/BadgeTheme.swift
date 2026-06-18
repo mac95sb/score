@@ -28,10 +28,10 @@ public struct BadgeTheme: Sendable {
         overrides: [String: String] = [:]
     ) {
         self.background = background
-        self.color      = color
-        self.border     = border
-        self.radius     = radius
-        self.overrides  = overrides
+        self.color = color
+        self.border = border
+        self.radius = radius
+        self.overrides = overrides
     }
 
     public func css() -> String {

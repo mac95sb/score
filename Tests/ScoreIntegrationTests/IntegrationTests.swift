@@ -1,6 +1,6 @@
-import Testing
-import Score
 import Foundation
+import Score
+import Testing
 
 // MARK: - Test Application
 

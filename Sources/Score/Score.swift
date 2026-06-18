@@ -14,9 +14,9 @@
 /// - ``ScoreSSG``    — static-site generation and Markdown rendering
 /// - ``ScoreBuild``  — asset pipeline and incremental build system
 
+@_exported import ScoreBuild
 @_exported import ScoreCore
+@_exported import ScoreData
 @_exported import ScoreHTTP
 @_exported import ScoreRouter
-@_exported import ScoreData
 @_exported import ScoreSSG
-@_exported import ScoreBuild

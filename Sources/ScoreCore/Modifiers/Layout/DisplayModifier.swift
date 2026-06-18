@@ -16,7 +16,8 @@ public struct DisplayModifier: ThemeAwareModifier {
     let condition: ModifierCondition?
 
     public init(_ value: DisplayValue, condition: ModifierCondition? = nil) {
-        self.value = value; self.condition = condition
+        self.value = value
+        self.condition = condition
     }
 
     public func declarations(theme: SiteTheme) -> [ConditionedDeclaration] {
@@ -37,7 +38,8 @@ public struct VisibilityModifier: ThemeAwareModifier {
     let condition: ModifierCondition?
 
     public init(hidden: Bool, condition: ModifierCondition? = nil) {
-        self.hidden = hidden; self.condition = condition
+        self.hidden = hidden
+        self.condition = condition
     }
 
     public func declarations(theme: SiteTheme) -> [ConditionedDeclaration] {

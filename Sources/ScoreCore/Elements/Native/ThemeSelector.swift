@@ -66,7 +66,7 @@ public struct ThemeSelector: View, _HTMLRenderable {
         public let themeKey: String
 
         public init(_ label: String, themeKey: String) {
-            self.label    = label
+            self.label = label
             self.themeKey = themeKey
         }
     }
@@ -99,9 +99,9 @@ public struct ThemeSelector: View, _HTMLRenderable {
         id: String = "score-theme-selector"
     ) {
         self.options = options
-        self.mode    = mode
-        self.label   = label
-        self.id      = id
+        self.mode = mode
+        self.label = label
+        self.id = id
     }
 
     /// Convenience: palette mode.
@@ -137,9 +137,9 @@ public struct ThemeSelector: View, _HTMLRenderable {
     public func renderHTML(context: inout RenderContext) -> String {
         let attr: String
         switch mode {
-        case .theme:   attr = "data-theme"
+        case .theme: attr = "data-theme"
         case .palette: attr = "data-palette"
-        case .preset:  attr = "data-preset"
+        case .preset: attr = "data-preset"
         }
         var html = ""
 
@@ -166,12 +166,8 @@ public struct ThemeSelector: View, _HTMLRenderable {
 
         // Restore on page load
         let restoreScript =
-            "<script>(function(){" +
-            "var v=localStorage.getItem('score-\(attr)');" +
-            "if(v){document.documentElement.setAttribute('\(attr)',v);" +
-            "var s=document.getElementById('\(htmlEscape(id))');" +
-            "if(s)s.value=v;}" +
-            "})();</script>"
+            "<script>(function(){" + "var v=localStorage.getItem('score-\(attr)');" + "if(v){document.documentElement.setAttribute('\(attr)',v);"
+            + "var s=document.getElementById('\(htmlEscape(id))');" + "if(s)s.value=v;}" + "})();</script>"
 
         return html + restoreScript
     }

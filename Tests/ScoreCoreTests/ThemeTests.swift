@@ -1,4 +1,5 @@
 import Testing
+
 @testable import ScoreCore
 
 @Suite("Theme")
@@ -30,14 +31,14 @@ struct ThemeTests {
     @Test("dark mode block emitted when darkColors set")
     func darkModeBlock() {
         let dark = ThemeColors(
-            primary: Color(oklch:0.7, 0.15, 250),
-            accent:  Color(oklch:0.6, 0.2, 200),
-            surface: Color(oklch:0.15, 0.0, 0),
-            secondary: Color(oklch:0.5, 0.1, 250),
-            tertiary: Color(oklch:0.4, 0.05, 0),
-            text:  Color(oklch:0.95, 0.0, 0),
-            muted: Color(oklch:0.6, 0.0, 0),
-            destructive: Color(oklch:0.55, 0.22, 25)
+            primary: Color(oklch: 0.7, 0.15, 250),
+            accent: Color(oklch: 0.6, 0.2, 200),
+            surface: Color(oklch: 0.15, 0.0, 0),
+            secondary: Color(oklch: 0.5, 0.1, 250),
+            tertiary: Color(oklch: 0.4, 0.05, 0),
+            text: Color(oklch: 0.95, 0.0, 0),
+            muted: Color(oklch: 0.6, 0.0, 0),
+            destructive: Color(oklch: 0.55, 0.22, 25)
         )
         let theme = SiteTheme(darkColors: dark)
         let css = theme.cssVariables()

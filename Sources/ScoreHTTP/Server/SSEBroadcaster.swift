@@ -26,11 +26,17 @@ public final class SSEBroadcaster: @unchecked Sendable {
             initialDelay: .seconds(25),
             delay: .seconds(25)
         ) { [weak self] task in
-            guard let self else { task.cancel(); return }
+            guard let self else {
+                task.cancel()
+                return
+            }
             self.lock.lock()
             let exists = self.channels[ObjectIdentifier(channel)] != nil
             self.lock.unlock()
-            guard exists, channel.isActive else { task.cancel(); return }
+            guard exists, channel.isActive else {
+                task.cancel()
+                return
+            }
             var buf = channel.allocator.buffer(capacity: 16)
             buf.writeString(": keepalive\n\n")
             channel.writeAndFlush(HTTPServerResponsePart.body(.byteBuffer(buf)), promise: nil)

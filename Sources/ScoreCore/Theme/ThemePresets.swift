@@ -37,23 +37,23 @@ public struct ThemePalette: Sendable {
     ) {
         let surfaceTint = tint ?? neutral
         self.light = ThemeColors(
-            primary:     primary(600),
-            accent:      accent(500),
-            surface:     .white,
-            secondary:   surfaceTint(100),
-            tertiary:    surfaceTint(50),
-            text:        neutral(900),
-            muted:       neutral(500),
+            primary: primary(600),
+            accent: accent(500),
+            surface: .white,
+            secondary: surfaceTint(100),
+            tertiary: surfaceTint(50),
+            text: neutral(900),
+            muted: neutral(500),
             destructive: .rose(600)
         )
         self.dark = ThemeColors(
-            primary:     primary(400),
-            accent:      accent(400),
-            surface:     neutral(950),
-            secondary:   surfaceTint(900),
-            tertiary:    neutral(900),
-            text:        neutral(100),
-            muted:       neutral(400),
+            primary: primary(400),
+            accent: accent(400),
+            surface: neutral(950),
+            secondary: surfaceTint(900),
+            tertiary: neutral(900),
+            text: neutral(100),
+            muted: neutral(400),
             destructive: .rose(500)
         )
     }
@@ -140,10 +140,10 @@ extension ThemePreset {
             return PresetOverride(
                 radii: ThemeRadii(sm: 2, md: 4, lg: 6, xl: 8, twoXL: 12, full: 9999),
                 shadows: ThemeShadows(
-                    sm:    "0 1px 1px oklch(0 0 0/0.03)",
-                    md:    "0 1px 2px oklch(0 0 0/0.05)",
-                    lg:    "0 2px 4px oklch(0 0 0/0.06)",
-                    xl:    "0 4px 8px oklch(0 0 0/0.06)",
+                    sm: "0 1px 1px oklch(0 0 0/0.03)",
+                    md: "0 1px 2px oklch(0 0 0/0.05)",
+                    lg: "0 2px 4px oklch(0 0 0/0.06)",
+                    xl: "0 4px 8px oklch(0 0 0/0.06)",
                     twoXL: "0 8px 16px oklch(0 0 0/0.08)",
                     inner: "inset 0 1px 2px oklch(0 0 0/0.04)"
                 )
@@ -152,10 +152,10 @@ extension ThemePreset {
             return PresetOverride(
                 radii: ThemeRadii(sm: 6, md: 10, lg: 14, xl: 20, twoXL: 28, full: 9999),
                 shadows: ThemeShadows(
-                    sm:    "0 1px 2px oklch(0 0 0/0.04),0 1px 3px oklch(0 0 0/0.06)",
-                    md:    "0 2px 4px oklch(0 0 0/0.04),0 4px 8px oklch(0 0 0/0.06)",
-                    lg:    "0 4px 8px oklch(0 0 0/0.05),0 10px 20px oklch(0 0 0/0.08)",
-                    xl:    "0 8px 16px oklch(0 0 0/0.06),0 20px 32px oklch(0 0 0/0.09)",
+                    sm: "0 1px 2px oklch(0 0 0/0.04),0 1px 3px oklch(0 0 0/0.06)",
+                    md: "0 2px 4px oklch(0 0 0/0.04),0 4px 8px oklch(0 0 0/0.06)",
+                    lg: "0 4px 8px oklch(0 0 0/0.05),0 10px 20px oklch(0 0 0/0.08)",
+                    xl: "0 8px 16px oklch(0 0 0/0.06),0 20px 32px oklch(0 0 0/0.09)",
                     twoXL: "0 12px 24px oklch(0 0 0/0.08),0 28px 48px oklch(0 0 0/0.12)",
                     inner: "inset 0 2px 4px oklch(0 0 0/0.05)"
                 )
@@ -164,10 +164,10 @@ extension ThemePreset {
             return PresetOverride(
                 radii: ThemeRadii(sm: 8, md: 14, lg: 20, xl: 28, twoXL: 36, full: 9999),
                 shadows: ThemeShadows(
-                    sm:    "0 2px 8px oklch(0 0 0/0.05)",
-                    md:    "0 4px 16px oklch(0 0 0/0.06)",
-                    lg:    "0 8px 24px oklch(0 0 0/0.08)",
-                    xl:    "0 12px 32px oklch(0 0 0/0.09)",
+                    sm: "0 2px 8px oklch(0 0 0/0.05)",
+                    md: "0 4px 16px oklch(0 0 0/0.06)",
+                    lg: "0 8px 24px oklch(0 0 0/0.08)",
+                    xl: "0 12px 32px oklch(0 0 0/0.09)",
                     twoXL: "0 20px 48px oklch(0 0 0/0.12)",
                     inner: "inset 0 2px 6px oklch(0 0 0/0.04)"
                 )
@@ -176,10 +176,10 @@ extension ThemePreset {
             return PresetOverride(
                 radii: ThemeRadii(sm: 0, md: 0, lg: 0, xl: 0, twoXL: 0, full: 9999),
                 shadows: ThemeShadows(
-                    sm:    "4px 4px 0 0 oklch(0 0 0)",
-                    md:    "6px 6px 0 0 oklch(0 0 0)",
-                    lg:    "8px 8px 0 0 oklch(0 0 0)",
-                    xl:    "12px 12px 0 0 oklch(0 0 0)",
+                    sm: "4px 4px 0 0 oklch(0 0 0)",
+                    md: "6px 6px 0 0 oklch(0 0 0)",
+                    lg: "8px 8px 0 0 oklch(0 0 0)",
+                    xl: "12px 12px 0 0 oklch(0 0 0)",
                     twoXL: "16px 16px 0 0 oklch(0 0 0)",
                     inner: "inset 4px 4px 0 0 oklch(0 0 0)"
                 )
@@ -205,35 +205,35 @@ extension SiteTheme {
     ) -> SiteTheme {
         var theme = SiteTheme(colors: palette.light, darkColors: palette.dark)
         let over = preset.presetOverride
-        theme.radii   = over.radii
+        theme.radii = over.radii
         theme.shadows = over.shadows
 
         switch preset {
         case .minimal:
             theme.components = ComponentTheme(
                 button: .compact,
-                link:   .plain,
+                link: .plain,
                 dialog: .minimal,
-                input:  .minimal,
-                badge:  .outline
+                input: .minimal,
+                badge: .outline
             )
 
         case .modern:
             theme.components = ComponentTheme(
                 button: ButtonTheme(radius: .lg),
-                link:   .default,
+                link: .default,
                 dialog: DialogTheme(backdropBlur: 6),
-                input:  .default,
-                badge:  .default
+                input: .default,
+                badge: .default
             )
 
         case .soft:
             theme.components = ComponentTheme(
                 button: .pill,
-                link:   .default,
+                link: .default,
                 dialog: DialogTheme(radius: .twoXL, backdropBlur: 10),
-                input:  InputTheme(radius: .lg),
-                badge:  .default
+                input: InputTheme(radius: .lg),
+                badge: .default
             )
 
         case .neoBrutalism:

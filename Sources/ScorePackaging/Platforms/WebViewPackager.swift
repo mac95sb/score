@@ -27,10 +27,10 @@ public struct PackagedApp: Sendable {
         filesWritten: [String],
         nextSteps: String
     ) {
-        self.platform        = platform
+        self.platform = platform
         self.outputDirectory = outputDirectory
-        self.filesWritten    = filesWritten
-        self.nextSteps       = nextSteps
+        self.filesWritten = filesWritten
+        self.nextSteps = nextSteps
     }
 }
 

@@ -10,7 +10,7 @@ public func spacingPx(_ step: Double) -> Double {
         4: 16, 5: 20, 6: 24, 7: 28, 8: 32, 9: 36, 10: 40, 11: 44,
         12: 48, 14: 56, 16: 64, 20: 80, 24: 96, 28: 112, 32: 128,
         36: 144, 40: 160, 44: 176, 48: 192, 52: 208, 56: 224,
-        60: 240, 64: 256, 72: 288, 80: 320, 96: 384
+        60: 240, 64: 256, 72: 288, 80: 320, 96: 384,
     ]
     return table[step] ?? step * 4
 }
@@ -35,27 +35,27 @@ public enum SpacingValue: Sendable, ExpressibleByIntegerLiteral, ExpressibleByFl
     case fit
     case none
 
-    public init(integerLiteral value: Int)    { self = .step(Double(value)) }
-    public init(floatLiteral value: Double)   { self = .step(value) }
+    public init(integerLiteral value: Int) { self = .step(Double(value)) }
+    public init(floatLiteral value: Double) { self = .step(value) }
 
     /// CSS string representation for width/height contexts.
     public var css: String {
         switch self {
-        case .step(let n):    return "\(spacingPx(n).cssStr)px"
-        case .px(let n):      return "\(n.cssStr)px"
-        case .rem(let n):     return "\(n.cssStr)rem"
+        case .step(let n): return "\(spacingPx(n).cssStr)px"
+        case .px(let n): return "\(n.cssStr)px"
+        case .rem(let n): return "\(n.cssStr)rem"
         case .percent(let n): return "\(n.cssStr)%"
-        case .vw(let n):      return "\(n.cssStr)vw"
-        case .vh(let n):      return "\(n.cssStr)vh"
-        case .dvh(let n):     return "\(n.cssStr)dvh"
-        case .fr(let n):      return "\(n.cssStr)fr"
-        case .auto:           return "auto"
-        case .full:           return "100%"
-        case .screen:         return "100vw"
-        case .min:            return "min-content"
-        case .max:            return "max-content"
-        case .fit:            return "fit-content"
-        case .none:           return "0"
+        case .vw(let n): return "\(n.cssStr)vw"
+        case .vh(let n): return "\(n.cssStr)vh"
+        case .dvh(let n): return "\(n.cssStr)dvh"
+        case .fr(let n): return "\(n.cssStr)fr"
+        case .auto: return "auto"
+        case .full: return "100%"
+        case .screen: return "100vw"
+        case .min: return "min-content"
+        case .max: return "max-content"
+        case .fit: return "fit-content"
+        case .none: return "0"
         }
     }
 

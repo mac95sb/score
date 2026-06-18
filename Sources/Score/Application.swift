@@ -1,12 +1,12 @@
 import Foundation
 import Logging
-import ServiceLifecycle
+import ScoreBuild
 import ScoreCore
+import ScoreData
 import ScoreHTTP
 import ScoreRouter
-import ScoreData
 import ScoreSSG
-import ScoreBuild
+import ServiceLifecycle
 
 /// The entry point for a Score application.
 ///
@@ -88,7 +88,7 @@ extension Application {
 }
 
 extension Application where AppRoutes == [Route] {
-    public var routes: [Route] { return [] }
+    public var routes: [Route] { [] }
 }
 
 extension Application where AppDatabase == NoDatabase {
@@ -139,7 +139,8 @@ enum ScoreRuntime {
 
         let host = value(of: "--host", in: arguments) ?? "127.0.0.1"
         let port = value(of: "--port", in: arguments).flatMap(Int.init) ?? 8080
-        let isDev = arguments.contains("--dev")
+        let isDev =
+            arguments.contains("--dev")
             || ProcessInfo.processInfo.environment["SCORE_DEV_RELOAD"] == "1"
         let logger = Logger(label: "score.app")
 
@@ -244,7 +245,8 @@ enum ScoreRuntime {
                 ]
             }
             if let data = try? JSONSerialization.data(withJSONObject: entries, options: [.prettyPrinted, .sortedKeys]),
-               let text = String(data: data, encoding: .utf8) {
+                let text = String(data: data, encoding: .utf8)
+            {
                 print(text)
             }
         } else {
@@ -273,32 +275,34 @@ enum ScoreRuntime {
             if let pageType = route.staticPageType {
                 for instance in try await pageType.instances() {
                     let html = try renderer.render(instance)
-                    expanded.append(Route(
-                        method: .GET,
-                        pathPattern: instance.path,
-                        renderMode: .static
-                    ) { _ in
-                        Response(status: .ok, body: .html(html))
-                    })
+                    expanded.append(
+                        Route(
+                            method: .GET,
+                            pathPattern: instance.path,
+                            renderMode: .static
+                        ) { _ in
+                            Response(status: .ok, body: .html(html))
+                        })
                 }
                 continue
             }
 
             if let factory = route.pageFactory {
                 let r = renderer
-                expanded.append(Route(
-                    method: route.method,
-                    pathPattern: route.pathPattern,
-                    renderMode: route.renderMode,
-                    middleware: route.middleware
-                ) { req in
-                    let page = try await factory(req)
-                    func renderPage<P: Page>(_ p: P) throws -> String {
-                        try r.render(p)
-                    }
-                    let html = try renderPage(page)
-                    return Response(status: .ok, body: .html(html))
-                })
+                expanded.append(
+                    Route(
+                        method: route.method,
+                        pathPattern: route.pathPattern,
+                        renderMode: route.renderMode,
+                        middleware: route.middleware
+                    ) { req in
+                        let page = try await factory(req)
+                        func renderPage<P: Page>(_ p: P) throws -> String {
+                            try r.render(p)
+                        }
+                        let html = try renderPage(page)
+                        return Response(status: .ok, body: .html(html))
+                    })
                 continue
             }
 
@@ -309,7 +313,7 @@ enum ScoreRuntime {
 
     private static func value(of flag: String, in arguments: [String]) -> String? {
         guard let index = arguments.firstIndex(of: flag),
-              arguments.index(after: index) < arguments.endIndex
+            arguments.index(after: index) < arguments.endIndex
         else { return nil }
         return arguments[arguments.index(after: index)]
     }

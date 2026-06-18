@@ -208,13 +208,14 @@ extension View {
         backdropBlur: SpacingValue? = nil,
         on condition: ModifierCondition? = nil
     ) -> ModifiedContent<Self, EffectModifier> {
-        modifier(EffectModifier(
-            opacity: opacity, blur: blur, saturate: saturate,
-            brightness: brightness, grayscale: grayscale,
-            blendMode: blendMode, objectFit: objectFit,
-            cursor: cursor, userSelect: userSelect,
-            pointerEvents: pointerEvents, fill: fill,
-            backdropBlur: backdropBlur, condition: condition
-        ))
+        modifier(
+            EffectModifier(
+                opacity: opacity, blur: blur, saturate: saturate,
+                brightness: brightness, grayscale: grayscale,
+                blendMode: blendMode, objectFit: objectFit,
+                cursor: cursor, userSelect: userSelect,
+                pointerEvents: pointerEvents, fill: fill,
+                backdropBlur: backdropBlur, condition: condition
+            ))
     }
 }

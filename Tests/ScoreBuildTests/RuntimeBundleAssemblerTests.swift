@@ -1,4 +1,5 @@
 import Testing
+
 @testable import ScoreBuild
 
 @Suite("RuntimeBundleAssembler")

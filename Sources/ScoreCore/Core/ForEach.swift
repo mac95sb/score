@@ -22,8 +22,7 @@ public struct _ArrayView<Content: View>: View, _HTMLRenderable {
 /// }
 /// ```
 public struct ForEach<Data: RandomAccessCollection, Content: View>: View, _HTMLRenderable
-    where Data: Sendable, Data.Element: Sendable
-{
+where Data: Sendable, Data.Element: Sendable {
     let data: Data
     let content: @Sendable (Data.Element) -> Content
 

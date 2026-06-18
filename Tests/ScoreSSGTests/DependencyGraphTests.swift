@@ -1,6 +1,7 @@
-import Testing
-@testable import ScoreSSG
 import Foundation
+import Testing
+
+@testable import ScoreSSG
 
 @Suite("DependencyGraph")
 struct DependencyGraphTests {

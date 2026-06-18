@@ -32,12 +32,12 @@ public struct InputTheme: Sendable {
         focusColor: String = "var(--color-accent)",
         overrides: [String: String] = [:]
     ) {
-        self.radius      = radius
-        self.padding     = padding
+        self.radius = radius
+        self.padding = padding
         self.borderColor = borderColor
-        self.background  = background
-        self.focusColor  = focusColor
-        self.overrides   = overrides
+        self.background = background
+        self.focusColor = focusColor
+        self.overrides = overrides
     }
 
     static let selector =

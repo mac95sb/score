@@ -11,14 +11,15 @@ extension View {
         iterations: AnimationIterations = .once,
         fill: String = "both"
     ) -> ModifiedContent<Self, AnimationModifier> {
-        modifier(AnimationModifier(
-            animationName: animation.css,
-            duration: duration,
-            easing: easing,
-            delay: delay,
-            iterations: iterations,
-            fillMode: fill
-        ))
+        modifier(
+            AnimationModifier(
+                animationName: animation.css,
+                duration: duration,
+                easing: easing,
+                delay: delay,
+                iterations: iterations,
+                fillMode: fill
+            ))
     }
 
     /// Apply a CSS transition on a property.

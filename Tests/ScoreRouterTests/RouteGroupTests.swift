@@ -1,7 +1,8 @@
-import Testing
-@testable import ScoreRouter
-import ScoreHTTP
 import ScoreCore
+import ScoreHTTP
+import Testing
+
+@testable import ScoreRouter
 
 // MARK: - Stub middleware
 
@@ -76,7 +77,7 @@ struct RouteGroupTests {
     func middlewarePrepended() {
         let group = RouteGroup("/secure") {
             GET("/dashboard") { _ in .ok() }
-            GET("/profile")   { _ in .ok() }
+            GET("/profile") { _ in .ok() }
         }.middleware(StubMiddleware(tag: "auth"))
 
         for route in group.routes {
@@ -87,8 +88,8 @@ struct RouteGroupTests {
     @Test("group routes preserve their methods")
     func methodsPreserved() {
         let group = RouteGroup("/api") {
-            GET("/resource")    { _ in .ok() }
-            POST("/resource")   { _ in .ok() }
+            GET("/resource") { _ in .ok() }
+            POST("/resource") { _ in .ok() }
             DELETE("/resource") { _ in .ok() }
         }
         let methods = group.routes.map(\.method)

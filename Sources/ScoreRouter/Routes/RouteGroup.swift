@@ -58,7 +58,7 @@ public struct RouteGroup: RouteCollection {
 
     // The explicit `return` suppresses the result-builder transform applied to
     // witnesses of the `@RouteBuilder` protocol requirement.
-    public var routes: [Route] { return children }
+    public var routes: [Route] { children }
 
     // MARK: - Middleware attachment
 

@@ -1,5 +1,5 @@
-import Foundation
 import CSQLite
+import Foundation
 
 // MARK: - SQLValue
 
@@ -44,15 +44,15 @@ public actor SQLiteConnection {
     public func createTable<R: Record>(for type: R.Type) async throws {
         let table = R.quotedTableName
         let sql = """
-        CREATE TABLE IF NOT EXISTS \(table) (
-            id         TEXT PRIMARY KEY NOT NULL,
-            created_at TEXT NOT NULL DEFAULT (datetime('now')),
-            updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-            data       TEXT NOT NULL
-        );
-        CREATE INDEX IF NOT EXISTS \(R.quotedIndexName("created_at")) ON \(table)(created_at);
-        CREATE INDEX IF NOT EXISTS \(R.quotedIndexName("updated_at")) ON \(table)(updated_at);
-        """
+            CREATE TABLE IF NOT EXISTS \(table) (
+                id         TEXT PRIMARY KEY NOT NULL,
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+                data       TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS \(R.quotedIndexName("created_at")) ON \(table)(created_at);
+            CREATE INDEX IF NOT EXISTS \(R.quotedIndexName("updated_at")) ON \(table)(updated_at);
+            """
         // sqlite3_exec can run multiple statements
         guard let db = db else { throw SQLiteError.notConnected }
         let rc = sqlite3_exec(db, sql, nil, nil, nil)
@@ -72,14 +72,14 @@ public actor SQLiteConnection {
             throw SQLiteError.encodingFailed("UTF-8 conversion failed for \(R.tableName)")
         }
         let sql = """
-        INSERT OR REPLACE INTO \(R.quotedTableName) (id, created_at, updated_at, data)
-        VALUES (?, ?, ?, ?)
-        """
+            INSERT OR REPLACE INTO \(R.quotedTableName) (id, created_at, updated_at, data)
+            VALUES (?, ?, ?, ?)
+            """
         let params: [SQLValue] = [
             record.id.uuidString,
             iso8601(record.createdAt),
             iso8601(record.updatedAt),
-            json
+            json,
         ]
         _ = try await _execute(sql, parameters: params)
     }
@@ -93,14 +93,14 @@ public actor SQLiteConnection {
             throw SQLiteError.encodingFailed("UTF-8 conversion failed for \(R.tableName)")
         }
         let sql = """
-        UPDATE \(R.quotedTableName)
-        SET updated_at = ?, data = ?
-        WHERE id = ?
-        """
+            UPDATE \(R.quotedTableName)
+            SET updated_at = ?, data = ?
+            WHERE id = ?
+            """
         let params: [SQLValue] = [
             iso8601(record.updatedAt),
             json,
-            record.id.uuidString
+            record.id.uuidString,
         ]
         _ = try await _execute(sql, parameters: params)
     }
@@ -120,7 +120,8 @@ public actor SQLiteConnection {
         decoder.dateDecodingStrategy = .iso8601
         return try rows.map { row in
             guard let jsonStr = row["data"] as? String,
-                  let jsonData = jsonStr.data(using: .utf8) else {
+                let jsonData = jsonStr.data(using: .utf8)
+            else {
                 throw SQLiteError.decodingFailed("Missing or invalid `data` column in \(R.tableName)")
             }
             return try decoder.decode(R.self, from: jsonData)

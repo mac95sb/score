@@ -11,8 +11,12 @@ public struct URI: Sendable, Hashable {
 
     public init(string: String) {
         guard let components = URLComponents(string: string) else {
-            self.scheme = nil; self.host = nil; self.port = nil
-            self.path = string; self.query = [:]; self.fragment = nil
+            self.scheme = nil
+            self.host = nil
+            self.port = nil
+            self.path = string
+            self.query = [:]
+            self.fragment = nil
             return
         }
         self.scheme = components.scheme
@@ -28,8 +32,12 @@ public struct URI: Sendable, Hashable {
     }
 
     public init(path: String, query: [String: String] = [:]) {
-        self.scheme = nil; self.host = nil; self.port = nil
-        self.path = path; self.query = query; self.fragment = nil
+        self.scheme = nil
+        self.host = nil
+        self.port = nil
+        self.path = path
+        self.query = query
+        self.fragment = nil
     }
 
     public var string: String {

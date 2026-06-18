@@ -24,17 +24,19 @@ public enum KitRegenerator {
         for entry in entries.sorted() {
             let shimPath = "\(sourcesDirectory)/\(entry)/ScoreRecord.swift"
             guard let shim = try? String(contentsOfFile: shimPath, encoding: .utf8),
-                  shim.contains(SwiftUIKitExporter.generatedMarker)
+                shim.contains(SwiftUIKitExporter.generatedMarker)
             else { continue }
 
-            let exporter = SwiftUIKitExporter(options: .init(
-                kitName: entry,
-                sourcesDirectory: sourcesDirectory,
-                excludedDirectories: [entry]
-            ))
+            let exporter = SwiftUIKitExporter(
+                options: .init(
+                    kitName: entry,
+                    sourcesDirectory: sourcesDirectory,
+                    excludedDirectories: [entry]
+                ))
             let target = URL(fileURLWithPath: "\(sourcesDirectory)/\(entry)")
             if let result = try? exporter.exportTarget(into: target),
-               !result.filesChanged.isEmpty {
+                !result.filesChanged.isEmpty
+            {
                 regenerated.append(entry)
             }
         }

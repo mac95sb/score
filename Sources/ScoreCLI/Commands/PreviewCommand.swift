@@ -42,10 +42,11 @@ struct PreviewCommand: AsyncParsableCommand {
             throw CLIError.buildNotFound(directory)
         }
 
-        noora.info(.alert(
-            "score preview",
-            takeaways: ["http://\(host):\(port)", "Serving from \(directory)", "Press Ctrl-C to stop"]
-        ))
+        noora.info(
+            .alert(
+                "score preview",
+                takeaways: ["http://\(host):\(port)", "Serving from \(directory)", "Press Ctrl-C to stop"]
+            ))
 
         // Use a built-in Foundation-based static file server so we don't need
         // to declare NIO as a direct dependency of ScoreCLI.
@@ -146,7 +147,8 @@ actor StaticFileServer {
         if let data = try? Data(contentsOf: fileURL) {
             let mime = mimeType(for: fileURL.pathExtension)
             let isFingerprinted = fileURL.lastPathComponent.split(separator: ".").count >= 3
-            let cacheControl = isFingerprinted
+            let cacheControl =
+                isFingerprinted
                 ? "max-age=31536000, immutable"
                 : "no-cache, must-revalidate"
 
@@ -168,21 +170,21 @@ actor StaticFileServer {
     private func mimeType(for ext: String) -> String {
         switch ext.lowercased() {
         case "html": return "text/html; charset=utf-8"
-        case "css":  return "text/css"
-        case "js":   return "application/javascript"
+        case "css": return "text/css"
+        case "js": return "application/javascript"
         case "json": return "application/json"
-        case "svg":  return "image/svg+xml"
-        case "png":  return "image/png"
+        case "svg": return "image/svg+xml"
+        case "png": return "image/png"
         case "jpg", "jpeg": return "image/jpeg"
-        case "gif":  return "image/gif"
+        case "gif": return "image/gif"
         case "webp": return "image/webp"
-        case "ico":  return "image/x-icon"
+        case "ico": return "image/x-icon"
         case "woff": return "font/woff"
         case "woff2": return "font/woff2"
-        case "ttf":  return "font/ttf"
-        case "txt":  return "text/plain; charset=utf-8"
-        case "xml":  return "application/xml"
-        default:     return "application/octet-stream"
+        case "ttf": return "font/ttf"
+        case "txt": return "text/plain; charset=utf-8"
+        case "xml": return "application/xml"
+        default: return "application/octet-stream"
         }
     }
 }

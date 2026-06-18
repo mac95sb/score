@@ -1,4 +1,5 @@
 import Testing
+
 @testable import ScoreCore
 
 @Suite("Markdown link safety")

@@ -26,13 +26,15 @@ public struct RouteBuilder {
     /// `StaticPage.instances()`; until then the route is a placeholder carrying
     /// the page type in ``Route/staticPageType``.
     public static func buildExpression<P: StaticPage>(_ pageType: P.Type) -> [Route] {
-        [Route(
-            method: .GET,
-            pathPattern: "/__score/static/\(String(describing: P.self))",
-            renderMode: .static,
-            staticPageType: pageType,
-            handler: { _ in Response(status: .notFound) }
-        )]
+        [
+            Route(
+                method: .GET,
+                pathPattern: "/__score/static/\(String(describing: P.self))",
+                renderMode: .static,
+                staticPageType: pageType,
+                handler: { _ in Response(status: .notFound) }
+            )
+        ]
     }
 
     public static func buildOptional(_ component: [Route]?) -> [Route] { component ?? [] }

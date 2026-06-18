@@ -28,10 +28,11 @@ struct DevCommand: AsyncParsableCommand {
 
     mutating func run() async throws {
         let noora = Noora()
-        noora.info(.alert(
-            "score dev",
-            takeaways: ["http://\(host):\(port)", "Press Ctrl-C to stop"]
-        ))
+        noora.info(
+            .alert(
+                "score dev",
+                takeaways: ["http://\(host):\(port)", "Press Ctrl-C to stop"]
+            ))
 
         let built = try await buildPackage(configuration: "debug", verbose: verbose)
         guard built else { throw CLIError.buildFailed }
@@ -122,7 +123,7 @@ struct DevCommand: AsyncParsableCommand {
         ].filter { FileManager.default.fileExists(atPath: $0.path) }
 
         let singleFiles = [
-            URL(fileURLWithPath: "Localizable.xcstrings"),
+            URL(fileURLWithPath: "Localizable.xcstrings")
         ].filter { FileManager.default.fileExists(atPath: $0.path) }
 
         var lastDates: [URL: Date] = [:]
@@ -152,15 +153,18 @@ struct DevCommand: AsyncParsableCommand {
         let fm = FileManager.default
 
         for dir in directories {
-            guard let enumerator = fm.enumerator(
-                at: dir,
-                includingPropertiesForKeys: [.contentModificationDateKey],
-                options: .skipsHiddenFiles
-            ) else { continue }
+            guard
+                let enumerator = fm.enumerator(
+                    at: dir,
+                    includingPropertiesForKeys: [.contentModificationDateKey],
+                    options: .skipsHiddenFiles
+                )
+            else { continue }
 
             while let fileURL = enumerator.nextObject() as? URL {
                 guard let attrs = try? fileURL.resourceValues(forKeys: [.contentModificationDateKey]),
-                      let modDate = attrs.contentModificationDate else { continue }
+                    let modDate = attrs.contentModificationDate
+                else { continue }
 
                 if let last = lastDates[fileURL], modDate > last {
                     lastDates[fileURL] = modDate
@@ -180,7 +184,8 @@ struct DevCommand: AsyncParsableCommand {
         var changed: [URL] = []
         for fileURL in files {
             guard let attrs = try? fileURL.resourceValues(forKeys: [.contentModificationDateKey]),
-                  let modDate = attrs.contentModificationDate else { continue }
+                let modDate = attrs.contentModificationDate
+            else { continue }
             if let last = lastDates[fileURL], modDate > last {
                 lastDates[fileURL] = modDate
                 changed.append(fileURL)
@@ -236,11 +241,10 @@ struct BuildCommand: AsyncParsableCommand {
         process.waitUntilExit()
 
         let elapsed = String(format: "%.2f", Date().timeIntervalSince(start))
-        if process.terminationStatus == 0 {
-            noora.success(.alert("Built in \(elapsed)s", takeaways: ["\(output)"]))
-        } else {
+        guard process.terminationStatus == 0 else {
             throw CLIError.buildFailed
         }
+        noora.success(.alert("Built in \(elapsed)s", takeaways: ["\(output)"]))
     }
 }
 

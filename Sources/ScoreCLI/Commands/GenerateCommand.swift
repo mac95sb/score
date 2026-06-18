@@ -36,7 +36,8 @@ struct GenerateCommand: AsyncParsableCommand {
         let generator = CodeGenerator()
         let source = generator.generate(type: type, name: name)
         let filename = generator.filename(for: type, name: name)
-        let outputDir = output.map { URL(fileURLWithPath: $0) }
+        let outputDir =
+            output.map { URL(fileURLWithPath: $0) }
             ?? defaultOutputDirectory(for: type)
 
         try FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
@@ -53,10 +54,10 @@ struct GenerateCommand: AsyncParsableCommand {
     private func defaultOutputDirectory(for type: GeneratorType) -> URL {
         let base = URL(fileURLWithPath: "Sources")
         switch type {
-        case .page:       return base.appendingPathComponent("Pages")
-        case .component:  return base.appendingPathComponent("Components")
-        case .action:     return base.appendingPathComponent("Actions")
-        case .record:     return base.appendingPathComponent("Models")
+        case .page: return base.appendingPathComponent("Pages")
+        case .component: return base.appendingPathComponent("Components")
+        case .action: return base.appendingPathComponent("Actions")
+        case .record: return base.appendingPathComponent("Models")
         case .middleware: return base.appendingPathComponent("Middleware")
         }
     }
@@ -81,10 +82,10 @@ struct CodeGenerator: Sendable {
 
     func generate(type: GeneratorType, name: String) -> String {
         switch type {
-        case .page:       return generatePage(name)
-        case .component:  return generateComponent(name)
-        case .action:     return generateAction(name)
-        case .record:     return generateRecord(name)
+        case .page: return generatePage(name)
+        case .component: return generateComponent(name)
+        case .action: return generateAction(name)
+        case .record: return generateRecord(name)
         case .middleware: return generateMiddleware(name)
         }
     }
@@ -128,27 +129,27 @@ struct CodeGenerator: Sendable {
     private func generateAction(_ name: String) -> String {
         let inputName = name.hasSuffix("Action") ? String(name.dropLast(6)) + "Input" : name + "Input"
         return """
-        import Score
+            import Score
 
-        /// Input payload for ``\(name)``.
-        struct \(inputName): Codable, Sendable {
-            // Add your input fields here
-        }
-
-        /// A server action invoked from the browser.
-        ///
-        /// Call this action from any view by annotating a closure with `@Action`:
-        ///
-        /// ```swift
-        /// @Action var perform: (\(inputName)) async throws -> Response
-        /// ```
-        struct \(name) {
-            static func run(_ input: \(inputName), context: RequestContext) async throws -> Response {
-                // TODO: Implement
-                try Response.json(input)
+            /// Input payload for ``\(name)``.
+            struct \(inputName): Codable, Sendable {
+                // Add your input fields here
             }
-        }
-        """
+
+            /// A server action invoked from the browser.
+            ///
+            /// Call this action from any view by annotating a closure with `@Action`:
+            ///
+            /// ```swift
+            /// @Action var perform: (\(inputName)) async throws -> Response
+            /// ```
+            struct \(name) {
+                static func run(_ input: \(inputName), context: RequestContext) async throws -> Response {
+                    // TODO: Implement
+                    try Response.json(input)
+                }
+            }
+            """
     }
 
     private func generateRecord(_ name: String) -> String {

@@ -111,16 +111,16 @@ public struct RuntimeBundleAssembler: Sendable {
 
         var modules: [String] = []
 
-        if flags.signals        { modules.append(signalsModule) }
-        if flags.actionBridge   { modules.append(actionBridgeModule) }
-        if flags.fetchClient    { modules.append(fetchClientModule) }
-        if flags.webSocket      { modules.append(webSocketModule) }
+        if flags.signals { modules.append(signalsModule) }
+        if flags.actionBridge { modules.append(actionBridgeModule) }
+        if flags.fetchClient { modules.append(fetchClientModule) }
+        if flags.webSocket { modules.append(webSocketModule) }
         if flags.intersectionObserver { modules.append(intersectionObserverModule) }
         if flags.viewTransitions { modules.append(viewTransitionsModule) }
-        if flags.indexedDB      { modules.append(indexedDBModule) }
-        if flags.crdt           { modules.append(crdtModule) }
-        if flags.connectivity   { modules.append(connectivityModule) }
-        if flags.devReload      { modules.append(devReloadModule) }
+        if flags.indexedDB { modules.append(indexedDBModule) }
+        if flags.crdt { modules.append(crdtModule) }
+        if flags.connectivity { modules.append(connectivityModule) }
+        if flags.devReload { modules.append(devReloadModule) }
 
         var source = modules.joined(separator: "\n")
         if minify { source = minifyJS(source) }

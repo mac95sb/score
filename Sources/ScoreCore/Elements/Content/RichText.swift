@@ -124,12 +124,11 @@ extension RichText {
                 html += "<ul>"
                 while i < lines.count {
                     let t = lines[i].trimmingCharacters(in: .whitespaces)
-                    if t.hasPrefix("- ") || t.hasPrefix("* ") {
-                        html += "<li>\(inlineMarkdown(String(t.dropFirst(2))))</li>"
-                        i += 1
-                    } else {
+                    guard t.hasPrefix("- ") || t.hasPrefix("* ") else {
                         break
                     }
+                    html += "<li>\(inlineMarkdown(String(t.dropFirst(2))))</li>"
+                    i += 1
                 }
                 html += "</ul>"
                 continue
@@ -139,14 +138,14 @@ extension RichText {
                 html += "<ol>"
                 while i < lines.count {
                     let t = lines[i].trimmingCharacters(in: .whitespaces)
-                    if let dot = t.firstIndex(of: "."),
-                       t[t.startIndex..<dot].allSatisfy(\.isNumber) {
-                        let rest = String(t[t.index(after: dot)...]).trimmingCharacters(in: .whitespaces)
-                        html += "<li>\(inlineMarkdown(rest))</li>"
-                        i += 1
-                    } else {
+                    guard let dot = t.firstIndex(of: "."),
+                        t[t.startIndex..<dot].allSatisfy(\.isNumber)
+                    else {
                         break
                     }
+                    let rest = String(t[t.index(after: dot)...]).trimmingCharacters(in: .whitespaces)
+                    html += "<li>\(inlineMarkdown(rest))</li>"
+                    i += 1
                 }
                 html += "</ol>"
                 continue

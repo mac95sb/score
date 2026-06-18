@@ -21,13 +21,14 @@ extension View {
         placeItems: String? = nil,
         at condition: ModifierCondition? = nil
     ) -> ModifiedContent<Self, FlexModifier> {
-        modifier(FlexModifier(
-            direction: direction, wrap: wrap, align: align, justify: justify,
-            gap: gap, columnGap: columnGap, rowGap: rowGap,
-            grow: grow, shrink: shrink, basis: basis,
-            alignSelf: alignSelf, order: order, placeItems: placeItems,
-            condition: condition
-        ))
+        modifier(
+            FlexModifier(
+                direction: direction, wrap: wrap, align: align, justify: justify,
+                gap: gap, columnGap: columnGap, rowGap: rowGap,
+                grow: grow, shrink: shrink, basis: basis,
+                alignSelf: alignSelf, order: order, placeItems: placeItems,
+                condition: condition
+            ))
     }
 
     // MARK: Grid
@@ -49,14 +50,15 @@ extension View {
         justifySelf: String? = nil,
         at condition: ModifierCondition? = nil
     ) -> ModifiedContent<Self, GridModifier> {
-        modifier(GridModifier(
-            columns: columns, rows: rows, gap: gap,
-            columnGap: columnGap, rowGap: rowGap,
-            span: span, rowSpan: rowSpan, spanFull: spanFull,
-            area: area, autoFlow: autoFlow, placeItems: placeItems,
-            alignSelf: alignSelf, justifySelf: justifySelf,
-            condition: condition
-        ))
+        modifier(
+            GridModifier(
+                columns: columns, rows: rows, gap: gap,
+                columnGap: columnGap, rowGap: rowGap,
+                span: span, rowSpan: rowSpan, spanFull: spanFull,
+                area: area, autoFlow: autoFlow, placeItems: placeItems,
+                alignSelf: alignSelf, justifySelf: justifySelf,
+                condition: condition
+            ))
     }
 
     // MARK: Position
@@ -71,10 +73,11 @@ extension View {
         inset: SpacingValue? = nil,
         zIndex: Int? = nil
     ) -> ModifiedContent<Self, PositionModifier> {
-        modifier(PositionModifier(
-            type: type, top: top, right: right, bottom: bottom,
-            left: left, inset: inset, zIndex: zIndex
-        ))
+        modifier(
+            PositionModifier(
+                type: type, top: top, right: right, bottom: bottom,
+                left: left, inset: inset, zIndex: zIndex
+            ))
     }
 
     // MARK: Overflow

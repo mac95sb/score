@@ -52,37 +52,46 @@ public struct FlexModifier: ThemeAwareModifier {
         placeItems: String? = nil,
         condition: ModifierCondition? = nil
     ) {
-        self.direction = direction; self.wrap = wrap; self.align = align
-        self.justify = justify; self.gap = gap; self.columnGap = columnGap
-        self.rowGap = rowGap; self.grow = grow; self.shrink = shrink
-        self.basis = basis; self.alignSelf = alignSelf; self.justifySelf = justifySelf
-        self.order = order; self.placeItems = placeItems; self.condition = condition
+        self.direction = direction
+        self.wrap = wrap
+        self.align = align
+        self.justify = justify
+        self.gap = gap
+        self.columnGap = columnGap
+        self.rowGap = rowGap
+        self.grow = grow
+        self.shrink = shrink
+        self.basis = basis
+        self.alignSelf = alignSelf
+        self.justifySelf = justifySelf
+        self.order = order
+        self.placeItems = placeItems
+        self.condition = condition
     }
 
     public func declarations(theme: SiteTheme) -> [ConditionedDeclaration] {
         var result: [ConditionedDeclaration] = []
 
         // Only emit display:flex when container-level properties are set
-        let isContainer = direction != nil || wrap != nil || align != nil || justify != nil ||
-                          gap != nil || columnGap != nil || rowGap != nil || placeItems != nil
+        let isContainer = direction != nil || wrap != nil || align != nil || justify != nil || gap != nil || columnGap != nil || rowGap != nil || placeItems != nil
         if isContainer {
             result.append(ConditionedDeclaration("display", "flex", condition: condition))
         }
 
-        if let d = direction   { result.append(ConditionedDeclaration("flex-direction",  d.rawValue,      condition: condition)) }
-        if let w = wrap        { result.append(ConditionedDeclaration("flex-wrap",        w.rawValue,      condition: condition)) }
-        if let a = align       { result.append(ConditionedDeclaration("align-items",      a.rawValue,      condition: condition)) }
-        if let j = justify     { result.append(ConditionedDeclaration("justify-content",  j.rawValue,      condition: condition)) }
-        if let g = gap         { result.append(ConditionedDeclaration("gap",              g.css,           condition: condition)) }
-        if let cg = columnGap  { result.append(ConditionedDeclaration("column-gap",       cg.css,          condition: condition)) }
-        if let rg = rowGap     { result.append(ConditionedDeclaration("row-gap",          rg.css,          condition: condition)) }
-        if let g = grow        { result.append(ConditionedDeclaration("flex-grow",        "\(g)",          condition: condition)) }
-        if let s = shrink      { result.append(ConditionedDeclaration("flex-shrink",      "\(s)",          condition: condition)) }
-        if let b = basis       { result.append(ConditionedDeclaration("flex-basis",       b.css,           condition: condition)) }
-        if let as_ = alignSelf { result.append(ConditionedDeclaration("align-self",       as_.rawValue,    condition: condition)) }
-        if let js = justifySelf { result.append(ConditionedDeclaration("justify-self",    js,              condition: condition)) }
-        if let o = order       { result.append(ConditionedDeclaration("order",            o.css,           condition: condition)) }
-        if let pi = placeItems { result.append(ConditionedDeclaration("place-items",      pi,              condition: condition)) }
+        if let d = direction { result.append(ConditionedDeclaration("flex-direction", d.rawValue, condition: condition)) }
+        if let w = wrap { result.append(ConditionedDeclaration("flex-wrap", w.rawValue, condition: condition)) }
+        if let a = align { result.append(ConditionedDeclaration("align-items", a.rawValue, condition: condition)) }
+        if let j = justify { result.append(ConditionedDeclaration("justify-content", j.rawValue, condition: condition)) }
+        if let g = gap { result.append(ConditionedDeclaration("gap", g.css, condition: condition)) }
+        if let cg = columnGap { result.append(ConditionedDeclaration("column-gap", cg.css, condition: condition)) }
+        if let rg = rowGap { result.append(ConditionedDeclaration("row-gap", rg.css, condition: condition)) }
+        if let g = grow { result.append(ConditionedDeclaration("flex-grow", "\(g)", condition: condition)) }
+        if let s = shrink { result.append(ConditionedDeclaration("flex-shrink", "\(s)", condition: condition)) }
+        if let b = basis { result.append(ConditionedDeclaration("flex-basis", b.css, condition: condition)) }
+        if let as_ = alignSelf { result.append(ConditionedDeclaration("align-self", as_.rawValue, condition: condition)) }
+        if let js = justifySelf { result.append(ConditionedDeclaration("justify-self", js, condition: condition)) }
+        if let o = order { result.append(ConditionedDeclaration("order", o.css, condition: condition)) }
+        if let pi = placeItems { result.append(ConditionedDeclaration("place-items", pi, condition: condition)) }
         return result
     }
 }

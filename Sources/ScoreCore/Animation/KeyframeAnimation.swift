@@ -35,99 +35,101 @@ public struct KeyframeAnimation: Sendable {
     // MARK: - Built-in animations
 
     public static let fadeIn = KeyframeAnimation("score-fade-in") {
-        KeyFrame(0)   { [AnimOpacity(0)] }
+        KeyFrame(0) { [AnimOpacity(0)] }
         KeyFrame(100) { [AnimOpacity(1)] }
     }
 
     public static let fadeOut = KeyframeAnimation("score-fade-out") {
-        KeyFrame(0)   { [AnimOpacity(1)] }
+        KeyFrame(0) { [AnimOpacity(1)] }
         KeyFrame(100) { [AnimOpacity(0)] }
     }
 
     public static let fadeUp = KeyframeAnimation("score-fade-up") {
-        KeyFrame(0)   { [AnimOpacity(0), AnimTranslateY(.px(20))] }
+        KeyFrame(0) { [AnimOpacity(0), AnimTranslateY(.px(20))] }
         KeyFrame(100) { [AnimOpacity(1), AnimTranslateY(.px(0))] }
     }
 
     public static let fadeDown = KeyframeAnimation("score-fade-down") {
-        KeyFrame(0)   { [AnimOpacity(0), AnimTranslateY(.px(-20))] }
+        KeyFrame(0) { [AnimOpacity(0), AnimTranslateY(.px(-20))] }
         KeyFrame(100) { [AnimOpacity(1), AnimTranslateY(.px(0))] }
     }
 
     public static let slideInLeft = KeyframeAnimation("score-slide-in-left") {
-        KeyFrame(0)   { [AnimTranslateX(.percent(-100))] }
+        KeyFrame(0) { [AnimTranslateX(.percent(-100))] }
         KeyFrame(100) { [AnimTranslateX(.percent(0))] }
     }
 
     public static let slideInRight = KeyframeAnimation("score-slide-in-right") {
-        KeyFrame(0)   { [AnimTranslateX(.percent(100))] }
+        KeyFrame(0) { [AnimTranslateX(.percent(100))] }
         KeyFrame(100) { [AnimTranslateX(.percent(0))] }
     }
 
     public static let slideInUp = KeyframeAnimation("score-slide-in-up") {
-        KeyFrame(0)   { [AnimTranslateY(.percent(100))] }
+        KeyFrame(0) { [AnimTranslateY(.percent(100))] }
         KeyFrame(100) { [AnimTranslateY(.percent(0))] }
     }
 
     public static let slideInDown = KeyframeAnimation("score-slide-in-down") {
-        KeyFrame(0)   { [AnimTranslateY(.percent(-100))] }
+        KeyFrame(0) { [AnimTranslateY(.percent(-100))] }
         KeyFrame(100) { [AnimTranslateY(.percent(0))] }
     }
 
     public static let scaleIn = KeyframeAnimation("score-scale-in") {
-        KeyFrame(0)   { [AnimScale(0.95), AnimOpacity(0)] }
-        KeyFrame(100) { [AnimScale(1),    AnimOpacity(1)] }
+        KeyFrame(0) { [AnimScale(0.95), AnimOpacity(0)] }
+        KeyFrame(100) { [AnimScale(1), AnimOpacity(1)] }
     }
 
     public static let scaleOut = KeyframeAnimation("score-scale-out") {
-        KeyFrame(0)   { [AnimScale(1),    AnimOpacity(1)] }
+        KeyFrame(0) { [AnimScale(1), AnimOpacity(1)] }
         KeyFrame(100) { [AnimScale(0.95), AnimOpacity(0)] }
     }
 
     public static let spin = KeyframeAnimation("score-spin") {
-        KeyFrame(0)   { [AnimRotate(0)] }
+        KeyFrame(0) { [AnimRotate(0)] }
         KeyFrame(100) { [AnimRotate(360)] }
     }
 
     public static let ping = KeyframeAnimation("score-ping") {
-        KeyFrame(75)  { [AnimScale(2), AnimOpacity(0)] }
+        KeyFrame(75) { [AnimScale(2), AnimOpacity(0)] }
         KeyFrame(100) { [AnimScale(2), AnimOpacity(0)] }
     }
 
     public static let pulse = KeyframeAnimation("score-pulse") {
-        KeyFrame(0)   { [AnimOpacity(1)] }
-        KeyFrame(50)  { [AnimOpacity(0.5)] }
+        KeyFrame(0) { [AnimOpacity(1)] }
+        KeyFrame(50) { [AnimOpacity(0.5)] }
         KeyFrame(100) { [AnimOpacity(1)] }
     }
 
     public static let bounce = KeyframeAnimation("score-bounce") {
-        KeyFrame(0)   { [AnimTranslateY(.percent(0))] }
-        KeyFrame(50)  { [AnimTranslateY(.percent(-25))] }
+        KeyFrame(0) { [AnimTranslateY(.percent(0))] }
+        KeyFrame(50) { [AnimTranslateY(.percent(-25))] }
         KeyFrame(100) { [AnimTranslateY(.percent(0))] }
     }
 
     public static let shimmer = KeyframeAnimation("score-shimmer") {
-        KeyFrame(0)   { [AnimTranslateX(.percent(-100))] }
+        KeyFrame(0) { [AnimTranslateX(.percent(-100))] }
         KeyFrame(100) { [AnimTranslateX(.percent(100))] }
     }
 
     public static let shake = KeyframeAnimation("score-shake") {
-        KeyFrame(0)   { [AnimTranslateX(.px(0))] }
-        KeyFrame(10)  { [AnimTranslateX(.px(-10))] }
-        KeyFrame(30)  { [AnimTranslateX(.px(10))] }
-        KeyFrame(50)  { [AnimTranslateX(.px(-10))] }
-        KeyFrame(70)  { [AnimTranslateX(.px(10))] }
-        KeyFrame(90)  { [AnimTranslateX(.px(-10))] }
+        KeyFrame(0) { [AnimTranslateX(.px(0))] }
+        KeyFrame(10) { [AnimTranslateX(.px(-10))] }
+        KeyFrame(30) { [AnimTranslateX(.px(10))] }
+        KeyFrame(50) { [AnimTranslateX(.px(-10))] }
+        KeyFrame(70) { [AnimTranslateX(.px(10))] }
+        KeyFrame(90) { [AnimTranslateX(.px(-10))] }
         KeyFrame(100) { [AnimTranslateX(.px(0))] }
     }
 
     /// CSS for all built-in animations.
     public static func builtInKeyframesCSS() -> String {
-        [fadeIn, fadeOut, fadeUp, fadeDown,
-         slideInLeft, slideInRight, slideInUp, slideInDown,
-         scaleIn, scaleOut, spin, ping, pulse, bounce, shimmer, shake]
-            .map { $0.keyframesCSS() }
-            .joined()
+        [
+            fadeIn, fadeOut, fadeUp, fadeDown,
+            slideInLeft, slideInRight, slideInUp, slideInDown,
+            scaleIn, scaleOut, spin, ping, pulse, bounce, shimmer, shake,
+        ]
+        .map { $0.keyframesCSS() }
+        .joined()
     }
 }
 

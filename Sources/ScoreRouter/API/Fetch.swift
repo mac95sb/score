@@ -37,7 +37,7 @@ public struct Fetch<Body: Sendable, Value: Sendable>: Sendable {
         guard let v = _value else {
             fatalError(
                 "@Fetch<\(Value.self)> wrappedValue accessed before Score populated it. "
-                + "This is a framework bug — please file an issue."
+                    + "This is a framework bug — please file an issue."
             )
         }
         return v

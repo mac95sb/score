@@ -1,5 +1,5 @@
-import NIOCore
 import Foundation
+import NIOCore
 
 /// The body of an incoming HTTP request.
 public struct RequestBody: Sendable {

@@ -30,15 +30,15 @@ public struct WindowsPackager: WebViewPackager {
         }
 
         let nextSteps = """
-        Build on Windows (requires the .NET 8 SDK and the WebView2 Evergreen Runtime):
-          cd \(outputDirectory.path)
-          dotnet run
+            Build on Windows (requires the .NET 8 SDK and the WebView2 Evergreen Runtime):
+              cd \(outputDirectory.path)
+              dotnet run
 
-        Or cross-compile from any host with a container tool:
-          make container-build                    # uses \(config.containerTool)
-          make container-build CONTAINER=docker   # or podman
-        Artifacts land in dist/.
-        """
+            Or cross-compile from any host with a container tool:
+              make container-build                    # uses \(config.containerTool)
+              make container-build CONTAINER=docker   # or podman
+            Artifacts land in dist/.
+            """
         try writer.write(readme(config: config, nextSteps: nextSteps), to: "README.md")
 
         return PackagedApp(
@@ -56,32 +56,32 @@ public struct WindowsPackager: WebViewPackager {
         if case .staticExport = config.source {
             wwwrootItem = """
 
-              <ItemGroup>
-                <Content Include="wwwroot\\**\\*" CopyToOutputDirectory="PreserveNewest" />
-              </ItemGroup>
-            """
+                  <ItemGroup>
+                    <Content Include="wwwroot\\**\\*" CopyToOutputDirectory="PreserveNewest" />
+                  </ItemGroup>
+                """
         } else {
             wwwrootItem = ""
         }
         return """
-        <Project Sdk="Microsoft.NET.Sdk">
+            <Project Sdk="Microsoft.NET.Sdk">
 
-          <PropertyGroup>
-            <OutputType>WinExe</OutputType>
-            <TargetFramework>net8.0-windows</TargetFramework>
-            <UseWindowsForms>true</UseWindowsForms>
-            <Nullable>enable</Nullable>
-            <ImplicitUsings>enable</ImplicitUsings>
-            <AssemblyName>\(config.executableName)</AssemblyName>
-            <Version>\(config.version)</Version>
-          </PropertyGroup>
+              <PropertyGroup>
+                <OutputType>WinExe</OutputType>
+                <TargetFramework>net8.0-windows</TargetFramework>
+                <UseWindowsForms>true</UseWindowsForms>
+                <Nullable>enable</Nullable>
+                <ImplicitUsings>enable</ImplicitUsings>
+                <AssemblyName>\(config.executableName)</AssemblyName>
+                <Version>\(config.version)</Version>
+              </PropertyGroup>
 
-          <ItemGroup>
-            <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2592.51" />
-          </ItemGroup>
-        \(wwwrootItem)
-        </Project>
-        """
+              <ItemGroup>
+                <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2592.51" />
+              </ItemGroup>
+            \(wwwrootItem)
+            </Project>
+            """
     }
 
     private func programCS(config: PackagingConfig) -> String {
@@ -105,44 +105,44 @@ public struct WindowsPackager: WebViewPackager {
         switch config.source {
         case .staticExport:
             navigation = """
-                        var wwwroot = Path.Combine(AppContext.BaseDirectory, "wwwroot");
-                        webView.CoreWebView2.SetVirtualHostNameToFolderMapping(
-                            "\(Self.virtualHost)",
-                            wwwroot,
-                            CoreWebView2HostResourceAccessKind.Allow);
-                        webView.CoreWebView2.Navigate("https://\(Self.virtualHost)/index.html");
-            """
+                            var wwwroot = Path.Combine(AppContext.BaseDirectory, "wwwroot");
+                            webView.CoreWebView2.SetVirtualHostNameToFolderMapping(
+                                "\(Self.virtualHost)",
+                                wwwroot,
+                                CoreWebView2HostResourceAccessKind.Allow);
+                            webView.CoreWebView2.Navigate("https://\(Self.virtualHost)/index.html");
+                """
         case .remote(let url):
             navigation = """
-                        webView.CoreWebView2.Navigate("\(url)");
-            """
+                            webView.CoreWebView2.Navigate("\(url)");
+                """
         }
 
         return """
-        using Microsoft.Web.WebView2.Core;
-        using Microsoft.Web.WebView2.WinForms;
+            using Microsoft.Web.WebView2.Core;
+            using Microsoft.Web.WebView2.WinForms;
 
-        namespace \(config.executableName);
+            namespace \(config.executableName);
 
-        public class MainForm : Form
-        {
-            private readonly WebView2 webView = new();
-
-            public MainForm()
+            public class MainForm : Form
             {
-                Text = "\(config.appName)";
-                ClientSize = new Size(\(config.windowWidth), \(config.windowHeight));
-                webView.Dock = DockStyle.Fill;
-                Controls.Add(webView);
+                private readonly WebView2 webView = new();
 
-                Load += async (_, _) =>
+                public MainForm()
                 {
-                    await webView.EnsureCoreWebView2Async();
-        \(navigation)
-                };
+                    Text = "\(config.appName)";
+                    ClientSize = new Size(\(config.windowWidth), \(config.windowHeight));
+                    webView.Dock = DockStyle.Fill;
+                    Controls.Add(webView);
+
+                    Load += async (_, _) =>
+                    {
+                        await webView.EnsureCoreWebView2Async();
+            \(navigation)
+                    };
+                }
             }
-        }
-        """
+            """
     }
 
     private func containerfile(config: PackagingConfig) -> String {

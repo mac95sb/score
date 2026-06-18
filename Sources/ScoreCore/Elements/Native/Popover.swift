@@ -1,17 +1,17 @@
 /// The anchor position of a ``Popover`` relative to its trigger element.
 public enum PopoverAnchor: String, Sendable {
-    case topStart    = "top-start"
-    case top         = "top"
-    case topEnd      = "top-end"
+    case topStart = "top-start"
+    case top = "top"
+    case topEnd = "top-end"
     case bottomStart = "bottom-start"
-    case bottom      = "bottom"
-    case bottomEnd   = "bottom-end"
-    case leftStart   = "left-start"
-    case left        = "left"
-    case leftEnd     = "left-end"
-    case rightStart  = "right-start"
-    case right       = "right"
-    case rightEnd    = "right-end"
+    case bottom = "bottom"
+    case bottomEnd = "bottom-end"
+    case leftStart = "left-start"
+    case left = "left"
+    case leftEnd = "left-end"
+    case rightStart = "right-start"
+    case right = "right"
+    case rightEnd = "right-end"
 }
 
 /// A lightweight floating panel powered by the browser's native Popover API (`<div popover>`).

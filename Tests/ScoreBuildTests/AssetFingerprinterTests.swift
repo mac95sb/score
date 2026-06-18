@@ -1,6 +1,7 @@
-import Testing
-@testable import ScoreBuild
 import Foundation
+import Testing
+
+@testable import ScoreBuild
 
 @Suite("AssetFingerprinter")
 struct AssetFingerprinterTests {

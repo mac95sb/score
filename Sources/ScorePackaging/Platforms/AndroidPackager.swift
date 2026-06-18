@@ -30,13 +30,13 @@ public struct AndroidPackager: WebViewPackager {
         }
 
         let nextSteps = """
-        Build (requires the Android SDK; easiest via Android Studio):
-          cd \(outputDirectory.path)
-          gradle wrapper && ./gradlew assembleDebug
+            Build (requires the Android SDK; easiest via Android Studio):
+              cd \(outputDirectory.path)
+              gradle wrapper && ./gradlew assembleDebug
 
-        Or open the directory in Android Studio and press Run.
-        The APK is written to app/build/outputs/apk/debug/.
-        """
+            Or open the directory in Android Studio and press Run.
+            The APK is written to app/build/outputs/apk/debug/.
+            """
         try writer.write(readme(config: config, nextSteps: nextSteps), to: "README.md")
 
         return PackagedApp(
@@ -149,56 +149,56 @@ public struct AndroidPackager: WebViewPackager {
         switch config.source {
         case .staticExport:
             loading = """
-                    val assetLoader = WebViewAssetLoader.Builder()
-                        .addPathHandler("/", WebViewAssetLoader.AssetsPathHandler(this))
-                        .build()
+                        val assetLoader = WebViewAssetLoader.Builder()
+                            .addPathHandler("/", WebViewAssetLoader.AssetsPathHandler(this))
+                            .build()
 
-                    webView.webViewClient = object : WebViewClient() {
-                        override fun shouldInterceptRequest(
-                            view: WebView,
-                            request: WebResourceRequest
-                        ): WebResourceResponse? {
-                            return assetLoader.shouldInterceptRequest(request.url)
+                        webView.webViewClient = object : WebViewClient() {
+                            override fun shouldInterceptRequest(
+                                view: WebView,
+                                request: WebResourceRequest
+                            ): WebResourceResponse? {
+                                return assetLoader.shouldInterceptRequest(request.url)
+                            }
                         }
-                    }
 
-                    webView.loadUrl("https://appassets.androidplatform.net/site/index.html")
-            """
+                        webView.loadUrl("https://appassets.androidplatform.net/site/index.html")
+                """
         case .remote(let url):
             loading = """
-                    webView.webViewClient = WebViewClient()
-                    webView.loadUrl("\(url)")
-            """
+                        webView.webViewClient = WebViewClient()
+                        webView.loadUrl("\(url)")
+                """
         }
 
         return """
-        package \(config.androidPackage)
+            package \(config.androidPackage)
 
-        import android.annotation.SuppressLint
-        import android.app.Activity
-        import android.os.Bundle
-        import android.webkit.WebResourceRequest
-        import android.webkit.WebResourceResponse
-        import android.webkit.WebView
-        import android.webkit.WebViewClient
-        import androidx.webkit.WebViewAssetLoader
+            import android.annotation.SuppressLint
+            import android.app.Activity
+            import android.os.Bundle
+            import android.webkit.WebResourceRequest
+            import android.webkit.WebResourceResponse
+            import android.webkit.WebView
+            import android.webkit.WebViewClient
+            import androidx.webkit.WebViewAssetLoader
 
-        class MainActivity : Activity() {
+            class MainActivity : Activity() {
 
-            @SuppressLint("SetJavaScriptEnabled")
-            override fun onCreate(savedInstanceState: Bundle?) {
-                super.onCreate(savedInstanceState)
+                @SuppressLint("SetJavaScriptEnabled")
+                override fun onCreate(savedInstanceState: Bundle?) {
+                    super.onCreate(savedInstanceState)
 
-                val webView = WebView(this)
-                webView.settings.javaScriptEnabled = true
-                webView.settings.domStorageEnabled = true
+                    val webView = WebView(this)
+                    webView.settings.javaScriptEnabled = true
+                    webView.settings.domStorageEnabled = true
 
-        \(loading)
+            \(loading)
 
-                setContentView(webView)
+                    setContentView(webView)
+                }
             }
-        }
-        """
+            """
     }
 
     private func readme(config: PackagingConfig, nextSteps: String) -> String {

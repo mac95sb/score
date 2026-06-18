@@ -6,7 +6,8 @@ public struct HTTPError: Error, Sendable {
     public let message: String?
 
     public init(status: HTTPStatus, message: String? = nil) {
-        self.status = status; self.message = message
+        self.status = status
+        self.message = message
     }
 
     public static let notFound = HTTPError(status: .notFound)

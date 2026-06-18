@@ -33,10 +33,10 @@ public struct Color: Sendable, Hashable, Equatable {
     // MARK: - Designated initialiser
 
     public init(oklch l: Double, _ c: Double, _ h: Double, alpha: Double = 1, tokenName: String? = nil) {
-        self.l         = l
-        self.c         = c
-        self.h         = h
-        self.alpha     = alpha
+        self.l = l
+        self.c = c
+        self.h = h
+        self.alpha = alpha
         self.tokenName = tokenName
     }
 
@@ -44,10 +44,10 @@ public struct Color: Sendable, Hashable, Equatable {
 
     public init(rgb r: Double, _ g: Double, _ b: Double, alpha: Double = 1) {
         let (l, c, h) = Self.rgbToOKLCh(r: r, g: g, b: b)
-        self.l         = l
-        self.c         = c
-        self.h         = h
-        self.alpha     = alpha
+        self.l = l
+        self.c = c
+        self.h = h
+        self.alpha = alpha
         self.tokenName = nil
     }
 
@@ -56,10 +56,10 @@ public struct Color: Sendable, Hashable, Equatable {
     public init(hsl hue: Double, _ saturation: Double, _ lightness: Double, alpha: Double = 1) {
         let (r, g, b) = Self.hslToRGB(h: hue, s: saturation / 100, l: lightness / 100)
         let (ol, oc, oh) = Self.rgbToOKLCh(r: r, g: g, b: b)
-        self.l         = ol
-        self.c         = oc
-        self.h         = oh
-        self.alpha     = alpha
+        self.l = ol
+        self.c = oc
+        self.h = oh
+        self.alpha = alpha
         self.tokenName = nil
     }
 
@@ -73,13 +73,14 @@ public struct Color: Sendable, Hashable, Equatable {
             s = s.map { "\($0)\($0)" }.joined()
         }
         guard s.count == 6,
-              let value = UInt32(s, radix: 16) else {
+            let value = UInt32(s, radix: 16)
+        else {
             self.init(oklch: 0, 0, 0)
             return
         }
         let r = Double((value >> 16) & 0xFF) / 255.0
-        let g = Double((value >> 8)  & 0xFF) / 255.0
-        let b = Double(value          & 0xFF) / 255.0
+        let g = Double((value >> 8) & 0xFF) / 255.0
+        let b = Double(value & 0xFF) / 255.0
         self.init(rgb: r, g, b)
     }
 
@@ -109,8 +110,8 @@ public struct Color: Sendable, Hashable, Equatable {
         let dh = ((other.h - h) + 540).truncatingRemainder(dividingBy: 360) - 180
         return Color(
             oklch: l + (other.l - l) * t,
-                   c + (other.c - c) * t,
-                   (h + dh * t).truncatingRemainder(dividingBy: 360),
+            c + (other.c - c) * t,
+            (h + dh * t).truncatingRemainder(dividingBy: 360),
             alpha: alpha + (other.alpha - alpha) * t
         )
     }
@@ -124,11 +125,10 @@ public struct Color: Sendable, Hashable, Equatable {
         let lStr = l.oklchStr
         let cStr = c.oklchStr
         let hStr = h.oklchStr
-        if alpha >= 1 {
-            return "oklch(\(lStr) \(cStr) \(hStr))"
-        } else {
+        guard alpha >= 1 else {
             return "oklch(\(lStr) \(cStr) \(hStr) / \(alpha.oklchStr))"
         }
+        return "oklch(\(lStr) \(cStr) \(hStr))"
     }
 
     /// CSS color reference. For semantic theme tokens (those with a `tokenName`) this
@@ -159,13 +159,13 @@ public struct Color: Sendable, Hashable, Equatable {
         let z = 0.0193339 * r + 0.1191920 * g + 0.9503041 * b
 
         // XYZ → LMS (Oklab M1)
-        let l_ = pow(max(0,  0.8189330101 * x + 0.3618667424 * y - 0.1288597137 * z), 1.0/3.0)
-        let m_ = pow(max(0,  0.0329845436 * x + 0.9293118715 * y + 0.0361456387 * z), 1.0/3.0)
-        let s_ = pow(max(0,  0.0482003018 * x + 0.2643662691 * y + 0.6338517070 * z), 1.0/3.0)
+        let l_ = pow(max(0, 0.8189330101 * x + 0.3618667424 * y - 0.1288597137 * z), 1.0 / 3.0)
+        let m_ = pow(max(0, 0.0329845436 * x + 0.9293118715 * y + 0.0361456387 * z), 1.0 / 3.0)
+        let s_ = pow(max(0, 0.0482003018 * x + 0.2643662691 * y + 0.6338517070 * z), 1.0 / 3.0)
 
         // LMS → OKLab (Oklab M2)
-        let L  =  0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_
-        let a  =  1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_
+        let L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_
+        let a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_
         let bv = -0.0259040371 * l_ + 0.7827717662 * m_ - 0.8068767776 * s_
         return (L, a, bv)
     }
@@ -189,25 +189,25 @@ public struct Color: Sendable, Hashable, Equatable {
             var t = t
             if t < 0 { t += 1 }
             if t > 1 { t -= 1 }
-            if t < 1/6 { return p + (q - p) * 6 * t }
-            if t < 1/2 { return q }
-            if t < 2/3 { return p + (q - p) * (2/3 - t) * 6 }
+            if t < 1 / 6 { return p + (q - p) * 6 * t }
+            if t < 1 / 2 { return q }
+            if t < 2 / 3 { return p + (q - p) * (2 / 3 - t) * 6 }
             return p
         }
         let q = l < 0.5 ? l * (1 + s) : l + s - l * s
         let p = 2 * l - q
-        let r = hue2rgb(p, q, h / 360 + 1/3)
+        let r = hue2rgb(p, q, h / 360 + 1 / 3)
         let g = hue2rgb(p, q, h / 360)
-        let b = hue2rgb(p, q, h / 360 - 1/3)
+        let b = hue2rgb(p, q, h / 360 - 1 / 3)
         return (r, g, b)
     }
 }
 
 // MARK: - Double formatting helper
 
-private extension Double {
+extension Double {
     /// Format for CSS oklch values — max 4 significant digits, no trailing zeros.
-    var oklchStr: String {
+    fileprivate var oklchStr: String {
         if self == self.rounded() { return String(Int(self)) }
         return String(format: "%g", (self * 10000).rounded() / 10000)
     }

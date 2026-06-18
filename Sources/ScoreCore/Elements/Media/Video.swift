@@ -76,10 +76,10 @@ public struct Video: View, _HTMLRenderable {
     public func renderHTML(context: inout RenderContext) -> String {
         var attrs = "src=\"\(attributeEscape(src))\""
         if let poster = poster { attrs += " poster=\"\(attributeEscape(poster))\"" }
-        if autoplay  { attrs += " autoplay" }
-        if controls  { attrs += " controls" }
-        if loop      { attrs += " loop" }
-        if muted     { attrs += " muted" }
+        if autoplay { attrs += " autoplay" }
+        if controls { attrs += " controls" }
+        if loop { attrs += " loop" }
+        if muted { attrs += " muted" }
         return "<video \(attrs)></video>"
     }
 

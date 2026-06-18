@@ -17,7 +17,9 @@ public struct TranslateModifier: ThemeAwareModifier {
     let condition: ModifierCondition?
 
     public init(x: SpacingValue? = nil, y: SpacingValue? = nil, condition: ModifierCondition? = nil) {
-        self.x = x; self.y = y; self.condition = condition
+        self.x = x
+        self.y = y
+        self.condition = condition
     }
 
     public func declarations(theme: SiteTheme) -> [ConditionedDeclaration] {
@@ -50,11 +52,15 @@ public struct ScaleModifier: ThemeAwareModifier {
     let condition: ModifierCondition?
 
     public init(x: Double? = nil, y: Double? = nil, condition: ModifierCondition? = nil) {
-        self.x = x; self.y = y; self.condition = condition
+        self.x = x
+        self.y = y
+        self.condition = condition
     }
 
     public init(uniform: Double, condition: ModifierCondition? = nil) {
-        self.x = uniform; self.y = uniform; self.condition = condition
+        self.x = uniform
+        self.y = uniform
+        self.condition = condition
     }
 
     public func declarations(theme: SiteTheme) -> [ConditionedDeclaration] {
@@ -87,7 +93,8 @@ public struct RotateModifier: ThemeAwareModifier {
     let condition: ModifierCondition?
 
     public init(degrees: Double, condition: ModifierCondition? = nil) {
-        self.degrees = degrees; self.condition = condition
+        self.degrees = degrees
+        self.condition = condition
     }
 
     public func declarations(theme: SiteTheme) -> [ConditionedDeclaration] {
@@ -108,7 +115,9 @@ public struct SkewModifier: ThemeAwareModifier {
     let condition: ModifierCondition?
 
     public init(x: Double? = nil, y: Double? = nil, condition: ModifierCondition? = nil) {
-        self.x = x; self.y = y; self.condition = condition
+        self.x = x
+        self.y = y
+        self.condition = condition
     }
 
     public func declarations(theme: SiteTheme) -> [ConditionedDeclaration] {
@@ -140,7 +149,8 @@ public struct TransformOriginModifier: ThemeAwareModifier {
     let condition: ModifierCondition?
 
     public init(origin: TransformOrigin, condition: ModifierCondition? = nil) {
-        self.origin = origin; self.condition = condition
+        self.origin = origin
+        self.condition = condition
     }
 
     public func declarations(theme: SiteTheme) -> [ConditionedDeclaration] {

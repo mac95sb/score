@@ -65,8 +65,8 @@ public struct Audio: View, _HTMLRenderable {
         var attrs = "src=\"\(attributeEscape(src))\""
         if controls { attrs += " controls" }
         if autoplay { attrs += " autoplay" }
-        if loop     { attrs += " loop" }
-        if muted    { attrs += " muted" }
+        if loop { attrs += " loop" }
+        if muted { attrs += " muted" }
         return "<audio \(attrs)></audio>"
     }
 

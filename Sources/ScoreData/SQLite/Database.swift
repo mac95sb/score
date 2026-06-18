@@ -46,7 +46,8 @@ public enum Database {
         lock.lock()
         defer { lock.unlock() }
         guard let context = _context else {
-            fatalError("""
+            fatalError(
+                """
                 No database configured. Declare `var database: some DatabaseConfig` \
                 on your Application, or call Database.bootstrap(_:) before using `db`.
                 """)

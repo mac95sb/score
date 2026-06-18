@@ -1,4 +1,5 @@
 import Testing
+
 @testable import ScoreCore
 
 @Suite("Animation")
@@ -9,7 +10,7 @@ struct AnimationTests {
     @Test("keyframesCSS starts with @keyframes")
     func keyframesCSSFormat() {
         let anim = KeyframeAnimation("my-anim") {
-            KeyFrame(0)   { [AnimOpacity(0)] }
+            KeyFrame(0) { [AnimOpacity(0)] }
             KeyFrame(100) { [AnimOpacity(1)] }
         }
         let css = anim.keyframesCSS()
@@ -19,7 +20,7 @@ struct AnimationTests {
     @Test("keyframesCSS contains both keyframe stops")
     func keyframesBothStops() {
         let anim = KeyframeAnimation("fade") {
-            KeyFrame(0)   { [AnimOpacity(0)] }
+            KeyFrame(0) { [AnimOpacity(0)] }
             KeyFrame(100) { [AnimOpacity(1)] }
         }
         let css = anim.keyframesCSS()
@@ -31,8 +32,8 @@ struct AnimationTests {
     @Test("keyframesCSS includes declared CSS properties")
     func keyframeProperties() {
         let anim = KeyframeAnimation("slide") {
-            KeyFrame(0)   { [AnimTranslateY(.px(20)), AnimOpacity(0)] }
-            KeyFrame(100) { [AnimTranslateY(.px(0)),  AnimOpacity(1)] }
+            KeyFrame(0) { [AnimTranslateY(.px(20)), AnimOpacity(0)] }
+            KeyFrame(100) { [AnimTranslateY(.px(0)), AnimOpacity(1)] }
         }
         let css = anim.keyframesCSS()
         #expect(css.contains("translateY"))

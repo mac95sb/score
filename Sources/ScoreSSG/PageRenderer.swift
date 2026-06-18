@@ -101,12 +101,12 @@ public struct PageRenderer: Sendable {
         // Note: SiteMetadata.headHTML already emits <meta charset> and <meta viewport>,
         // so we intentionally omit them here to avoid duplication.
         return """
-        <!DOCTYPE html>\
-        <html lang="\(attributeEscape(siteMetadata.locale))">\
-        <head>\(headHTML)</head>\
-        <body>\(bodyHTML)</body>\
-        </html>
-        """
+            <!DOCTYPE html>\
+            <html lang="\(attributeEscape(siteMetadata.locale))">\
+            <head>\(headHTML)</head>\
+            <body>\(bodyHTML)</body>\
+            </html>
+            """
     }
 
     // MARK: - CSS collection

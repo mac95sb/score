@@ -18,8 +18,12 @@ public struct Request: Sendable {
         context: RequestContext = RequestContext(),
         pathParameters: [String: String] = [:]
     ) {
-        self.method = method; self.uri = uri; self.headers = headers
-        self.body = body; self.context = context; self.pathParameters = pathParameters
+        self.method = method
+        self.uri = uri
+        self.headers = headers
+        self.body = body
+        self.context = context
+        self.pathParameters = pathParameters
     }
 
     /// Decode the request body as the given type.

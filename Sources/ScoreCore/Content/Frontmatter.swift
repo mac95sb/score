@@ -69,11 +69,14 @@ public struct Frontmatter: Sendable {
 
         // Tags — accept `[tag1, tag2]` or `tag1, tag2`
         let tagsRaw = fields["tags"] ?? ""
-        let tags = tagsRaw
+        let tags =
+            tagsRaw
             .trimmingCharacters(in: CharacterSet(charactersIn: "[]"))
             .components(separatedBy: ",")
-            .map { $0.trimmingCharacters(in: .whitespaces)
-                     .trimmingCharacters(in: CharacterSet(charactersIn: "\"'")) }
+            .map {
+                $0.trimmingCharacters(in: .whitespaces)
+                    .trimmingCharacters(in: CharacterSet(charactersIn: "\"'"))
+            }
             .filter { !$0.isEmpty }
 
         // Custom fields — everything that is not a standard key

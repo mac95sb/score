@@ -109,12 +109,16 @@ public struct QueryBuilder<R: Record>: Sendable {
 
     /// Limit the number of results returned.
     public func limit(_ n: Int) -> QueryBuilder<R> {
-        var copy = self; copy.limitValue = n; return copy
+        var copy = self
+        copy.limitValue = n
+        return copy
     }
 
     /// Skip the first N matching results.
     public func offset(_ n: Int) -> QueryBuilder<R> {
-        var copy = self; copy.offsetValue = n; return copy
+        var copy = self
+        copy.offsetValue = n
+        return copy
     }
 
     // MARK: - Terminal methods
@@ -202,7 +206,7 @@ public struct KeyPathCondition<R: Record, V: Sendable>: Sendable {
 /// .filter(\.published == true)
 /// .filter(\.id == someUUID)
 /// ```
-public func ==<R: Record, V: Codable & Sendable & Equatable>(
+public func == <R: Record, V: Codable & Sendable & Equatable>(
     lhs: KeyPath<R, V> & Sendable,
     rhs: V
 ) -> KeyPathCondition<R, V> {

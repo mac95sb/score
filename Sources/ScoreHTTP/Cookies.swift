@@ -25,9 +25,15 @@ public struct Cookie: Sendable {
         secure: Bool = true, httpOnly: Bool = true,
         sameSite: SameSite? = .lax
     ) {
-        self.name = name; self.value = value; self.domain = domain
-        self.path = path; self.expires = expires; self.maxAge = maxAge
-        self.secure = secure; self.httpOnly = httpOnly; self.sameSite = sameSite
+        self.name = name
+        self.value = value
+        self.domain = domain
+        self.path = path
+        self.expires = expires
+        self.maxAge = maxAge
+        self.secure = secure
+        self.httpOnly = httpOnly
+        self.sameSite = sameSite
     }
 
     /// Serialize to a `Set-Cookie` header value.

@@ -15,8 +15,8 @@ struct ProjectScaffolder: Sendable {
         try writeFavicon(to: directory)
 
         switch template {
-        case .default:     try writeDefault(to: directory, name: projectName)
-        case .static:      try writeStatic(to: directory, name: projectName)
+        case .default: try writeDefault(to: directory, name: projectName)
+        case .static: try writeStatic(to: directory, name: projectName)
         case .kitchenSink: try writeKitchenSink(to: directory, name: projectName)
         }
     }
@@ -683,10 +683,10 @@ struct ProjectScaffolder: Sendable {
         try mkdir(dir, "Public")
 
         try write(kitchenSinkApplication(name), to: dir, "Sources/Application.swift")
-        try write(kitchenSinkHomePage(name),    to: dir, "Sources/Views/Pages/HomePage.swift")
-        try write(kitchenSinkElementsPage,      to: dir, "Sources/Views/Pages/ElementsPage.swift")
-        try write(kitchenSinkFormsPage,         to: dir, "Sources/Views/Pages/FormsPage.swift")
-        try write(kitchenSinkNavigation(name),  to: dir, "Sources/Views/Components/SiteNavigation.swift")
+        try write(kitchenSinkHomePage(name), to: dir, "Sources/Views/Pages/HomePage.swift")
+        try write(kitchenSinkElementsPage, to: dir, "Sources/Views/Pages/ElementsPage.swift")
+        try write(kitchenSinkFormsPage, to: dir, "Sources/Views/Pages/FormsPage.swift")
+        try write(kitchenSinkNavigation(name), to: dir, "Sources/Views/Components/SiteNavigation.swift")
     }
 
     private func kitchenSinkApplication(_ name: String) -> String {

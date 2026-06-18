@@ -55,7 +55,8 @@ extension Record {
 /// path syntax). This is defence-in-depth — keys today come from compile-time
 /// key paths — but keeps the builder safe if that ever changes.
 func jsonExtractPath(forKey key: String) -> String {
-    let escaped = key
+    let escaped =
+        key
         .replacingOccurrences(of: "\"", with: "\\\"")
         .replacingOccurrences(of: "'", with: "''")
     return "'$.\"\(escaped)\"'"

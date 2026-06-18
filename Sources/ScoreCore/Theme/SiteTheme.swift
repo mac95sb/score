@@ -54,18 +54,18 @@ public struct SiteTheme: Sendable {
         customPresets: [String: PresetOverride] = [:],
         components: ComponentTheme = .none
     ) {
-        self.colors         = colors
-        self.fonts          = fonts
-        self.spacing        = spacing
-        self.radii          = radii
-        self.shadows        = shadows
-        self.breakpoints    = breakpoints
-        self.syntaxTheme    = syntaxTheme
-        self.darkColors     = darkColors
-        self.customThemes   = customThemes
+        self.colors = colors
+        self.fonts = fonts
+        self.spacing = spacing
+        self.radii = radii
+        self.shadows = shadows
+        self.breakpoints = breakpoints
+        self.syntaxTheme = syntaxTheme
+        self.darkColors = darkColors
+        self.customThemes = customThemes
         self.customPalettes = customPalettes
-        self.customPresets  = customPresets
-        self.components     = components
+        self.customPresets = customPresets
+        self.components = components
     }
 
     // MARK: - CSS variable emission
@@ -101,7 +101,8 @@ public struct SiteTheme: Sendable {
         // @font-face rules for self-hosted custom fonts
         for family in [fonts.body, fonts.heading, fonts.mono] {
             if case .custom(let name, let url?, _) = family,
-               url.hasSuffix(".woff2") || url.hasSuffix(".woff") || url.hasSuffix(".ttf") || url.hasSuffix(".otf") {
+                url.hasSuffix(".woff2") || url.hasSuffix(".woff") || url.hasSuffix(".ttf") || url.hasSuffix(".otf")
+            {
                 out += "@font-face{font-family:'\(name)';src:url('\(url)') format('woff2');font-display:swap;}"
             }
         }
@@ -214,14 +215,14 @@ public struct SiteTheme: Sendable {
 
     private func colorBlock(selector: String, colors: ThemeColors) -> String {
         "\(selector){"
-        + "--color-primary:\(colors.primary.rawCSSValue);"
-        + "--color-accent:\(colors.accent.rawCSSValue);"
-        + "--color-surface:\(colors.surface.rawCSSValue);"
-        + "--color-secondary:\(colors.secondary.rawCSSValue);"
-        + "--color-tertiary:\(colors.tertiary.rawCSSValue);"
-        + "--color-text:\(colors.text.rawCSSValue);"
-        + "--color-muted:\(colors.muted.rawCSSValue);"
-        + "--color-destructive:\(colors.destructive.rawCSSValue);}"
+            + "--color-primary:\(colors.primary.rawCSSValue);"
+            + "--color-accent:\(colors.accent.rawCSSValue);"
+            + "--color-surface:\(colors.surface.rawCSSValue);"
+            + "--color-secondary:\(colors.secondary.rawCSSValue);"
+            + "--color-tertiary:\(colors.tertiary.rawCSSValue);"
+            + "--color-text:\(colors.text.rawCSSValue);"
+            + "--color-muted:\(colors.muted.rawCSSValue);"
+            + "--color-destructive:\(colors.destructive.rawCSSValue);}"
     }
 }
 
@@ -238,13 +239,13 @@ public struct ThemeColors: Sendable {
     public var destructive: Color
 
     public static let `default` = ThemeColors(
-        primary:     .violet(600),
-        accent:      .emerald(400),
-        surface:     Color(oklch: 1.0, 0, 0),
-        secondary:   .slate(100),
-        tertiary:    .slate(50),
-        text:        .slate(900),
-        muted:       .slate(500),
+        primary: .violet(600),
+        accent: .emerald(400),
+        surface: Color(oklch: 1.0, 0, 0),
+        secondary: .slate(100),
+        tertiary: .slate(50),
+        text: .slate(900),
+        muted: .slate(500),
         destructive: .rose(600)
     )
 
@@ -258,13 +259,13 @@ public struct ThemeColors: Sendable {
         muted: Color,
         destructive: Color
     ) {
-        self.primary     = primary
-        self.accent      = accent
-        self.surface     = surface
-        self.secondary   = secondary
-        self.tertiary    = tertiary
-        self.text        = text
-        self.muted       = muted
+        self.primary = primary
+        self.accent = accent
+        self.surface = surface
+        self.secondary = secondary
+        self.tertiary = tertiary
+        self.text = text
+        self.muted = muted
         self.destructive = destructive
     }
 }
@@ -279,7 +280,9 @@ public struct ThemeFonts: Sendable {
     public static let `default` = ThemeFonts(body: .system, heading: .system, mono: .system)
 
     public init(body: FontFamily, heading: FontFamily, mono: FontFamily) {
-        self.body = body; self.heading = heading; self.mono = mono
+        self.body = body
+        self.heading = heading
+        self.mono = mono
     }
 }
 
@@ -324,7 +327,8 @@ public struct ThemeSpacing: Sendable {
     public static let `default` = ThemeSpacing(base: 4, multiplier: 1.0)
 
     public init(base: Double, multiplier: Double) {
-        self.base = base; self.multiplier = multiplier
+        self.base = base
+        self.multiplier = multiplier
     }
 
     public func px(for step: Double) -> Double {
@@ -361,18 +365,22 @@ public struct ThemeRadii: Sendable {
     public static let `default` = ThemeRadii(sm: 4, md: 8, lg: 12, xl: 16, twoXL: 24, full: 9999)
 
     public init(sm: Double, md: Double, lg: Double, xl: Double, twoXL: Double, full: Double) {
-        self.sm = sm; self.md = md; self.lg = lg
-        self.xl = xl; self.twoXL = twoXL; self.full = full
+        self.sm = sm
+        self.md = md
+        self.lg = lg
+        self.xl = xl
+        self.twoXL = twoXL
+        self.full = full
     }
 
     public subscript(token: RadiusToken) -> Double {
         switch token {
-        case .sm:    return sm
-        case .md:    return md
-        case .lg:    return lg
-        case .xl:    return xl
+        case .sm: return sm
+        case .md: return md
+        case .lg: return lg
+        case .xl: return xl
         case .twoXL: return twoXL
-        case .full:  return full
+        case .full: return full
         }
     }
 }
@@ -388,17 +396,21 @@ public struct ThemeShadows: Sendable {
     public var inner: String
 
     public static let `default` = ThemeShadows(
-        sm:    "0 1px 2px oklch(0 0 0/0.05)",
-        md:    "0 4px 6px oklch(0 0 0/0.07)",
-        lg:    "0 10px 15px oklch(0 0 0/0.1)",
-        xl:    "0 20px 25px oklch(0 0 0/0.1)",
+        sm: "0 1px 2px oklch(0 0 0/0.05)",
+        md: "0 4px 6px oklch(0 0 0/0.07)",
+        lg: "0 10px 15px oklch(0 0 0/0.1)",
+        xl: "0 20px 25px oklch(0 0 0/0.1)",
         twoXL: "0 25px 50px oklch(0 0 0/0.25)",
         inner: "inset 0 2px 4px oklch(0 0 0/0.06)"
     )
 
     public init(sm: String, md: String, lg: String, xl: String, twoXL: String, inner: String) {
-        self.sm = sm; self.md = md; self.lg = lg
-        self.xl = xl; self.twoXL = twoXL; self.inner = inner
+        self.sm = sm
+        self.md = md
+        self.lg = lg
+        self.xl = xl
+        self.twoXL = twoXL
+        self.inner = inner
     }
 }
 
@@ -416,17 +428,20 @@ public struct ThemeBreakpoints: Sendable {
     )
 
     public init(phone: Int, tablet: Int, desktop: Int, wide: Int, ultrawide: Int) {
-        self.phone = phone; self.tablet = tablet; self.desktop = desktop
-        self.wide = wide; self.ultrawide = ultrawide
+        self.phone = phone
+        self.tablet = tablet
+        self.desktop = desktop
+        self.wide = wide
+        self.ultrawide = ultrawide
     }
 
     public func minWidth(for breakpoint: Breakpoint) -> Int {
         switch breakpoint {
-        case .phone:      return phone
-        case .tablet:     return tablet
-        case .desktop:    return desktop
-        case .wide:       return wide
-        case .ultrawide:  return ultrawide
+        case .phone: return phone
+        case .tablet: return tablet
+        case .desktop: return desktop
+        case .wide: return wide
+        case .ultrawide: return ultrawide
         }
     }
 }
@@ -443,8 +458,7 @@ public enum RadiusToken: String, Sendable {
     public var cssName: String {
         switch self {
         case .twoXL: return "2xl"
-        default:     return rawValue
+        default: return rawValue
         }
     }
 }
-

@@ -9,8 +9,8 @@ public struct ConditionedDeclaration: Sendable {
     public let condition: ModifierCondition?
 
     public init(_ property: String, _ value: String, condition: ModifierCondition? = nil) {
-        self.property  = property
-        self.value     = value
+        self.property = property
+        self.value = value
         self.condition = condition
     }
 }
@@ -21,7 +21,7 @@ public struct ConditionedDeclaration: Sendable {
 public enum ModifierCondition: Sendable, Hashable {
     // State variants (pseudo-classes)
     case hover
-    case focus           // :focus-visible
+    case focus  // :focus-visible
     case active
     case visited
     case disabled
@@ -36,9 +36,9 @@ public enum ModifierCondition: Sendable, Hashable {
     case even
     case backdrop
     // Media queries
-    case dark            // prefers-color-scheme: dark
+    case dark  // prefers-color-scheme: dark
     case print
-    case motion          // prefers-reduced-motion: no-preference
+    case motion  // prefers-reduced-motion: no-preference
     case portrait
     case landscape
     // Responsive breakpoints
@@ -55,22 +55,22 @@ public enum ModifierCondition: Sendable, Hashable {
     /// CSS pseudo-class or pseudo-element selector string.
     public var pseudoClass: String? {
         switch self {
-        case .hover:     return ":hover"
-        case .focus:     return ":focus-visible"
-        case .active:    return ":active"
-        case .visited:   return ":visited"
-        case .disabled:  return ":disabled"
-        case .checked:   return ":checked"
-        case .required:  return ":required"
-        case .invalid:   return ":invalid"
-        case .valid:     return ":valid"
-        case .empty:     return ":empty"
-        case .first:     return ":first-child"
-        case .last:      return ":last-child"
-        case .odd:       return ":nth-child(odd)"
-        case .even:      return ":nth-child(even)"
-        case .backdrop:  return "::backdrop"
-        default:         return nil
+        case .hover: return ":hover"
+        case .focus: return ":focus-visible"
+        case .active: return ":active"
+        case .visited: return ":visited"
+        case .disabled: return ":disabled"
+        case .checked: return ":checked"
+        case .required: return ":required"
+        case .invalid: return ":invalid"
+        case .valid: return ":valid"
+        case .empty: return ":empty"
+        case .first: return ":first-child"
+        case .last: return ":last-child"
+        case .odd: return ":nth-child(odd)"
+        case .even: return ":nth-child(even)"
+        case .backdrop: return "::backdrop"
+        default: return nil
         }
     }
 
@@ -79,17 +79,17 @@ public enum ModifierCondition: Sendable, Hashable {
     /// CSS media query condition string (without `@media`).
     public func mediaQuery(theme: SiteTheme) -> String? {
         switch self {
-        case .dark:       return "(prefers-color-scheme:dark)"
-        case .print:      return "print"
-        case .motion:     return "(prefers-reduced-motion:no-preference)"
-        case .portrait:   return "(orientation:portrait)"
-        case .landscape:  return "(orientation:landscape)"
-        case .phone:      return "(min-width:\(theme.breakpoints.phone)px)"
-        case .tablet:     return "(min-width:\(theme.breakpoints.tablet)px)"
-        case .desktop:    return "(min-width:\(theme.breakpoints.desktop)px)"
-        case .wide:       return "(min-width:\(theme.breakpoints.wide)px)"
-        case .ultrawide:  return "(min-width:\(theme.breakpoints.ultrawide)px)"
-        default:          return nil
+        case .dark: return "(prefers-color-scheme:dark)"
+        case .print: return "print"
+        case .motion: return "(prefers-reduced-motion:no-preference)"
+        case .portrait: return "(orientation:portrait)"
+        case .landscape: return "(orientation:landscape)"
+        case .phone: return "(min-width:\(theme.breakpoints.phone)px)"
+        case .tablet: return "(min-width:\(theme.breakpoints.tablet)px)"
+        case .desktop: return "(min-width:\(theme.breakpoints.desktop)px)"
+        case .wide: return "(min-width:\(theme.breakpoints.wide)px)"
+        case .ultrawide: return "(min-width:\(theme.breakpoints.ultrawide)px)"
+        default: return nil
         }
     }
 
@@ -101,7 +101,8 @@ public enum ModifierCondition: Sendable, Hashable {
         switch self {
         case .combined(let state, let bp):
             guard let media = bp.mediaQuery(theme: theme),
-                  let pseudo = state.pseudoClass else { return nil }
+                let pseudo = state.pseudoClass
+            else { return nil }
             return .combined(pseudo: pseudo, media: media)
         default:
             if let pseudo = pseudoClass {

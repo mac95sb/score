@@ -67,8 +67,8 @@ public struct Meter: View, _HTMLRenderable {
 
     public func renderHTML(context: inout RenderContext) -> String {
         var attrs = "value=\"\(value)\" min=\"\(min)\" max=\"\(max)\""
-        if let low = low     { attrs += " low=\"\(low)\"" }
-        if let high = high   { attrs += " high=\"\(high)\"" }
+        if let low = low { attrs += " low=\"\(low)\"" }
+        if let high = high { attrs += " high=\"\(high)\"" }
         if let opt = optimum { attrs += " optimum=\"\(opt)\"" }
         return "<meter \(attrs)></meter>"
     }

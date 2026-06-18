@@ -3,9 +3,9 @@
 public enum BlendMode: String, Sendable {
     case normal, multiply, screen, overlay, darken, lighten
     case colorDodge = "color-dodge"
-    case colorBurn  = "color-burn"
-    case hardLight  = "hard-light"
-    case softLight  = "soft-light"
+    case colorBurn = "color-burn"
+    case hardLight = "hard-light"
+    case softLight = "soft-light"
     case difference, exclusion, hue, saturation, color, luminosity
 }
 
@@ -17,9 +17,9 @@ public enum BackgroundSize: Sendable {
 
     public var css: String {
         switch self {
-        case .cover:         return "cover"
-        case .contain:       return "contain"
-        case .auto:          return "auto"
+        case .cover: return "cover"
+        case .contain: return "contain"
+        case .auto: return "auto"
         case .custom(let s): return s
         }
     }
@@ -29,9 +29,9 @@ public enum BackgroundSize: Sendable {
 
 public enum BackgroundPosition: String, Sendable {
     case center, top, bottom, left, right
-    case topLeft     = "top left"
-    case topRight    = "top right"
-    case bottomLeft  = "bottom left"
+    case topLeft = "top left"
+    case topRight = "top right"
+    case bottomLeft = "bottom left"
     case bottomRight = "bottom right"
 }
 
@@ -39,7 +39,7 @@ public enum BackgroundPosition: String, Sendable {
 
 public enum BackgroundClip: String, Sendable {
     case text
-    case border  = "border-box"
+    case border = "border-box"
     case padding = "padding-box"
     case content = "content-box"
 }
@@ -67,14 +67,14 @@ public enum TransformOrigin: Sendable {
 
     public var css: String {
         switch self {
-        case .center:      return "center"
-        case .top:         return "top"
-        case .bottom:      return "bottom"
-        case .left:        return "left"
-        case .right:       return "right"
-        case .topLeft:     return "top left"
-        case .topRight:    return "top right"
-        case .bottomLeft:  return "bottom left"
+        case .center: return "center"
+        case .top: return "top"
+        case .bottom: return "bottom"
+        case .left: return "left"
+        case .right: return "right"
+        case .topLeft: return "top left"
+        case .topRight: return "top right"
+        case .bottomLeft: return "bottom left"
         case .bottomRight: return "bottom right"
         case .custom(let x, let y): return "\(x.css) \(y.css)"
         }
@@ -89,13 +89,13 @@ public enum ShadowToken: Sendable {
 
     public func css(theme: SiteTheme) -> String {
         switch self {
-        case .sm:            return theme.shadows.sm
-        case .md:            return theme.shadows.md
-        case .lg:            return theme.shadows.lg
-        case .xl:            return theme.shadows.xl
-        case .twoXL:         return theme.shadows.twoXL
-        case .inner:         return theme.shadows.inner
-        case .none:          return "none"
+        case .sm: return theme.shadows.sm
+        case .md: return theme.shadows.md
+        case .lg: return theme.shadows.lg
+        case .xl: return theme.shadows.xl
+        case .twoXL: return theme.shadows.twoXL
+        case .inner: return theme.shadows.inner
+        case .none: return "none"
         case .custom(let s): return s
         }
     }

@@ -35,10 +35,10 @@ public struct SwiftUIKitExporter: Sendable {
             excludedDirectories: Set<String> = [],
             exampleBaseURL: String = "https://example.com/api/v1"
         ) {
-            self.kitName             = kitName
-            self.sourcesDirectory    = sourcesDirectory
+            self.kitName = kitName
+            self.sourcesDirectory = sourcesDirectory
             self.excludedDirectories = excludedDirectories
-            self.exampleBaseURL      = exampleBaseURL
+            self.exampleBaseURL = exampleBaseURL
         }
     }
 
@@ -136,7 +136,7 @@ public struct SwiftUIKitExporter: Sendable {
         let fm = FileManager.default
         var isDirectory: ObjCBool = false
         guard fm.fileExists(atPath: options.sourcesDirectory, isDirectory: &isDirectory),
-              isDirectory.boolValue
+            isDirectory.boolValue
         else {
             throw PackagingError.sourcesDirectoryMissing(options.sourcesDirectory)
         }
@@ -162,7 +162,8 @@ public struct SwiftUIKitExporter: Sendable {
             guard relative.hasSuffix(".swift") else { continue }
             // Skip excluded top-level subdirectories (e.g. the generated kit itself).
             if let topLevel = relative.split(separator: "/").first,
-               options.excludedDirectories.contains(String(topLevel)) {
+                options.excludedDirectories.contains(String(topLevel))
+            {
                 continue
             }
             let path = (directory as NSString).appendingPathComponent(relative)
@@ -205,7 +206,8 @@ public struct SwiftUIKitExporter: Sendable {
             let line = rawLine.trimmingCharacters(in: .whitespaces)
             // Skip comments, statics, computed properties, and methods.
             if line.isEmpty || line.hasPrefix("//") || line.hasPrefix("static")
-                || line.hasPrefix("func") || line.contains("{") {
+                || line.hasPrefix("func") || line.contains("{")
+            {
                 continue
             }
             let range = NSRange(line.startIndex..., in: line)
@@ -213,7 +215,7 @@ public struct SwiftUIKitExporter: Sendable {
 
             func group(_ index: Int) -> String? {
                 guard match.range(at: index).location != NSNotFound,
-                      let r = Range(match.range(at: index), in: line)
+                    let r = Range(match.range(at: index), in: line)
                 else { return nil }
                 return String(line[r]).trimmingCharacters(in: .whitespaces)
             }
@@ -227,9 +229,9 @@ public struct SwiftUIKitExporter: Sendable {
     // MARK: - Controller parsing
 
     struct Endpoint {
-        let method: String        // GET, POST, …
-        let path: String          // /posts/:id
-        let name: String          // list, show, …
+        let method: String  // GET, POST, …
+        let path: String  // /posts/:id
+        let name: String  // list, show, …
         var pathParameters: [String] {
             path.split(separator: "/")
                 .filter { $0.hasPrefix(":") }
@@ -324,7 +326,8 @@ public struct SwiftUIKitExporter: Sendable {
         var declarations: [StructDeclaration] = []
         for match in matches {
             let conformances = nsSource.substring(with: match.range(at: 2))
-            let conformsToProtocol = conformances
+            let conformsToProtocol =
+                conformances
                 .split(separator: ",")
                 .map { $0.trimmingCharacters(in: .whitespaces) }
                 .contains(protocolName)
@@ -345,8 +348,8 @@ public struct SwiftUIKitExporter: Sendable {
         var index = openBraceIndex
         while index < source.length {
             let ch = source.character(at: index)
-            if ch == 123 { depth += 1 }        // {
-            if ch == 125 {                     // }
+            if ch == 123 { depth += 1 }  // {
+            if ch == 125 {  // }
                 depth -= 1
                 if depth == 0 {
                     let bodyRange = NSRange(
@@ -365,7 +368,7 @@ public struct SwiftUIKitExporter: Sendable {
         guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
         let nsText = text as NSString
         guard let match = regex.firstMatch(in: text, range: NSRange(location: 0, length: nsText.length)),
-              match.numberOfRanges > 1
+            match.numberOfRanges > 1
         else { return nil }
         return nsText.substring(with: match.range(at: 1))
     }
@@ -646,45 +649,47 @@ public struct SwiftUIKitExporter: Sendable {
     }
 
     private func readme(records: [RecordModel], controllers: [Controller]) -> String {
-        let recordList = records.isEmpty
+        let recordList =
+            records.isEmpty
             ? "_(none found)_"
             : records.map { "- `\($0.name)`" }.joined(separator: "\n")
-        let controllerList = controllers.isEmpty
+        let controllerList =
+            controllers.isEmpty
             ? "_(none found)_"
             : controllers.map { "- `\($0.name)` (\($0.endpoints.count) endpoints)" }.joined(separator: "\n")
 
         return """
-        # \(options.kitName)
+            # \(options.kitName)
 
-        A Swift package generated by `score package swiftui`. It exposes your
-        Score application's models and API endpoints to native SwiftUI apps,
-        with no dependency on the Score framework.
+            A Swift package generated by `score package swiftui`. It exposes your
+            Score application's models and API endpoints to native SwiftUI apps,
+            with no dependency on the Score framework.
 
-        ## Exported records
+            ## Exported records
 
-        \(recordList)
+            \(recordList)
 
-        ## Exported controllers
+            ## Exported controllers
 
-        \(controllerList)
+            \(controllerList)
 
-        ## Usage
+            ## Usage
 
-        ```swift
-        import \(options.kitName)
+            ```swift
+            import \(options.kitName)
 
-        let client = ScoreAPIClient(baseURL: URL(string: "\(options.exampleBaseURL)")!)
-        // let posts: [Post] = try await client.request(API.Posts.list)
-        ```
+            let client = ScoreAPIClient(baseURL: URL(string: "\(options.exampleBaseURL)")!)
+            // let posts: [Post] = try await client.request(API.Posts.list)
+            ```
 
-        The base URL should include your app's API prefix (Score defaults to
-        `/api/v1`). Dates are encoded and decoded as ISO 8601.
+            The base URL should include your app's API prefix (Score defaults to
+            `/api/v1`). Dates are encoded and decoded as ISO 8601.
 
-        ## Regenerating
+            ## Regenerating
 
-        This package is fully generated — do not edit by hand. Re-run
-        `score package swiftui` in your Score project after changing records
-        or controllers.
-        """
+            This package is fully generated — do not edit by hand. Re-run
+            `score package swiftui` in your Score project after changing records
+            or controllers.
+            """
     }
 }

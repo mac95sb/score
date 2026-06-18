@@ -48,7 +48,8 @@ public struct PackagingConfig: Sendable {
         }
         self.appName = trimmedName
 
-        let resolvedIdentifier = identifier
+        let resolvedIdentifier =
+            identifier
             ?? "com.example.\(Self.lowercasedAlphanumeric(trimmedName, fallback: "scoreapp"))"
         guard Self.isValidIdentifier(resolvedIdentifier) else {
             throw PackagingError.invalidIdentifier(resolvedIdentifier)
@@ -57,15 +58,15 @@ public struct PackagingConfig: Sendable {
 
         if case .remote(let url) = source {
             guard let parsed = URL(string: url),
-                  let scheme = parsed.scheme?.lowercased(),
-                  scheme == "http" || scheme == "https"
+                let scheme = parsed.scheme?.lowercased(),
+                scheme == "http" || scheme == "https"
             else {
                 throw PackagingError.invalidRemoteURL(url)
             }
         }
-        self.source       = source
-        self.version      = version
-        self.windowWidth  = windowWidth
+        self.source = source
+        self.version = version
+        self.windowWidth = windowWidth
         self.windowHeight = windowHeight
 
         let trimmedTool = containerTool.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -115,7 +116,7 @@ public struct PackagingConfig: Sendable {
         guard segments.count >= 2 else { return false }
         for segment in segments {
             guard !segment.isEmpty,
-                  segment.allSatisfy({ ($0.isLetter && $0.isASCII) || $0.isNumber || $0 == "_" || $0 == "-" })
+                segment.allSatisfy({ ($0.isLetter && $0.isASCII) || $0.isNumber || $0 == "_" || $0 == "-" })
             else { return false }
         }
         return true

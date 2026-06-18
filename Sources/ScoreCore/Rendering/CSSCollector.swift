@@ -1,5 +1,5 @@
-import Foundation
 import Collections
+import Foundation
 
 // MARK: - CSS Data Model
 
@@ -38,10 +38,10 @@ public enum CSSCondition: Sendable, Hashable {
     /// The selector or at-rule string used in a native CSS nesting block.
     var selector: String {
         switch self {
-        case .pseudoClass(let p):          return "&\(p)"
-        case .mediaQuery(let m):           return "@media \(m)"
-        case .combined(_, let m):          return "@media \(m)"
-        case .childSelector(let s):        return s
+        case .pseudoClass(let p): return "&\(p)"
+        case .mediaQuery(let m): return "@media \(m)"
+        case .combined(_, let m): return "@media \(m)"
+        case .childSelector(let s): return s
         }
     }
 }
@@ -227,10 +227,9 @@ public struct CSSCollector {
         minified: Bool = false
     ) -> String {
         let rules = collect(from: view, componentTypeName: componentTypeName)
-        if minified {
-            return rules.map { $0.renderMinified() }.joined()
-        } else {
+        guard minified else {
             return rules.map { $0.render() }.joined(separator: "\n\n")
         }
+        return rules.map { $0.renderMinified() }.joined()
     }
 }

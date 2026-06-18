@@ -101,7 +101,8 @@ public actor ContentStore {
 
             let yamlString = String(parts[0])
             let bodyParts = parts.dropFirst()
-            let body = bodyParts
+            let body =
+                bodyParts
                 .joined(separator: "\n---")
                 .trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -109,7 +110,8 @@ public actor ContentStore {
             post = ContentPost(slug: slug, content: body, frontmatter: frontmatter, filePath: url.path)
         } else {
             // No frontmatter — treat the whole file as body, derive title from slug.
-            let inferredTitle = slug
+            let inferredTitle =
+                slug
                 .replacingOccurrences(of: "-", with: " ")
                 .replacingOccurrences(of: "_", with: " ")
                 .capitalized

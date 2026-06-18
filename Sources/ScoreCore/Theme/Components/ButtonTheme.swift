@@ -11,17 +11,17 @@ public struct ButtonTheme: Sendable {
 
         var padding: String {
             switch self {
-            case .small:  return "0.375rem 0.75rem"
+            case .small: return "0.375rem 0.75rem"
             case .medium: return "0.5rem 1rem"
-            case .large:  return "0.75rem 1.5rem"
+            case .large: return "0.75rem 1.5rem"
             }
         }
 
         var fontSize: String {
             switch self {
-            case .small:  return "0.875rem"
+            case .small: return "0.875rem"
             case .medium: return "1rem"
-            case .large:  return "1.125rem"
+            case .large: return "1.125rem"
             }
         }
     }
@@ -53,11 +53,11 @@ public struct ButtonTheme: Sendable {
         hoverOverrides: [String: String] = [:],
         variantOverrides: [ButtonVariant: [String: String]] = [:]
     ) {
-        self.size             = size
-        self.radius           = radius
-        self.fontWeight       = fontWeight
-        self.overrides        = overrides
-        self.hoverOverrides   = hoverOverrides
+        self.size = size
+        self.radius = radius
+        self.fontWeight = fontWeight
+        self.overrides = overrides
+        self.hoverOverrides = hoverOverrides
         self.variantOverrides = variantOverrides
     }
 
@@ -86,32 +86,50 @@ public struct ButtonTheme: Sendable {
         out += ":where(button[data-variant]:hover:not(:disabled)){\(mergeDeclarations(hoverBase, hoverOverrides))}"
 
         let variants: [(ButtonVariant, [(String, String)])] = [
-            (.primary, [
-                ("background", "var(--color-primary)"),
-                ("color", "var(--color-surface)"),
-            ]),
-            (.secondary, [
-                ("background", "var(--color-secondary)"),
-                ("color", "var(--color-text)"),
-            ]),
-            (.ghost, [
-                ("background", "transparent"),
-                ("color", "var(--color-text)"),
-            ]),
-            (.destructive, [
-                ("background", "var(--color-destructive)"),
-                ("color", "var(--color-surface)"),
-            ]),
-            (.outline, [
-                ("background", "transparent"),
-                ("color", "var(--color-text)"),
-                ("border-color", "var(--color-muted)"),
-            ]),
-            (.icon, [
-                ("background", "transparent"),
-                ("color", "var(--color-text)"),
-                ("padding", "0.5rem"),
-            ]),
+            (
+                .primary,
+                [
+                    ("background", "var(--color-primary)"),
+                    ("color", "var(--color-surface)"),
+                ]
+            ),
+            (
+                .secondary,
+                [
+                    ("background", "var(--color-secondary)"),
+                    ("color", "var(--color-text)"),
+                ]
+            ),
+            (
+                .ghost,
+                [
+                    ("background", "transparent"),
+                    ("color", "var(--color-text)"),
+                ]
+            ),
+            (
+                .destructive,
+                [
+                    ("background", "var(--color-destructive)"),
+                    ("color", "var(--color-surface)"),
+                ]
+            ),
+            (
+                .outline,
+                [
+                    ("background", "transparent"),
+                    ("color", "var(--color-text)"),
+                    ("border-color", "var(--color-muted)"),
+                ]
+            ),
+            (
+                .icon,
+                [
+                    ("background", "transparent"),
+                    ("color", "var(--color-text)"),
+                    ("padding", "0.5rem"),
+                ]
+            ),
         ]
 
         for (variant, declarations) in variants {

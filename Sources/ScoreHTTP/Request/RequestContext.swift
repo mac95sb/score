@@ -32,6 +32,8 @@ public struct AuthUser: Sendable {
     public var metadata: [String: String]
 
     public init(id: UUID, email: String, metadata: [String: String] = [:]) {
-        self.id = id; self.email = email; self.metadata = metadata
+        self.id = id
+        self.email = email
+        self.metadata = metadata
     }
 }

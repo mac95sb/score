@@ -25,35 +25,35 @@ public enum InputType: Sendable {
 extension InputType: CustomStringConvertible {
     public var description: String {
         switch self {
-        case .text:     return "text"
-        case .email:    return "email"
+        case .text: return "text"
+        case .email: return "email"
         case .password: return "password"
-        case .number:   return "number"
-        case .tel:      return "tel"
-        case .url:      return "url"
-        case .search:   return "search"
-        case .textarea:      return "textarea"
-        case .select:        return "select"
-        case .checkbox:      return "checkbox"
-        case .radio:         return "radio"
-        case .file:          return "file"
-        case .hidden:        return "hidden"
-        case .date:          return "date"
-        case .time:          return "time"
+        case .number: return "number"
+        case .tel: return "tel"
+        case .url: return "url"
+        case .search: return "search"
+        case .textarea: return "textarea"
+        case .select: return "select"
+        case .checkbox: return "checkbox"
+        case .radio: return "radio"
+        case .file: return "file"
+        case .hidden: return "hidden"
+        case .date: return "date"
+        case .time: return "time"
         case .datetimeLocal: return "datetime-local"
-        case .month:         return "month"
-        case .week:          return "week"
-        case .range:         return "range"
-        case .color:         return "color"
+        case .month: return "month"
+        case .week: return "week"
+        case .range: return "range"
+        case .color: return "color"
         }
     }
 }
 
 /// Accepted file types for a file ``Input``.
 public enum FileAccept: String, Sendable {
-    case images    = "image/*"
+    case images = "image/*"
     case documents = ".pdf,.doc,.docx"
-    case all       = "*"
+    case all = "*"
 }
 
 /// A versatile form control supporting text, select, textarea, and all standard HTML input types.
@@ -221,8 +221,8 @@ public struct Input: View, _HTMLRenderable {
             var attrs = "name=\"\(attributeEscape(name))\""
             if let rows = rows { attrs += " rows=\"\(rows)\"" }
             if let ph = placeholder { attrs += " placeholder=\"\(attributeEscape(ph))\"" }
-            if required  { attrs += " required" }
-            if disabled  { attrs += " disabled" }
+            if required { attrs += " required" }
+            if disabled { attrs += " disabled" }
             return "<textarea \(attrs)>\(htmlEscape(value ?? ""))</textarea>"
 
         case .select:
@@ -244,10 +244,10 @@ public struct Input: View, _HTMLRenderable {
         default:
             var attrs = "type=\"\(type.description)\" name=\"\(attributeEscape(name))\""
             if let ph = placeholder { attrs += " placeholder=\"\(attributeEscape(ph))\"" }
-            if let v  = value       { attrs += " value=\"\(attributeEscape(v))\"" }
-            if let mn = min         { attrs += " min=\"\(mn)\"" }
-            if let mx = max         { attrs += " max=\"\(mx)\"" }
-            if let ac = accept      { attrs += " accept=\"\(ac.rawValue)\"" }
+            if let v = value { attrs += " value=\"\(attributeEscape(v))\"" }
+            if let mn = min { attrs += " min=\"\(mn)\"" }
+            if let mx = max { attrs += " max=\"\(mx)\"" }
+            if let ac = accept { attrs += " accept=\"\(ac.rawValue)\"" }
             if required { attrs += " required" }
             if disabled { attrs += " disabled" }
             return "<input \(attrs)>"

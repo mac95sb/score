@@ -38,19 +38,24 @@ public struct FrameModifier: ThemeAwareModifier {
         aspectRatio: Double? = nil,
         condition: ModifierCondition? = nil
     ) {
-        self.width = width; self.minWidth = minWidth; self.maxWidth = maxWidth
-        self.height = height; self.minHeight = minHeight; self.maxHeight = maxHeight
-        self.aspectRatio = aspectRatio; self.condition = condition
+        self.width = width
+        self.minWidth = minWidth
+        self.maxWidth = maxWidth
+        self.height = height
+        self.minHeight = minHeight
+        self.maxHeight = maxHeight
+        self.aspectRatio = aspectRatio
+        self.condition = condition
     }
 
     public func declarations(theme: SiteTheme) -> [ConditionedDeclaration] {
         var result: [ConditionedDeclaration] = []
-        if let w  = width     { result.append(ConditionedDeclaration("width",      w.css,          condition: condition)) }
-        if let mw = minWidth  { result.append(ConditionedDeclaration("min-width",  mw.css,         condition: condition)) }
-        if let xw = maxWidth  { result.append(ConditionedDeclaration("max-width",  xw.css,         condition: condition)) }
-        if let h  = height    { result.append(ConditionedDeclaration("height",     h.cssHeight,    condition: condition)) }
-        if let mh = minHeight { result.append(ConditionedDeclaration("min-height", mh.cssHeight,   condition: condition)) }
-        if let xh = maxHeight { result.append(ConditionedDeclaration("max-height", xh.cssHeight,   condition: condition)) }
+        if let w = width { result.append(ConditionedDeclaration("width", w.css, condition: condition)) }
+        if let mw = minWidth { result.append(ConditionedDeclaration("min-width", mw.css, condition: condition)) }
+        if let xw = maxWidth { result.append(ConditionedDeclaration("max-width", xw.css, condition: condition)) }
+        if let h = height { result.append(ConditionedDeclaration("height", h.cssHeight, condition: condition)) }
+        if let mh = minHeight { result.append(ConditionedDeclaration("min-height", mh.cssHeight, condition: condition)) }
+        if let xh = maxHeight { result.append(ConditionedDeclaration("max-height", xh.cssHeight, condition: condition)) }
         if let ar = aspectRatio {
             // Express as "w / h" — for a simple ratio we approximate as integer pairs when clean
             let arStr: String

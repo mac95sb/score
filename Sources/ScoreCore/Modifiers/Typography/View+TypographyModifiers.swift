@@ -99,11 +99,12 @@ extension View {
         smoothing: FontSmoothing? = nil,
         on condition: ModifierCondition? = nil
     ) -> ModifiedContent<Self, FontModifier> {
-        modifier(FontModifier(
-            size: size, weight: weight, family: family, color: color,
-            leading: leading, tracking: tracking, align: align, transform: transform,
-            decoration: decoration, style: style, wrap: wrap, smoothing: smoothing,
-            condition: condition
-        ))
+        modifier(
+            FontModifier(
+                size: size, weight: weight, family: family, color: color,
+                leading: leading, tracking: tracking, align: align, transform: transform,
+                decoration: decoration, style: style, wrap: wrap, smoothing: smoothing,
+                condition: condition
+            ))
     }
 }

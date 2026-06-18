@@ -29,33 +29,33 @@ public struct Field<Value: Sendable>: Sendable {
     /// Bare field with no validators.
     public init(wrappedValue: Value) {
         self.wrappedValue = wrappedValue
-        self.validators   = []
-        self.inputType    = nil
-        self.rows         = nil
+        self.validators = []
+        self.inputType = nil
+        self.rows = nil
     }
 
     /// Field with one or more validators.
     public init(_ validators: FieldValidator..., wrappedValue: Value) {
         self.wrappedValue = wrappedValue
-        self.validators   = validators
-        self.inputType    = nil
-        self.rows         = nil
+        self.validators = validators
+        self.inputType = nil
+        self.rows = nil
     }
 
     /// Field with an explicit input type (and optional row count for textareas).
     public init(_ type: InputType, rows: Int? = nil, wrappedValue: Value) {
         self.wrappedValue = wrappedValue
-        self.validators   = []
-        self.inputType    = type
-        self.rows         = rows
+        self.validators = []
+        self.inputType = type
+        self.rows = rows
     }
 
     /// Field with an explicit input type and validators.
     public init(_ type: InputType, rows: Int? = nil, _ validators: FieldValidator..., wrappedValue: Value) {
         self.wrappedValue = wrappedValue
-        self.validators   = validators
-        self.inputType    = type
-        self.rows         = rows
+        self.validators = validators
+        self.inputType = type
+        self.rows = rows
     }
 }
 

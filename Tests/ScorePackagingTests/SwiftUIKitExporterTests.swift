@@ -1,36 +1,37 @@
 import Foundation
 import Testing
+
 @testable import ScorePackaging
 
 @Suite("SwiftUIKitExporter")
 struct SwiftUIKitExporterTests {
 
     static let appSource = """
-    import Score
-    import Foundation
+        import Score
+        import Foundation
 
-    struct Post: Record {
-        var id: UUID = UUID()
-        var title: String
-        var slug: String
-        var published: Bool = false
-        var createdAt: Date = .now
-        var updatedAt: Date = .now
+        struct Post: Record {
+            var id: UUID = UUID()
+            var title: String
+            var slug: String
+            var published: Bool = false
+            var createdAt: Date = .now
+            var updatedAt: Date = .now
 
-        var excerpt: String { String(title.prefix(80)) }
-    }
-
-    struct PostsController: RouteCollection {
-        var routes: [Route] {
-            [
-                Route(method: .GET,    pathPattern: "/posts",     handler: list),
-                Route(method: .GET,    pathPattern: "/posts/:id", handler: show),
-                Route(method: .POST,   pathPattern: "/posts",     handler: create),
-                Route(method: .DELETE, pathPattern: "/posts/:id", handler: delete),
-            ]
+            var excerpt: String { String(title.prefix(80)) }
         }
-    }
-    """
+
+        struct PostsController: RouteCollection {
+            var routes: [Route] {
+                [
+                    Route(method: .GET,    pathPattern: "/posts",     handler: list),
+                    Route(method: .GET,    pathPattern: "/posts/:id", handler: show),
+                    Route(method: .POST,   pathPattern: "/posts",     handler: create),
+                    Route(method: .DELETE, pathPattern: "/posts/:id", handler: delete),
+                ]
+            }
+        }
+        """
 
     private func makeExporter() -> SwiftUIKitExporter {
         SwiftUIKitExporter(options: .init(kitName: "DemoKit"))
@@ -77,10 +78,11 @@ struct SwiftUIKitExporterTests {
         try Self.appSource.write(
             to: sourcesDir.appendingPathComponent("App.swift"), atomically: true, encoding: .utf8)
 
-        let exporter = SwiftUIKitExporter(options: .init(
-            kitName: "DemoKit",
-            sourcesDirectory: workDir.appendingPathComponent("Sources").path
-        ))
+        let exporter = SwiftUIKitExporter(
+            options: .init(
+                kitName: "DemoKit",
+                sourcesDirectory: workDir.appendingPathComponent("Sources").path
+            ))
         let result = try exporter.export(into: outputDir)
 
         #expect(result.recordNames == ["Post"])
@@ -115,13 +117,15 @@ struct SwiftUIKitExporterTests {
 
     @Test("missing sources directory throws")
     func missingSources() {
-        let exporter = SwiftUIKitExporter(options: .init(
-            kitName: "DemoKit",
-            sourcesDirectory: "/nonexistent/sources"
-        ))
+        let exporter = SwiftUIKitExporter(
+            options: .init(
+                kitName: "DemoKit",
+                sourcesDirectory: "/nonexistent/sources"
+            ))
         #expect(throws: PackagingError.sourcesDirectoryMissing("/nonexistent/sources")) {
-            _ = try exporter.export(into: FileManager.default.temporaryDirectory
-                .appendingPathComponent("score-export-fail"))
+            _ = try exporter.export(
+                into: FileManager.default.temporaryDirectory
+                    .appendingPathComponent("score-export-fail"))
         }
     }
 }

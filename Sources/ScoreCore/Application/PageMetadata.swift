@@ -40,6 +40,6 @@ public enum OGType: String, Sendable {
     case article
     case book
     case profile
-    case video   = "video.movie"
-    case music   = "music.song"
+    case video = "video.movie"
+    case music = "music.song"
 }

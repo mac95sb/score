@@ -57,7 +57,8 @@ struct WebViewPackageOptions: ParsableArguments {
     var containerTool: String = "container"
 
     func makeConfig() throws -> PackagingConfig {
-        let appName = name
+        let appName =
+            name
             ?? FileManager.default.currentDirectoryPath.split(separator: "/").last.map(String.init)
             ?? "ScoreApp"
         let appSource: AppSource = url.map { .remote(url: $0) } ?? .staticExport(path: source)
@@ -93,10 +94,11 @@ private func runPackager(
         try packager.package(config: config, into: URL(fileURLWithPath: outputPath))
     }
 
-    ui.success(.alert(
-        "Packaged \(config.appName) for \(platformName) → \(outputPath)",
-        takeaways: result.filesWritten.map { "\($0)" }
-    ))
+    ui.success(
+        .alert(
+            "Packaged \(config.appName) for \(platformName) → \(outputPath)",
+            takeaways: result.filesWritten.map { "\($0)" }
+        ))
     ui.info(.alert("\(result.nextSteps)"))
 }
 
@@ -146,14 +148,14 @@ struct SwiftUIPackageCommand: AsyncParsableCommand {
         commandName: "swiftui",
         abstract: "Export Records and API endpoints as a library target for SwiftUI apps.",
         discussion: """
-        By default the kit is generated as a library target inside this \
-        package (Sources/<KitName>) and added to Package.swift, so SwiftUI \
-        apps depend on your app's repository and `import <KitName>` directly. \
-        `score dev` and `score build` regenerate the kit automatically, so it \
-        can never drift from your records and routes.
+            By default the kit is generated as a library target inside this \
+            package (Sources/<KitName>) and added to Package.swift, so SwiftUI \
+            apps depend on your app's repository and `import <KitName>` directly. \
+            `score dev` and `score build` regenerate the kit automatically, so it \
+            can never drift from your records and routes.
 
-        Pass --standalone to instead export a detached Swift package to dist/.
-        """
+            Pass --standalone to instead export a detached Swift package to dist/.
+            """
     )
 
     @Option(name: .long, help: "Name of the generated module (default: <AppName>Kit).")
@@ -172,9 +174,11 @@ struct SwiftUIPackageCommand: AsyncParsableCommand {
     var baseUrl: String = "https://example.com/api/v1"
 
     mutating func run() async throws {
-        let appName = FileManager.default.currentDirectoryPath
+        let appName =
+            FileManager.default.currentDirectoryPath
             .split(separator: "/").last.map(String.init) ?? "App"
-        let resolvedKitName = kitName
+        let resolvedKitName =
+            kitName
             ?? PackagingConfig.lowercasedAlphanumeric(appName, fallback: "app").capitalized + "Kit"
 
         if standalone {
@@ -186,12 +190,13 @@ struct SwiftUIPackageCommand: AsyncParsableCommand {
 
     private func runEmbedded(kitName: String) async throws {
         let ui = Noora()
-        let exporter = SwiftUIKitExporter(options: .init(
-            kitName: kitName,
-            sourcesDirectory: sources,
-            excludedDirectories: [kitName],
-            exampleBaseURL: baseUrl
-        ))
+        let exporter = SwiftUIKitExporter(
+            options: .init(
+                kitName: kitName,
+                sourcesDirectory: sources,
+                excludedDirectories: [kitName],
+                exampleBaseURL: baseUrl
+            ))
         let targetPath = "\(sources)/\(kitName)"
 
         let result = try await ui.progressStep(
@@ -213,27 +218,30 @@ struct SwiftUIPackageCommand: AsyncParsableCommand {
         if manifestChanged {
             takeaways.append("Package.swift — added library product and target '\(kitName)'")
         }
-        ui.success(.alert(
-            "Exported \(result.recordNames.count) record(s), \(result.controllerNames.count) controller(s), \(result.endpointCount) endpoint(s) → \(targetPath)",
-            takeaways: takeaways.map { "\($0)" }
-        ))
-        ui.info(.alert(
-            "The kit regenerates automatically on every `score dev` and `score build`",
-            takeaways: [
-                "Depend on this repository from your SwiftUI app and `import \(kitName)`",
-                "Add iOS to your Package.swift platforms (e.g. .iOS(.v16)) so the kit resolves for iOS clients",
-            ]
-        ))
+        ui.success(
+            .alert(
+                "Exported \(result.recordNames.count) record(s), \(result.controllerNames.count) controller(s), \(result.endpointCount) endpoint(s) → \(targetPath)",
+                takeaways: takeaways.map { "\($0)" }
+            ))
+        ui.info(
+            .alert(
+                "The kit regenerates automatically on every `score dev` and `score build`",
+                takeaways: [
+                    "Depend on this repository from your SwiftUI app and `import \(kitName)`",
+                    "Add iOS to your Package.swift platforms (e.g. .iOS(.v16)) so the kit resolves for iOS clients",
+                ]
+            ))
     }
 
     private func runStandalone(kitName: String) async throws {
         let ui = Noora()
-        let exporter = SwiftUIKitExporter(options: .init(
-            kitName: kitName,
-            sourcesDirectory: sources,
-            excludedDirectories: [kitName],
-            exampleBaseURL: baseUrl
-        ))
+        let exporter = SwiftUIKitExporter(
+            options: .init(
+                kitName: kitName,
+                sourcesDirectory: sources,
+                excludedDirectories: [kitName],
+                exampleBaseURL: baseUrl
+            ))
         let outputPath = output ?? "dist/\(kitName)"
 
         let result = try await ui.progressStep(
@@ -245,16 +253,18 @@ struct SwiftUIPackageCommand: AsyncParsableCommand {
             try exporter.export(into: URL(fileURLWithPath: outputPath))
         }
 
-        ui.success(.alert(
-            "Exported \(result.recordNames.count) record(s), \(result.controllerNames.count) controller(s), \(result.endpointCount) endpoint(s) → \(outputPath)",
-            takeaways: result.filesWritten.map { "\($0)" }
-        ))
-        ui.info(.alert(
-            "Add the package to your SwiftUI app: Xcode ▸ File ▸ Add Package Dependencies… ▸ Add Local… ▸ \(outputPath)",
-            takeaways: [
-                "Standalone exports are snapshots — re-run after changing records or controllers",
-                "Prefer the default in-package mode to avoid drift",
-            ]
-        ))
+        ui.success(
+            .alert(
+                "Exported \(result.recordNames.count) record(s), \(result.controllerNames.count) controller(s), \(result.endpointCount) endpoint(s) → \(outputPath)",
+                takeaways: result.filesWritten.map { "\($0)" }
+            ))
+        ui.info(
+            .alert(
+                "Add the package to your SwiftUI app: Xcode ▸ File ▸ Add Package Dependencies… ▸ Add Local… ▸ \(outputPath)",
+                takeaways: [
+                    "Standalone exports are snapshots — re-run after changing records or controllers",
+                    "Prefer the default in-package mode to avoid drift",
+                ]
+            ))
     }
 }

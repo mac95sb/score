@@ -42,20 +42,18 @@ public struct HTMLMinifier: Sendable {
                 // Look for conditional comments — preserve them
                 let afterOpen = html.index(index, offsetBy: 4)
                 if afterOpen < html.endIndex && html[afterOpen...].hasPrefix("[if") {
-                    if let closeRange = html.range(of: "-->", range: index..<html.endIndex) {
-                        result += html[index...closeRange.upperIndex]
-                        index = closeRange.upperIndex
-                    } else {
+                    guard let closeRange = html.range(of: "-->", range: index..<html.endIndex) else {
                         result += html[index...]
                         break
                     }
+                    result += html[index...closeRange.upperIndex]
+                    index = closeRange.upperIndex
                 } else {
                     // Regular comment — skip to -->
-                    if let closeRange = html.range(of: "-->", range: index..<html.endIndex) {
-                        index = closeRange.upperIndex
-                    } else {
+                    guard let closeRange = html.range(of: "-->", range: index..<html.endIndex) else {
                         break
                     }
+                    index = closeRange.upperIndex
                 }
             } else {
                 result.append(html[index])
@@ -110,6 +108,6 @@ public struct HTMLMinifier: Sendable {
 
 // MARK: - Range helper
 
-private extension Range where Bound == String.Index {
-    var upperIndex: Bound { upperBound }
+extension Range where Bound == String.Index {
+    fileprivate var upperIndex: Bound { upperBound }
 }

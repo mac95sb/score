@@ -49,10 +49,10 @@ public struct ComponentTheme: Sendable {
     /// Default styles for every supported component.
     public static let `default` = ComponentTheme(
         button: .default,
-        link:   .default,
+        link: .default,
         dialog: .default,
-        input:  .default,
-        badge:  .default
+        input: .default,
+        badge: .default
     )
 
     public init(
@@ -63,20 +63,20 @@ public struct ComponentTheme: Sendable {
         badge: BadgeTheme? = nil
     ) {
         self.button = button
-        self.link   = link
+        self.link = link
         self.dialog = dialog
-        self.input  = input
-        self.badge  = badge
+        self.input = input
+        self.badge = badge
     }
 
     /// Emit the combined component CSS, or an empty string when nothing is enabled.
     public func css() -> String {
         var out = ""
         if let button { out += button.css() }
-        if let link   { out += link.css() }
+        if let link { out += link.css() }
         if let dialog { out += dialog.css() }
-        if let input  { out += input.css() }
-        if let badge  { out += badge.css() }
+        if let input { out += input.css() }
+        if let badge { out += badge.css() }
         return out
     }
 }
@@ -99,7 +99,8 @@ func mergeDeclarations(_ base: [(String, String)], _ overrides: [String: String]
     }
     let extras = remaining.sorted { $0.key < $1.key }
     let all = pairs.map { ($0.0, $0.1) } + extras.map { ($0.key, $0.value) }
-    return all
+    return
+        all
         .map { "\(cssPropertySanitize($0.0)):\(cssValueSanitize($0.1))" }
         .joined(separator: ";")
 }

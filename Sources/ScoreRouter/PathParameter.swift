@@ -11,19 +11,20 @@ public struct PathMatcher: Sendable {
     let segments: [Segment]
 
     enum Segment: Sendable {
-        case literal(String)   // exact segment match (case-insensitive)
-        case parameter(String) // `:name` — captured into parameters dict
-        case wildcard          // `*`     — matches anything, stops further matching
+        case literal(String)  // exact segment match (case-insensitive)
+        case parameter(String)  // `:name` — captured into parameters dict
+        case wildcard  // `*`     — matches anything, stops further matching
     }
 
     public init(pattern: String) {
         self.pattern = pattern
-        self.segments = pattern
+        self.segments =
+            pattern
             .split(separator: "/", omittingEmptySubsequences: true)
             .map { seg -> Segment in
                 let s = String(seg)
                 if s.hasPrefix(":") { return .parameter(String(s.dropFirst())) }
-                if s == "*"         { return .wildcard }
+                if s == "*" { return .wildcard }
                 return .literal(s)
             }
     }
@@ -33,7 +34,8 @@ public struct PathMatcher: Sendable {
     /// Returns a dictionary of extracted parameter values on success, or `nil` when the
     /// path does not match.
     public func match(path: String) -> [String: String]? {
-        let pathSegments = path
+        let pathSegments =
+            path
             .split(separator: "/", omittingEmptySubsequences: true)
             .map(String.init)
 
@@ -71,10 +73,10 @@ public struct PathMatcher: Sendable {
 extension PathMatcher.Segment: Equatable {
     static func == (lhs: PathMatcher.Segment, rhs: PathMatcher.Segment) -> Bool {
         switch (lhs, rhs) {
-        case (.literal(let a),   .literal(let b)):   return a == b
+        case (.literal(let a), .literal(let b)): return a == b
         case (.parameter(let a), .parameter(let b)): return a == b
-        case (.wildcard,         .wildcard):          return true
-        default:                                      return false
+        case (.wildcard, .wildcard): return true
+        default: return false
         }
     }
 }

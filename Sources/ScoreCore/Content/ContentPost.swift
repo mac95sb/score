@@ -43,7 +43,8 @@ extension String {
             .unicodeScalars
             .split { !allowedCharacters.contains($0) }
             .map { String($0) }
-        return components
+        return
+            components
             .filter { !$0.isEmpty }
             .joined(separator: "-")
     }

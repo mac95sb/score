@@ -29,8 +29,11 @@ public struct OverflowModifier: ThemeAwareModifier {
         overscroll: String? = nil,
         condition: ModifierCondition? = nil
     ) {
-        self.both = both; self.x = x; self.y = y
-        self.overscroll = overscroll; self.condition = condition
+        self.both = both
+        self.x = x
+        self.y = y
+        self.overscroll = overscroll
+        self.condition = condition
     }
 
     public func declarations(theme: SiteTheme) -> [ConditionedDeclaration] {

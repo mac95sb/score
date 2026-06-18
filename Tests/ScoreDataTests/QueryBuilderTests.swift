@@ -1,6 +1,7 @@
-import Testing
-@testable import ScoreData
 import Foundation
+import Testing
+
+@testable import ScoreData
 
 // MARK: - Test Record
 

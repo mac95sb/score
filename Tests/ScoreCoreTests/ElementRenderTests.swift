@@ -1,4 +1,5 @@
 import Testing
+
 @testable import ScoreCore
 
 @Suite("Element Rendering")
@@ -46,7 +47,10 @@ struct ElementRenderTests {
     @Test("HStack renders with flex class")
     func hstackElement() throws {
         var ctx = RenderContext()
-        let html = HStack { Text { "Left" }; Text { "Right" } }._renderInto(&ctx)
+        let html = HStack {
+            Text { "Left" }
+            Text { "Right" }
+        }._renderInto(&ctx)
         #expect(html.contains("hstack") || html.contains("flex"))
     }
 

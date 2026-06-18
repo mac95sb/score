@@ -6,7 +6,7 @@ extension Color {
 
     public static func slate(_ shade: Int) -> Color {
         switch shade {
-        case 50:  return Color(oklch: 0.984, 0.003, 247.9)
+        case 50: return Color(oklch: 0.984, 0.003, 247.9)
         case 100: return Color(oklch: 0.968, 0.007, 247.9)
         case 200: return Color(oklch: 0.929, 0.013, 255.6)
         case 300: return Color(oklch: 0.869, 0.022, 252.9)
@@ -17,7 +17,7 @@ extension Color {
         case 800: return Color(oklch: 0.279, 0.041, 260.0)
         case 900: return Color(oklch: 0.208, 0.042, 265.8)
         case 950: return Color(oklch: 0.129, 0.042, 281.1)
-        default:  return Color(oklch: 0.554, 0.046, 257.4)
+        default: return Color(oklch: 0.554, 0.046, 257.4)
         }
     }
 
@@ -25,7 +25,7 @@ extension Color {
 
     public static func gray(_ shade: Int) -> Color {
         switch shade {
-        case 50:  return Color(oklch: 0.985, 0.002, 247.9)
+        case 50: return Color(oklch: 0.985, 0.002, 247.9)
         case 100: return Color(oklch: 0.967, 0.003, 264.5)
         case 200: return Color(oklch: 0.924, 0.006, 264.5)
         case 300: return Color(oklch: 0.872, 0.010, 258.3)
@@ -36,7 +36,7 @@ extension Color {
         case 800: return Color(oklch: 0.269, 0.015, 261.7)
         case 900: return Color(oklch: 0.210, 0.014, 265.8)
         case 950: return Color(oklch: 0.145, 0.017, 281.1)
-        default:  return Color(oklch: 0.551, 0.023, 264.4)
+        default: return Color(oklch: 0.551, 0.023, 264.4)
         }
     }
 
@@ -44,7 +44,7 @@ extension Color {
 
     public static func zinc(_ shade: Int) -> Color {
         switch shade {
-        case 50:  return Color(oklch: 0.985, 0,     0)
+        case 50: return Color(oklch: 0.985, 0, 0)
         case 100: return Color(oklch: 0.967, 0.001, 286.4)
         case 200: return Color(oklch: 0.920, 0.004, 286.4)
         case 300: return Color(oklch: 0.871, 0.006, 286.5)
@@ -55,7 +55,7 @@ extension Color {
         case 800: return Color(oklch: 0.274, 0.006, 286.3)
         case 900: return Color(oklch: 0.210, 0.006, 285.9)
         case 950: return Color(oklch: 0.141, 0.005, 285.8)
-        default:  return Color(oklch: 0.552, 0.016, 285.9)
+        default: return Color(oklch: 0.552, 0.016, 285.9)
         }
     }
 
@@ -63,18 +63,18 @@ extension Color {
 
     public static func neutral(_ shade: Int) -> Color {
         switch shade {
-        case 50:  return Color(oklch: 0.985, 0,     0)
-        case 100: return Color(oklch: 0.970, 0,     0)
-        case 200: return Color(oklch: 0.922, 0,     0)
-        case 300: return Color(oklch: 0.870, 0,     0)
-        case 400: return Color(oklch: 0.708, 0,     0)
-        case 500: return Color(oklch: 0.556, 0,     0)
-        case 600: return Color(oklch: 0.439, 0,     0)
-        case 700: return Color(oklch: 0.371, 0,     0)
-        case 800: return Color(oklch: 0.269, 0,     0)
-        case 900: return Color(oklch: 0.205, 0,     0)
-        case 950: return Color(oklch: 0.145, 0,     0)
-        default:  return Color(oklch: 0.556, 0,     0)
+        case 50: return Color(oklch: 0.985, 0, 0)
+        case 100: return Color(oklch: 0.970, 0, 0)
+        case 200: return Color(oklch: 0.922, 0, 0)
+        case 300: return Color(oklch: 0.870, 0, 0)
+        case 400: return Color(oklch: 0.708, 0, 0)
+        case 500: return Color(oklch: 0.556, 0, 0)
+        case 600: return Color(oklch: 0.439, 0, 0)
+        case 700: return Color(oklch: 0.371, 0, 0)
+        case 800: return Color(oklch: 0.269, 0, 0)
+        case 900: return Color(oklch: 0.205, 0, 0)
+        case 950: return Color(oklch: 0.145, 0, 0)
+        default: return Color(oklch: 0.556, 0, 0)
         }
     }
 
@@ -82,7 +82,7 @@ extension Color {
 
     public static func stone(_ shade: Int) -> Color {
         switch shade {
-        case 50:  return Color(oklch: 0.985, 0.001, 106.4)
+        case 50: return Color(oklch: 0.985, 0.001, 106.4)
         case 100: return Color(oklch: 0.970, 0.002, 106.4)
         case 200: return Color(oklch: 0.923, 0.003, 48.7)
         case 300: return Color(oklch: 0.869, 0.005, 56.4)
@@ -93,7 +93,7 @@ extension Color {
         case 800: return Color(oklch: 0.268, 0.007, 34.3)
         case 900: return Color(oklch: 0.216, 0.006, 56.0)
         case 950: return Color(oklch: 0.147, 0.004, 49.3)
-        default:  return Color(oklch: 0.553, 0.013, 58.0)
+        default: return Color(oklch: 0.553, 0.013, 58.0)
         }
     }
 
@@ -101,7 +101,7 @@ extension Color {
 
     public static func red(_ shade: Int) -> Color {
         switch shade {
-        case 50:  return Color(oklch: 0.971, 0.013, 17.4)
+        case 50: return Color(oklch: 0.971, 0.013, 17.4)
         case 100: return Color(oklch: 0.936, 0.032, 17.6)
         case 200: return Color(oklch: 0.885, 0.062, 18.1)
         case 300: return Color(oklch: 0.808, 0.114, 19.6)
@@ -112,7 +112,7 @@ extension Color {
         case 800: return Color(oklch: 0.444, 0.177, 26.4)
         case 900: return Color(oklch: 0.396, 0.141, 25.7)
         case 950: return Color(oklch: 0.258, 0.092, 26.4)
-        default:  return Color(oklch: 0.637, 0.237, 25.3)
+        default: return Color(oklch: 0.637, 0.237, 25.3)
         }
     }
 
@@ -120,7 +120,7 @@ extension Color {
 
     public static func orange(_ shade: Int) -> Color {
         switch shade {
-        case 50:  return Color(oklch: 0.980, 0.016, 73.7)
+        case 50: return Color(oklch: 0.980, 0.016, 73.7)
         case 100: return Color(oklch: 0.954, 0.038, 75.1)
         case 200: return Color(oklch: 0.901, 0.076, 70.1)
         case 300: return Color(oklch: 0.837, 0.128, 66.0)
@@ -131,7 +131,7 @@ extension Color {
         case 800: return Color(oklch: 0.470, 0.157, 37.6)
         case 900: return Color(oklch: 0.408, 0.123, 38.4)
         case 950: return Color(oklch: 0.266, 0.079, 36.3)
-        default:  return Color(oklch: 0.705, 0.213, 47.6)
+        default: return Color(oklch: 0.705, 0.213, 47.6)
         }
     }
 
@@ -139,7 +139,7 @@ extension Color {
 
     public static func amber(_ shade: Int) -> Color {
         switch shade {
-        case 50:  return Color(oklch: 0.987, 0.022, 95.3)
+        case 50: return Color(oklch: 0.987, 0.022, 95.3)
         case 100: return Color(oklch: 0.962, 0.059, 95.6)
         case 200: return Color(oklch: 0.924, 0.120, 95.3)
         case 300: return Color(oklch: 0.879, 0.169, 91.4)
@@ -150,7 +150,7 @@ extension Color {
         case 800: return Color(oklch: 0.473, 0.137, 46.2)
         case 900: return Color(oklch: 0.414, 0.112, 45.9)
         case 950: return Color(oklch: 0.279, 0.077, 45.0)
-        default:  return Color(oklch: 0.769, 0.188, 70.1)
+        default: return Color(oklch: 0.769, 0.188, 70.1)
         }
     }
 
@@ -158,7 +158,7 @@ extension Color {
 
     public static func yellow(_ shade: Int) -> Color {
         switch shade {
-        case 50:  return Color(oklch: 0.987, 0.026, 102.2)
+        case 50: return Color(oklch: 0.987, 0.026, 102.2)
         case 100: return Color(oklch: 0.973, 0.071, 103.2)
         case 200: return Color(oklch: 0.945, 0.129, 101.5)
         case 300: return Color(oklch: 0.905, 0.182, 98.2)
@@ -169,7 +169,7 @@ extension Color {
         case 800: return Color(oklch: 0.476, 0.114, 61.9)
         case 900: return Color(oklch: 0.421, 0.095, 57.7)
         case 950: return Color(oklch: 0.286, 0.066, 53.8)
-        default:  return Color(oklch: 0.795, 0.184, 86.4)
+        default: return Color(oklch: 0.795, 0.184, 86.4)
         }
     }
 
@@ -177,7 +177,7 @@ extension Color {
 
     public static func lime(_ shade: Int) -> Color {
         switch shade {
-        case 50:  return Color(oklch: 0.986, 0.031, 120.4)
+        case 50: return Color(oklch: 0.986, 0.031, 120.4)
         case 100: return Color(oklch: 0.967, 0.067, 122.3)
         case 200: return Color(oklch: 0.938, 0.127, 124.3)
         case 300: return Color(oklch: 0.897, 0.176, 126.7)
@@ -188,7 +188,7 @@ extension Color {
         case 800: return Color(oklch: 0.453, 0.124, 130.9)
         case 900: return Color(oklch: 0.405, 0.101, 131.1)
         case 950: return Color(oklch: 0.274, 0.072, 132.1)
-        default:  return Color(oklch: 0.768, 0.204, 129.7)
+        default: return Color(oklch: 0.768, 0.204, 129.7)
         }
     }
 
@@ -196,7 +196,7 @@ extension Color {
 
     public static func green(_ shade: Int) -> Color {
         switch shade {
-        case 50:  return Color(oklch: 0.982, 0.018, 155.8)
+        case 50: return Color(oklch: 0.982, 0.018, 155.8)
         case 100: return Color(oklch: 0.962, 0.044, 156.7)
         case 200: return Color(oklch: 0.925, 0.084, 155.3)
         case 300: return Color(oklch: 0.871, 0.150, 154.4)
@@ -207,7 +207,7 @@ extension Color {
         case 800: return Color(oklch: 0.448, 0.119, 151.3)
         case 900: return Color(oklch: 0.393, 0.095, 152.5)
         case 950: return Color(oklch: 0.266, 0.065, 152.7)
-        default:  return Color(oklch: 0.723, 0.219, 149.6)
+        default: return Color(oklch: 0.723, 0.219, 149.6)
         }
     }
 
@@ -215,7 +215,7 @@ extension Color {
 
     public static func emerald(_ shade: Int) -> Color {
         switch shade {
-        case 50:  return Color(oklch: 0.979, 0.021, 166.1)
+        case 50: return Color(oklch: 0.979, 0.021, 166.1)
         case 100: return Color(oklch: 0.950, 0.052, 163.1)
         case 200: return Color(oklch: 0.905, 0.093, 163.9)
         case 300: return Color(oklch: 0.845, 0.143, 164.2)
@@ -226,7 +226,7 @@ extension Color {
         case 800: return Color(oklch: 0.432, 0.095, 166.2)
         case 900: return Color(oklch: 0.378, 0.077, 168.9)
         case 950: return Color(oklch: 0.262, 0.051, 172.6)
-        default:  return Color(oklch: 0.696, 0.170, 162.5)
+        default: return Color(oklch: 0.696, 0.170, 162.5)
         }
     }
 
@@ -234,7 +234,7 @@ extension Color {
 
     public static func teal(_ shade: Int) -> Color {
         switch shade {
-        case 50:  return Color(oklch: 0.984, 0.014, 180.7)
+        case 50: return Color(oklch: 0.984, 0.014, 180.7)
         case 100: return Color(oklch: 0.953, 0.051, 180.8)
         case 200: return Color(oklch: 0.910, 0.096, 180.3)
         case 300: return Color(oklch: 0.855, 0.138, 181.1)
@@ -245,7 +245,7 @@ extension Color {
         case 800: return Color(oklch: 0.437, 0.078, 188.2)
         case 900: return Color(oklch: 0.386, 0.063, 188.4)
         case 950: return Color(oklch: 0.277, 0.046, 192.5)
-        default:  return Color(oklch: 0.704, 0.140, 182.9)
+        default: return Color(oklch: 0.704, 0.140, 182.9)
         }
     }
 
@@ -253,7 +253,7 @@ extension Color {
 
     public static func cyan(_ shade: Int) -> Color {
         switch shade {
-        case 50:  return Color(oklch: 0.984, 0.019, 200.7)
+        case 50: return Color(oklch: 0.984, 0.019, 200.7)
         case 100: return Color(oklch: 0.956, 0.045, 203.4)
         case 200: return Color(oklch: 0.917, 0.080, 205.3)
         case 300: return Color(oklch: 0.865, 0.127, 207.1)
@@ -264,7 +264,7 @@ extension Color {
         case 800: return Color(oklch: 0.450, 0.085, 224.3)
         case 900: return Color(oklch: 0.398, 0.070, 227.4)
         case 950: return Color(oklch: 0.302, 0.056, 229.9)
-        default:  return Color(oklch: 0.715, 0.143, 215.2)
+        default: return Color(oklch: 0.715, 0.143, 215.2)
         }
     }
 
@@ -272,7 +272,7 @@ extension Color {
 
     public static func sky(_ shade: Int) -> Color {
         switch shade {
-        case 50:  return Color(oklch: 0.977, 0.013, 236.6)
+        case 50: return Color(oklch: 0.977, 0.013, 236.6)
         case 100: return Color(oklch: 0.951, 0.026, 236.1)
         case 200: return Color(oklch: 0.901, 0.058, 230.9)
         case 300: return Color(oklch: 0.828, 0.111, 230.0)
@@ -283,7 +283,7 @@ extension Color {
         case 800: return Color(oklch: 0.443, 0.110, 240.7)
         case 900: return Color(oklch: 0.391, 0.090, 240.2)
         case 950: return Color(oklch: 0.293, 0.066, 243.2)
-        default:  return Color(oklch: 0.685, 0.169, 237.3)
+        default: return Color(oklch: 0.685, 0.169, 237.3)
         }
     }
 
@@ -291,7 +291,7 @@ extension Color {
 
     public static func blue(_ shade: Int) -> Color {
         switch shade {
-        case 50:  return Color(oklch: 0.970, 0.014, 254.6)
+        case 50: return Color(oklch: 0.970, 0.014, 254.6)
         case 100: return Color(oklch: 0.932, 0.032, 254.6)
         case 200: return Color(oklch: 0.882, 0.059, 254.6)
         case 300: return Color(oklch: 0.809, 0.105, 251.8)
@@ -302,7 +302,7 @@ extension Color {
         case 800: return Color(oklch: 0.424, 0.199, 265.6)
         case 900: return Color(oklch: 0.379, 0.146, 265.4)
         case 950: return Color(oklch: 0.282, 0.091, 267.9)
-        default:  return Color(oklch: 0.623, 0.214, 259.1)
+        default: return Color(oklch: 0.623, 0.214, 259.1)
         }
     }
 
@@ -310,7 +310,7 @@ extension Color {
 
     public static func indigo(_ shade: Int) -> Color {
         switch shade {
-        case 50:  return Color(oklch: 0.962, 0.018, 272.3)
+        case 50: return Color(oklch: 0.962, 0.018, 272.3)
         case 100: return Color(oklch: 0.930, 0.034, 272.8)
         case 200: return Color(oklch: 0.870, 0.065, 274.0)
         case 300: return Color(oklch: 0.785, 0.115, 274.7)
@@ -321,7 +321,7 @@ extension Color {
         case 800: return Color(oklch: 0.398, 0.195, 277.4)
         case 900: return Color(oklch: 0.359, 0.144, 278.7)
         case 950: return Color(oklch: 0.257, 0.090, 281.3)
-        default:  return Color(oklch: 0.585, 0.233, 277.1)
+        default: return Color(oklch: 0.585, 0.233, 277.1)
         }
     }
 
@@ -329,7 +329,7 @@ extension Color {
 
     public static func violet(_ shade: Int) -> Color {
         switch shade {
-        case 50:  return Color(oklch: 0.969, 0.016, 293.8)
+        case 50: return Color(oklch: 0.969, 0.016, 293.8)
         case 100: return Color(oklch: 0.943, 0.029, 294.6)
         case 200: return Color(oklch: 0.894, 0.057, 293.3)
         case 300: return Color(oklch: 0.811, 0.111, 293.5)
@@ -340,7 +340,7 @@ extension Color {
         case 800: return Color(oklch: 0.432, 0.175, 294.2)
         case 900: return Color(oklch: 0.380, 0.140, 295.1)
         case 950: return Color(oklch: 0.283, 0.109, 296.0)
-        default:  return Color(oklch: 0.541, 0.232, 292.5)
+        default: return Color(oklch: 0.541, 0.232, 292.5)
         }
     }
 
@@ -348,7 +348,7 @@ extension Color {
 
     public static func purple(_ shade: Int) -> Color {
         switch shade {
-        case 50:  return Color(oklch: 0.977, 0.014, 308.3)
+        case 50: return Color(oklch: 0.977, 0.014, 308.3)
         case 100: return Color(oklch: 0.946, 0.033, 307.2)
         case 200: return Color(oklch: 0.902, 0.063, 306.4)
         case 300: return Color(oklch: 0.827, 0.119, 306.4)
@@ -359,7 +359,7 @@ extension Color {
         case 800: return Color(oklch: 0.438, 0.218, 303.7)
         case 900: return Color(oklch: 0.381, 0.176, 304.1)
         case 950: return Color(oklch: 0.291, 0.149, 302.7)
-        default:  return Color(oklch: 0.627, 0.265, 303.9)
+        default: return Color(oklch: 0.627, 0.265, 303.9)
         }
     }
 
@@ -367,7 +367,7 @@ extension Color {
 
     public static func fuchsia(_ shade: Int) -> Color {
         switch shade {
-        case 50:  return Color(oklch: 0.977, 0.017, 320.1)
+        case 50: return Color(oklch: 0.977, 0.017, 320.1)
         case 100: return Color(oklch: 0.952, 0.037, 318.9)
         case 200: return Color(oklch: 0.903, 0.076, 319.6)
         case 300: return Color(oklch: 0.833, 0.145, 321.4)
@@ -378,7 +378,7 @@ extension Color {
         case 800: return Color(oklch: 0.452, 0.211, 324.1)
         case 900: return Color(oklch: 0.401, 0.170, 325.4)
         case 950: return Color(oklch: 0.293, 0.136, 325.4)
-        default:  return Color(oklch: 0.667, 0.295, 322.1)
+        default: return Color(oklch: 0.667, 0.295, 322.1)
         }
     }
 
@@ -386,7 +386,7 @@ extension Color {
 
     public static func pink(_ shade: Int) -> Color {
         switch shade {
-        case 50:  return Color(oklch: 0.971, 0.014, 343.2)
+        case 50: return Color(oklch: 0.971, 0.014, 343.2)
         case 100: return Color(oklch: 0.948, 0.028, 342.3)
         case 200: return Color(oklch: 0.899, 0.061, 343.7)
         case 300: return Color(oklch: 0.823, 0.120, 346.0)
@@ -397,7 +397,7 @@ extension Color {
         case 800: return Color(oklch: 0.459, 0.187, 4.4)
         case 900: return Color(oklch: 0.408, 0.153, 2.6)
         case 950: return Color(oklch: 0.284, 0.109, 3.9)
-        default:  return Color(oklch: 0.656, 0.241, 354.3)
+        default: return Color(oklch: 0.656, 0.241, 354.3)
         }
     }
 
@@ -405,7 +405,7 @@ extension Color {
 
     public static func rose(_ shade: Int) -> Color {
         switch shade {
-        case 50:  return Color(oklch: 0.969, 0.015, 12.4)
+        case 50: return Color(oklch: 0.969, 0.015, 12.4)
         case 100: return Color(oklch: 0.941, 0.030, 15.2)
         case 200: return Color(oklch: 0.892, 0.058, 14.3)
         case 300: return Color(oklch: 0.836, 0.099, 14.3)
@@ -416,7 +416,7 @@ extension Color {
         case 800: return Color(oklch: 0.445, 0.139, 17.8)
         case 900: return Color(oklch: 0.410, 0.115, 20.1)
         case 950: return Color(oklch: 0.271, 0.083, 22.9)
-        default:  return Color(oklch: 0.586, 0.197, 14.6)
+        default: return Color(oklch: 0.586, 0.197, 14.6)
         }
     }
 
@@ -427,25 +427,25 @@ extension Color {
     // variable itself (via rawCSSValue in SiteTheme.cssVariables()).
 
     /// Token for the primary brand color. Emits `var(--color-primary)`.
-    public static var primary: Color     { Color(oklch: 0.571, 0.152, 293.4, tokenName: "primary") }
+    public static var primary: Color { Color(oklch: 0.571, 0.152, 293.4, tokenName: "primary") }
     /// Token for the accent color. Emits `var(--color-accent)`.
-    public static var accent: Color      { Color(oklch: 0.765, 0.154, 160.6, tokenName: "accent") }
+    public static var accent: Color { Color(oklch: 0.765, 0.154, 160.6, tokenName: "accent") }
     /// Token for the background surface. Emits `var(--color-surface)`.
-    public static var surface: Color     { Color(oklch: 1.0, 0, 0, tokenName: "surface") }
+    public static var surface: Color { Color(oklch: 1.0, 0, 0, tokenName: "surface") }
     /// Token for the secondary surface. Emits `var(--color-secondary)`.
-    public static var secondary: Color   { Color(oklch: 0.969, 0.006, 264.5, tokenName: "secondary") }
+    public static var secondary: Color { Color(oklch: 0.969, 0.006, 264.5, tokenName: "secondary") }
     /// Token for the tertiary surface. Emits `var(--color-tertiary)`.
-    public static var tertiary: Color    { Color(oklch: 0.984, 0.003, 264.5, tokenName: "tertiary") }
+    public static var tertiary: Color { Color(oklch: 0.984, 0.003, 264.5, tokenName: "tertiary") }
     /// Token for the primary text color. Emits `var(--color-text)`.
-    public static var text: Color        { Color(oklch: 0.129, 0.042, 264.7, tokenName: "text") }
+    public static var text: Color { Color(oklch: 0.129, 0.042, 264.7, tokenName: "text") }
     /// Token for de-emphasised text. Emits `var(--color-muted)`.
-    public static var muted: Color       { Color(oklch: 0.554, 0.046, 257.4, tokenName: "muted") }
+    public static var muted: Color { Color(oklch: 0.554, 0.046, 257.4, tokenName: "muted") }
     /// Token for destructive / danger actions. Emits `var(--color-destructive)`.
     public static var destructive: Color { Color(oklch: 0.588, 0.214, 17.5, tokenName: "destructive") }
     /// Pure white.
-    public static var white: Color       { Color(oklch: 1.0, 0, 0) }
+    public static var white: Color { Color(oklch: 1.0, 0, 0) }
     /// Pure black.
-    public static var black: Color       { Color(oklch: 0.0, 0, 0) }
+    public static var black: Color { Color(oklch: 0.0, 0, 0) }
     /// Fully transparent.
-    public static var clear: Color       { Color(oklch: 0, 0, 0).opacity(0) }
+    public static var clear: Color { Color(oklch: 0, 0, 0).opacity(0) }
 }

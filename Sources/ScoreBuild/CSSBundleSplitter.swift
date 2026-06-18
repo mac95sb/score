@@ -59,7 +59,8 @@ public struct CSSBundleSplitter: Sendable {
         }
 
         // Rules that appear on every page → global
-        let globalRules = occurrences
+        let globalRules =
+            occurrences
             .filter { $0.value >= min(minimumGlobalOccurrence, pageCount) }
             .keys
         let globalSet = Set(globalRules)

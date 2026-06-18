@@ -25,7 +25,7 @@ public struct LinkTheme: Sendable {
         underline: Underline = .hover,
         overrides: [String: String] = [:]
     ) {
-        self.color     = color
+        self.color = color
         self.underline = underline
         self.overrides = overrides
     }

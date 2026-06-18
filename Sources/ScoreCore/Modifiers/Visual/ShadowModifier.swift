@@ -31,9 +31,13 @@ public struct ShadowModifier: ThemeAwareModifier {
         dropShadow: ShadowToken? = nil,
         condition: ModifierCondition? = nil
     ) {
-        self.token = token; self.customString = customString
-        self.color = color; self.ring = ring; self.ringColor = ringColor
-        self.dropShadow = dropShadow; self.condition = condition
+        self.token = token
+        self.customString = customString
+        self.color = color
+        self.ring = ring
+        self.ringColor = ringColor
+        self.dropShadow = dropShadow
+        self.condition = condition
     }
 
     public func declarations(theme: SiteTheme) -> [ConditionedDeclaration] {
@@ -41,7 +45,7 @@ public struct ShadowModifier: ThemeAwareModifier {
 
         // Ring shadow: box-shadow inset ring
         if let ringWidth = ring {
-            let ringCol = ringColor ?? Color(oklch: 0.606, 0.224, 292.7) // violet-500
+            let ringCol = ringColor ?? Color(oklch: 0.606, 0.224, 292.7)  // violet-500
             let ringShadow = "0 0 0 \(ringWidth.cssStr)px \(ringCol.cssValue)"
             result.append(ConditionedDeclaration("box-shadow", ringShadow, condition: condition))
             return result

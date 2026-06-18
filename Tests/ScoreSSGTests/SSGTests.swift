@@ -1,7 +1,8 @@
-import Testing
-@testable import ScoreSSG
-import ScoreCore
 import Foundation
+import ScoreCore
+import Testing
+
+@testable import ScoreSSG
 
 // MARK: - Test Pages
 
@@ -83,7 +84,7 @@ struct SSGTests {
     func collectCSSUnstyledPage() throws {
         let renderer = PageRenderer(siteMetadata: site)
         let css = renderer.collectCSS(from: IndexPage())
-        _ = css // May be empty for plain pages — no crash is the assertion
+        _ = css  // May be empty for plain pages — no crash is the assertion
     }
 
     @Test("inline CSS is embedded in <style> tag")

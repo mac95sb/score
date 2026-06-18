@@ -21,11 +21,11 @@ public struct AnimationModifier: ThemeAwareModifier {
         fillMode: String = "both"
     ) {
         self.animationName = animationName
-        self.duration      = duration
-        self.easing        = easing
-        self.delay         = delay
-        self.iterations    = iterations
-        self.fillMode      = fillMode
+        self.duration = duration
+        self.easing = easing
+        self.delay = delay
+        self.iterations = iterations
+        self.fillMode = fillMode
     }
 
     public func declarations(theme: SiteTheme) -> [ConditionedDeclaration] {
@@ -35,7 +35,7 @@ public struct AnimationModifier: ThemeAwareModifier {
             easing.css,
             delay.css,
             iterations.css,
-            fillMode
+            fillMode,
         ].joined(separator: " ")
         return [ConditionedDeclaration("animation", value, condition: .motion)]
     }
@@ -70,10 +70,10 @@ public struct TransitionModifier: ThemeAwareModifier {
         delay: AnimationDuration = 0.ms,
         condition: ModifierCondition? = nil
     ) {
-        self.property  = property
-        self.duration  = duration
-        self.easing    = easing
-        self.delay     = delay
+        self.property = property
+        self.duration = duration
+        self.easing = easing
+        self.delay = delay
         self.condition = condition
     }
 

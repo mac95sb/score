@@ -1,14 +1,14 @@
 import Foundation
+import HTTPTypes
+import Logging
 import NIO
+import NIOExtras
 import NIOHTTP1
 import NIOHTTP2
 import NIOSSL
-import NIOExtras
 import NIOWebSocket
-import Logging
-import ServiceLifecycle
-import HTTPTypes
 import ScoreCore
+import ServiceLifecycle
 
 /// The Score HTTP server backed by SwiftNIO.
 ///
@@ -74,31 +74,30 @@ public actor NIOServer: Service {
                     sseBroadcaster: broadcasterCopy
                 )
 
-                if !wsRoutesCopy.isEmpty {
-                    let upgrader = NIOWebSocketServerUpgrader(
-                        shouldUpgrade: { (ch, head) in
-                            let match = wsRoutesCopy.contains { $0.path == head.uri }
-                            return ch.eventLoop.makeSucceededFuture(match ? HTTPHeaders() : nil)
-                        },
-                        upgradePipelineHandler: { (ch, head) in
-                            let ws = WebSocket(channel: ch)
-                            let req = Request(method: .get, uri: URI(string: head.uri))
-                            let wsHandler = wsRoutesCopy.first { $0.path == head.uri }?.handler
-                            return ch.pipeline.addHandler(
-                                WebSocketFrameHandler(webSocket: ws, request: req, handler: wsHandler)
-                            )
-                        }
-                    )
-                    return channel.pipeline.configureHTTPServerPipeline(
-                        withServerUpgrade: (upgraders: [upgrader], completionHandler: { _ in }),
-                        withErrorHandling: true
-                    ).flatMap {
-                        channel.pipeline.addHandler(httpHandler)
-                    }
-                } else {
+                guard !wsRoutesCopy.isEmpty else {
                     return channel.pipeline
                         .configureHTTPServerPipeline(withErrorHandling: true)
                         .flatMap { channel.pipeline.addHandler(httpHandler) }
+                }
+                let upgrader = NIOWebSocketServerUpgrader(
+                    shouldUpgrade: { (ch, head) in
+                        let match = wsRoutesCopy.contains { $0.path == head.uri }
+                        return ch.eventLoop.makeSucceededFuture(match ? HTTPHeaders() : nil)
+                    },
+                    upgradePipelineHandler: { (ch, head) in
+                        let ws = WebSocket(channel: ch)
+                        let req = Request(method: .get, uri: URI(string: head.uri))
+                        let wsHandler = wsRoutesCopy.first { $0.path == head.uri }?.handler
+                        return ch.pipeline.addHandler(
+                            WebSocketFrameHandler(webSocket: ws, request: req, handler: wsHandler)
+                        )
+                    }
+                )
+                return channel.pipeline.configureHTTPServerPipeline(
+                    withServerUpgrade: (upgraders: [upgrader], completionHandler: { _ in }),
+                    withErrorHandling: true
+                ).flatMap {
+                    channel.pipeline.addHandler(httpHandler)
                 }
             }
             .childChannelOption(ChannelOptions.socketOption(.so_reuseaddr), value: 1)
@@ -210,7 +209,8 @@ final class ScoreHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
             Task {
                 if let staticDir, isGet {
                     if let fileURL = httpHandler.resolveStaticFile(path: request.uri.path, in: staticDir),
-                       let staticResponse = httpHandler.serveStaticFile(at: fileURL) {
+                        let staticResponse = httpHandler.serveStaticFile(at: fileURL)
+                    {
                         eventLoop.execute { httpHandler.writeResponse(staticResponse, to: boundContext.value) }
                         return
                     }
@@ -335,9 +335,10 @@ final class ScoreHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
         // Only serve regular files; never directories or special files.
         var isDirectory: ObjCBool = false
         guard FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory),
-              !isDirectory.boolValue,
-              FileManager.default.isReadableFile(atPath: url.path),
-              let data = try? Data(contentsOf: url) else { return nil }
+            !isDirectory.boolValue,
+            FileManager.default.isReadableFile(atPath: url.path),
+            let data = try? Data(contentsOf: url)
+        else { return nil }
         return Response(status: .ok, body: .data(data, contentType: mimeType(for: url.pathExtension)))
     }
 
@@ -350,24 +351,24 @@ final class ScoreHTTPHandler: ChannelInboundHandler, @unchecked Sendable {
     private func mimeType(for ext: String) -> String {
         switch ext.lowercased() {
         case "html", "htm": return "text/html; charset=utf-8"
-        case "css":         return "text/css; charset=utf-8"
-        case "js", "mjs":   return "application/javascript; charset=utf-8"
-        case "json":        return "application/json"
-        case "png":         return "image/png"
+        case "css": return "text/css; charset=utf-8"
+        case "js", "mjs": return "application/javascript; charset=utf-8"
+        case "json": return "application/json"
+        case "png": return "image/png"
         case "jpg", "jpeg": return "image/jpeg"
-        case "gif":         return "image/gif"
-        case "svg":         return "image/svg+xml"
-        case "ico":         return "image/x-icon"
-        case "woff":        return "font/woff"
-        case "woff2":       return "font/woff2"
-        case "ttf":         return "font/ttf"
-        case "webp":        return "image/webp"
-        case "mp4":         return "video/mp4"
-        case "webm":        return "video/webm"
-        case "pdf":         return "application/pdf"
-        case "txt":         return "text/plain; charset=utf-8"
-        case "xml":         return "application/xml"
-        default:            return "application/octet-stream"
+        case "gif": return "image/gif"
+        case "svg": return "image/svg+xml"
+        case "ico": return "image/x-icon"
+        case "woff": return "font/woff"
+        case "woff2": return "font/woff2"
+        case "ttf": return "font/ttf"
+        case "webp": return "image/webp"
+        case "mp4": return "video/mp4"
+        case "webm": return "video/webm"
+        case "pdf": return "application/pdf"
+        case "txt": return "text/plain; charset=utf-8"
+        case "xml": return "application/xml"
+        default: return "application/octet-stream"
         }
     }
 

@@ -1,5 +1,5 @@
-import Foundation
 import Crypto
+import Foundation
 
 /// Adds a SHA-256 content-hash fingerprint to asset filenames for long-term
 /// HTTP caching.

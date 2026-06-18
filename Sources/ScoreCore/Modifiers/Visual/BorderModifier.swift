@@ -52,12 +52,20 @@ public struct BorderModifier: ThemeAwareModifier {
         radiusBottomRight: RadiusToken? = nil,
         condition: ModifierCondition? = nil
     ) {
-        self.color = color; self.width = width; self.edge = edge
-        self.edges = edges; self.style = style; self.outline = outline
-        self.outlineWidth = outlineWidth; self.outlineOffset = outlineOffset
-        self.radius = radius; self.radiusPx = radiusPx
-        self.radiusTopLeft = radiusTopLeft; self.radiusTopRight = radiusTopRight
-        self.radiusBottomLeft = radiusBottomLeft; self.radiusBottomRight = radiusBottomRight
+        self.color = color
+        self.width = width
+        self.edge = edge
+        self.edges = edges
+        self.style = style
+        self.outline = outline
+        self.outlineWidth = outlineWidth
+        self.outlineOffset = outlineOffset
+        self.radius = radius
+        self.radiusPx = radiusPx
+        self.radiusTopLeft = radiusTopLeft
+        self.radiusTopRight = radiusTopRight
+        self.radiusBottomLeft = radiusBottomLeft
+        self.radiusBottomRight = radiusBottomRight
         self.condition = condition
     }
 
@@ -71,9 +79,7 @@ public struct BorderModifier: ThemeAwareModifier {
             let borderValue = "\(width.cssStr)px \(style.rawValue) \(colorStr)"
 
             let effectiveEdges: [Edge]
-            if let e = edge           { effectiveEdges = [e] }
-            else if let es = edges    { effectiveEdges = es }
-            else                      { effectiveEdges = [] }
+            if let e = edge { effectiveEdges = [e] } else if let es = edges { effectiveEdges = es } else { effectiveEdges = [] }
 
             if effectiveEdges.isEmpty {
                 result.append(ConditionedDeclaration("border", borderValue, condition: condition))
@@ -81,18 +87,18 @@ public struct BorderModifier: ThemeAwareModifier {
                 for e in effectiveEdges {
                     switch e {
                     case .top:
-                        result.append(ConditionedDeclaration("border-top",    borderValue, condition: condition))
+                        result.append(ConditionedDeclaration("border-top", borderValue, condition: condition))
                     case .right:
-                        result.append(ConditionedDeclaration("border-right",  borderValue, condition: condition))
+                        result.append(ConditionedDeclaration("border-right", borderValue, condition: condition))
                     case .bottom:
                         result.append(ConditionedDeclaration("border-bottom", borderValue, condition: condition))
                     case .left:
-                        result.append(ConditionedDeclaration("border-left",   borderValue, condition: condition))
+                        result.append(ConditionedDeclaration("border-left", borderValue, condition: condition))
                     case .x:
-                        result.append(ConditionedDeclaration("border-left",   borderValue, condition: condition))
-                        result.append(ConditionedDeclaration("border-right",  borderValue, condition: condition))
+                        result.append(ConditionedDeclaration("border-left", borderValue, condition: condition))
+                        result.append(ConditionedDeclaration("border-right", borderValue, condition: condition))
                     case .y:
-                        result.append(ConditionedDeclaration("border-top",    borderValue, condition: condition))
+                        result.append(ConditionedDeclaration("border-top", borderValue, condition: condition))
                         result.append(ConditionedDeclaration("border-bottom", borderValue, condition: condition))
                     }
                 }
@@ -115,13 +121,13 @@ public struct BorderModifier: ThemeAwareModifier {
             result.append(ConditionedDeclaration("border-radius", "\(px.cssStr)px", condition: condition))
         }
         if let tl = radiusTopLeft {
-            result.append(ConditionedDeclaration("border-top-left-radius",     "\(theme.radii[tl].cssStr)px", condition: condition))
+            result.append(ConditionedDeclaration("border-top-left-radius", "\(theme.radii[tl].cssStr)px", condition: condition))
         }
         if let tr = radiusTopRight {
-            result.append(ConditionedDeclaration("border-top-right-radius",    "\(theme.radii[tr].cssStr)px", condition: condition))
+            result.append(ConditionedDeclaration("border-top-right-radius", "\(theme.radii[tr].cssStr)px", condition: condition))
         }
         if let bl = radiusBottomLeft {
-            result.append(ConditionedDeclaration("border-bottom-left-radius",  "\(theme.radii[bl].cssStr)px", condition: condition))
+            result.append(ConditionedDeclaration("border-bottom-left-radius", "\(theme.radii[bl].cssStr)px", condition: condition))
         }
         if let br = radiusBottomRight {
             result.append(ConditionedDeclaration("border-bottom-right-radius", "\(theme.radii[br].cssStr)px", condition: condition))

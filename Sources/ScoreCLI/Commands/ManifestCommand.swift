@@ -79,8 +79,8 @@ struct ManifestCommand: AsyncParsableCommand {
 
         for (index, route) in routes.enumerated() {
             let method = route["method"] ?? "GET"
-            let path   = route["path"]   ?? "/"
-            let comma  = index < routes.count - 1 ? "," : ""
+            let path = route["path"] ?? "/"
+            let comma = index < routes.count - 1 ? "," : ""
             lines.append("    { \"method\": \"\(method)\", \"path\": \"\(path)\" }\(comma)")
         }
 
@@ -99,7 +99,7 @@ struct ManifestCommand: AsyncParsableCommand {
 
         // Simple line diff: mark removals (-) and additions (+)
         let removed = Set(oldLines).subtracting(Set(newLines))
-        let added   = Set(newLines).subtracting(Set(oldLines))
+        let added = Set(newLines).subtracting(Set(oldLines))
 
         if removed.isEmpty && added.isEmpty {
             print("No changes to API routes.")
@@ -109,6 +109,6 @@ struct ManifestCommand: AsyncParsableCommand {
         print("--- .score/api-manifest.json (existing)")
         print("+++ .score/api-manifest.json (updated)")
         for line in removed.sorted() where !line.isEmpty { print("- \(line)") }
-        for line in added.sorted()   where !line.isEmpty { print("+ \(line)") }
+        for line in added.sorted() where !line.isEmpty { print("+ \(line)") }
     }
 }

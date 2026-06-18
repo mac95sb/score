@@ -1,8 +1,8 @@
 import Foundation
 import ScoreCore
+import ScoreData
 import ScoreHTTP
 import ScoreRouter
-import ScoreData
 
 /// Configuration for a static site generation pass.
 public struct BuildConfiguration: Sendable {
@@ -169,11 +169,11 @@ public actor StaticSiteGenerator {
 
             let html: String
             switch response.body {
-            case .html(let h):   html = h
+            case .html(let h): html = h
             case .text(let t, _): html = t
             case .data(let d, _): html = String(data: d, encoding: .utf8) ?? ""
-            case .json(let d):   html = String(data: d, encoding: .utf8) ?? ""
-            case .empty:         html = ""
+            case .json(let d): html = String(data: d, encoding: .utf8) ?? ""
+            case .empty: html = ""
             }
 
             if !html.isEmpty {

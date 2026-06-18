@@ -66,7 +66,8 @@ public struct HTMLRenderer {
     ///     Defaults to the Swift type name of `view`.
     public func render<V: View>(_ view: V, componentTypeName: String = "") -> String {
         var context = RenderContext()
-        context.componentTypeName = componentTypeName.isEmpty
+        context.componentTypeName =
+            componentTypeName.isEmpty
             ? String(describing: type(of: view))
             : componentTypeName
         return view._renderInto(&context)
@@ -104,11 +105,11 @@ public struct HTMLRenderer {
 /// Escape a string for safe embedding in HTML text content.
 public func htmlEscape(_ text: String) -> String {
     text
-        .replacingOccurrences(of: "&",  with: "&amp;")
-        .replacingOccurrences(of: "<",  with: "&lt;")
-        .replacingOccurrences(of: ">",  with: "&gt;")
+        .replacingOccurrences(of: "&", with: "&amp;")
+        .replacingOccurrences(of: "<", with: "&lt;")
+        .replacingOccurrences(of: ">", with: "&gt;")
         .replacingOccurrences(of: "\"", with: "&quot;")
-        .replacingOccurrences(of: "'",  with: "&#39;")
+        .replacingOccurrences(of: "'", with: "&#39;")
 }
 
 /// Escape a string for safe embedding in an HTML attribute value.

@@ -9,17 +9,17 @@ public enum APIPrefix: Sendable {
     /// The path string applied before all API routes.
     public var prefix: String {
         switch self {
-        case .v1:          return "/api/v1"
-        case .v2:          return "/api/v2"
-        case .v3:          return "/api/v3"
-        case .v4:          return "/api/v4"
-        case .v5:          return "/api/v5"
-        case .v6:          return "/api/v6"
-        case .v7:          return "/api/v7"
-        case .v8:          return "/api/v8"
-        case .v9:          return "/api/v9"
+        case .v1: return "/api/v1"
+        case .v2: return "/api/v2"
+        case .v3: return "/api/v3"
+        case .v4: return "/api/v4"
+        case .v5: return "/api/v5"
+        case .v6: return "/api/v6"
+        case .v7: return "/api/v7"
+        case .v8: return "/api/v8"
+        case .v9: return "/api/v9"
         case .custom(let s): return s
-        case .none:         return ""
+        case .none: return ""
         }
     }
 }

@@ -25,17 +25,17 @@ public struct LinuxPackager: WebViewPackager {
         }
 
         let nextSteps = """
-        Build natively (requires GTK 4 and WebKitGTK 6.0 development packages —
-        on Debian/Ubuntu: sudo apt install libgtk-4-dev libwebkitgtk-6.0-dev):
-          cd \(outputDirectory.path)
-          make
-          ./\(binary)
+            Build natively (requires GTK 4 and WebKitGTK 6.0 development packages —
+            on Debian/Ubuntu: sudo apt install libgtk-4-dev libwebkitgtk-6.0-dev):
+              cd \(outputDirectory.path)
+              make
+              ./\(binary)
 
-        Or build in a container (no local GTK toolchain needed):
-          make container-build                    # uses \(config.containerTool)
-          make container-build CONTAINER=docker   # or podman
-        Artifacts land in dist/.
-        """
+            Or build in a container (no local GTK toolchain needed):
+              make container-build                    # uses \(config.containerTool)
+              make container-build CONTAINER=docker   # or podman
+            Artifacts land in dist/.
+            """
         try writer.write(readme(config: config, nextSteps: nextSteps), to: "README.md")
 
         return PackagedApp(
@@ -53,54 +53,54 @@ public struct LinuxPackager: WebViewPackager {
         switch config.source {
         case .staticExport:
             loading = """
-                /* Resolve www/index.html relative to the executable's directory so the
-                 * app can be launched from anywhere. */
-                gchar *exe_path = g_file_read_link("/proc/self/exe", NULL);
-                gchar *exe_dir = exe_path != NULL ? g_path_get_dirname(exe_path) : g_get_current_dir();
-                gchar *index_path = g_build_filename(exe_dir, "www", "index.html", NULL);
-                gchar *uri = g_filename_to_uri(index_path, NULL, NULL);
-                webkit_web_view_load_uri(web_view, uri);
-                g_free(uri);
-                g_free(index_path);
-                g_free(exe_dir);
-                g_free(exe_path);
-            """
+                    /* Resolve www/index.html relative to the executable's directory so the
+                     * app can be launched from anywhere. */
+                    gchar *exe_path = g_file_read_link("/proc/self/exe", NULL);
+                    gchar *exe_dir = exe_path != NULL ? g_path_get_dirname(exe_path) : g_get_current_dir();
+                    gchar *index_path = g_build_filename(exe_dir, "www", "index.html", NULL);
+                    gchar *uri = g_filename_to_uri(index_path, NULL, NULL);
+                    webkit_web_view_load_uri(web_view, uri);
+                    g_free(uri);
+                    g_free(index_path);
+                    g_free(exe_dir);
+                    g_free(exe_path);
+                """
         case .remote(let url):
             loading = """
-                webkit_web_view_load_uri(web_view, "\(url)");
-            """
+                    webkit_web_view_load_uri(web_view, "\(url)");
+                """
         }
 
         return """
-        #include <gtk/gtk.h>
-        #include <webkit/webkit.h>
+            #include <gtk/gtk.h>
+            #include <webkit/webkit.h>
 
-        #define APP_ID "\(config.identifier)"
-        #define APP_TITLE "\(config.appName)"
-        #define WINDOW_WIDTH \(config.windowWidth)
-        #define WINDOW_HEIGHT \(config.windowHeight)
+            #define APP_ID "\(config.identifier)"
+            #define APP_TITLE "\(config.appName)"
+            #define WINDOW_WIDTH \(config.windowWidth)
+            #define WINDOW_HEIGHT \(config.windowHeight)
 
-        static void activate(GtkApplication *app, gpointer user_data) {
-            GtkWidget *window = gtk_application_window_new(app);
-            gtk_window_set_title(GTK_WINDOW(window), APP_TITLE);
-            gtk_window_set_default_size(GTK_WINDOW(window), WINDOW_WIDTH, WINDOW_HEIGHT);
+            static void activate(GtkApplication *app, gpointer user_data) {
+                GtkWidget *window = gtk_application_window_new(app);
+                gtk_window_set_title(GTK_WINDOW(window), APP_TITLE);
+                gtk_window_set_default_size(GTK_WINDOW(window), WINDOW_WIDTH, WINDOW_HEIGHT);
 
-            WebKitWebView *web_view = WEBKIT_WEB_VIEW(webkit_web_view_new());
-            gtk_window_set_child(GTK_WINDOW(window), GTK_WIDGET(web_view));
+                WebKitWebView *web_view = WEBKIT_WEB_VIEW(webkit_web_view_new());
+                gtk_window_set_child(GTK_WINDOW(window), GTK_WIDGET(web_view));
 
-        \(loading)
+            \(loading)
 
-            gtk_window_present(GTK_WINDOW(window));
-        }
+                gtk_window_present(GTK_WINDOW(window));
+            }
 
-        int main(int argc, char *argv[]) {
-            GtkApplication *app = gtk_application_new(APP_ID, G_APPLICATION_DEFAULT_FLAGS);
-            g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
-            int status = g_application_run(G_APPLICATION(app), argc, argv);
-            g_object_unref(app);
-            return status;
-        }
-        """
+            int main(int argc, char *argv[]) {
+                GtkApplication *app = gtk_application_new(APP_ID, G_APPLICATION_DEFAULT_FLAGS);
+                g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
+                int status = g_application_run(G_APPLICATION(app), argc, argv);
+                g_object_unref(app);
+                return status;
+            }
+            """
     }
 
     private func makefile(config: PackagingConfig) -> String {
@@ -138,16 +138,16 @@ public struct LinuxPackager: WebViewPackager {
             exportArtifacts = #"CMD ["sh", "-c", "cp \#(config.binaryName) /dist/"]"#
         }
         return """
-        # Builds the Linux WebKitGTK shell without a local GTK toolchain.
-        FROM ubuntu:24.04
-        RUN apt-get update && apt-get install -y --no-install-recommends \\
-            build-essential pkg-config libgtk-4-dev libwebkitgtk-6.0-dev \\
-            && rm -rf /var/lib/apt/lists/*
-        WORKDIR /src
-        COPY . .
-        RUN make \(config.binaryName)
-        \(exportArtifacts)
-        """
+            # Builds the Linux WebKitGTK shell without a local GTK toolchain.
+            FROM ubuntu:24.04
+            RUN apt-get update && apt-get install -y --no-install-recommends \\
+                build-essential pkg-config libgtk-4-dev libwebkitgtk-6.0-dev \\
+                && rm -rf /var/lib/apt/lists/*
+            WORKDIR /src
+            COPY . .
+            RUN make \(config.binaryName)
+            \(exportArtifacts)
+            """
     }
 
     private func desktopEntry(config: PackagingConfig) -> String {

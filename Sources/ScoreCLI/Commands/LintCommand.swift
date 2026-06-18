@@ -66,9 +66,12 @@ struct LintCommand: AsyncParsableCommand {
             printDiagnostics(allDiagnostics, noora: noora)
         }
 
-        let effectiveDiagnostics = warnOnly ? [] : allDiagnostics.filter {
-            $0.severity == .error || (strict && $0.severity == .warning)
-        }
+        let effectiveDiagnostics =
+            warnOnly
+            ? []
+            : allDiagnostics.filter {
+                $0.severity == .error || (strict && $0.severity == .warning)
+            }
         if !effectiveDiagnostics.isEmpty {
             throw CLIError.lintFailed(effectiveDiagnostics.count)
         }
@@ -82,15 +85,17 @@ struct LintCommand: AsyncParsableCommand {
         let errors = diagnostics.filter { $0.severity == .error }
         let warnings = diagnostics.filter { $0.severity == .warning }
         if !errors.isEmpty {
-            noora.error(.alert(
-                "\(errors.count) error(s), \(warnings.count) warning(s)",
-                takeaways: errors.map { "\($0.file):\($0.line)  [\($0.rule)]  \($0.message)" }
-            ))
+            noora.error(
+                .alert(
+                    "\(errors.count) error(s), \(warnings.count) warning(s)",
+                    takeaways: errors.map { "\($0.file):\($0.line)  [\($0.rule)]  \($0.message)" }
+                ))
         }
         if !warnings.isEmpty {
-            noora.warning(warnings.map {
-                WarningAlert.alert("\($0.file):\($0.line)  [\($0.rule)]  \($0.message)")
-            })
+            noora.warning(
+                warnings.map {
+                    WarningAlert.alert("\($0.file):\($0.line)  [\($0.rule)]  \($0.message)")
+                })
         }
     }
 }
@@ -108,8 +113,13 @@ struct LintDiagnostic: Codable, Sendable {
     let fixable: Bool
 
     init(file: String, line: Int, column: Int = 1, message: String, severity: Severity, rule: String, fixable: Bool = false) {
-        self.file = file; self.line = line; self.column = column
-        self.message = message; self.severity = severity; self.rule = rule; self.fixable = fixable
+        self.file = file
+        self.line = line
+        self.column = column
+        self.message = message
+        self.severity = severity
+        self.rule = rule
+        self.fixable = fixable
     }
 }
 
@@ -165,11 +175,12 @@ struct ScoreLinter: Sendable {
 
             // A001: Image without alt
             if isEnabled("image-alt") && trimmed.contains("Image(") && !trimmed.contains("alt:") && !trimmed.hasPrefix("//") {
-                diagnostics.append(LintDiagnostic(
-                    file: file, line: lineNumber, column: 1,
-                    message: "Image element is missing an `alt:` attribute.",
-                    severity: .warning, rule: "image-alt"
-                ))
+                diagnostics.append(
+                    LintDiagnostic(
+                        file: file, line: lineNumber, column: 1,
+                        message: "Image element is missing an `alt:` attribute.",
+                        severity: .warning, rule: "image-alt"
+                    ))
             }
 
             // A002: Link without descriptive text — bare "click here" / "read more"
@@ -177,41 +188,45 @@ struct ScoreLinter: Sendable {
                 let lower = trimmed.lowercased()
                 let badPhrases = ["\"click here\"", "\"read more\"", "\"here\"", "\"learn more\""]
                 if trimmed.contains("Link(") && badPhrases.contains(where: { lower.contains($0) }) {
-                    diagnostics.append(LintDiagnostic(
-                        file: file, line: lineNumber, column: 1,
-                        message: "Link text is not descriptive; avoid generic phrases like 'click here'.",
-                        severity: .warning, rule: "link-text"
-                    ))
+                    diagnostics.append(
+                        LintDiagnostic(
+                            file: file, line: lineNumber, column: 1,
+                            message: "Link text is not descriptive; avoid generic phrases like 'click here'.",
+                            severity: .warning, rule: "link-text"
+                        ))
                 }
             }
 
             // A003: Input without an associated Label
             if isEnabled("form-label") && trimmed.contains("Input(") && !trimmed.contains("id:") && !trimmed.hasPrefix("//") {
-                diagnostics.append(LintDiagnostic(
-                    file: file, line: lineNumber, column: 1,
-                    message: "Input is missing an `id:` — pair it with a `Label(for:)` for accessibility.",
-                    severity: .warning, rule: "form-label"
-                ))
+                diagnostics.append(
+                    LintDiagnostic(
+                        file: file, line: lineNumber, column: 1,
+                        message: "Input is missing an `id:` — pair it with a `Label(for:)` for accessibility.",
+                        severity: .warning, rule: "form-label"
+                    ))
             }
 
             // MARK: SE — Semantic HTML
 
             // SE001: Empty heading content
             if isEnabled("empty-heading") && trimmed.contains("Heading(") && trimmed.contains("{ }") {
-                diagnostics.append(LintDiagnostic(
-                    file: file, line: lineNumber, column: 1,
-                    message: "Heading has empty content.",
-                    severity: .warning, rule: "empty-heading"
-                ))
+                diagnostics.append(
+                    LintDiagnostic(
+                        file: file, line: lineNumber, column: 1,
+                        message: "Heading has empty content.",
+                        severity: .warning, rule: "empty-heading"
+                    ))
             }
 
             // SE002: Raw inline style attribute
             if isEnabled("no-inline-style") && trimmed.contains("\"style\"") && !trimmed.hasPrefix("//") {
-                diagnostics.append(LintDiagnostic(
-                    file: file, line: lineNumber, column: 1,
-                    message: "Avoid raw `style` attributes; use Score modifiers instead.",
-                    severity: strict ? .error : .warning, rule: "no-inline-style"
-                ))
+                diagnostics.append(
+                    LintDiagnostic(
+                        file: file, line: lineNumber, column: 1,
+                        message: "Avoid raw `style` attributes; use Score modifiers instead.",
+                        severity: strict ? .error : .warning, rule: "no-inline-style"
+                    ))
             }
 
             // MARK: SC — Scoping
@@ -221,16 +236,18 @@ struct ScoreLinter: Sendable {
                 let idMatches = trimmed.range(of: #"id:\s*"([^"]+)""#, options: .regularExpression)
                 if let range = idMatches {
                     let idToken = String(trimmed[range])
-                    let idValue = idToken
+                    let idValue =
+                        idToken
                         .replacingOccurrences(of: #"id:\s*""#, with: "", options: .regularExpression)
                         .replacingOccurrences(of: "\"", with: "")
                     let occurrences = lines.filter { $0.contains("id: \"\(idValue)\"") }.count
                     if occurrences > 1 {
-                        diagnostics.append(LintDiagnostic(
-                            file: file, line: lineNumber, column: 1,
-                            message: "Duplicate element id \"\(idValue)\" found \(occurrences) times in this file.",
-                            severity: .warning, rule: "duplicate-id"
-                        ))
+                        diagnostics.append(
+                            LintDiagnostic(
+                                file: file, line: lineNumber, column: 1,
+                                message: "Duplicate element id \"\(idValue)\" found \(occurrences) times in this file.",
+                                severity: .warning, rule: "duplicate-id"
+                            ))
                     }
                 }
             }
@@ -241,11 +258,12 @@ struct ScoreLinter: Sendable {
             if isEnabled("deep-nesting") {
                 let leadingSpaces = line.prefix(while: { $0 == " " }).count
                 if leadingSpaces >= 32 && !trimmed.hasPrefix("//") && !trimmed.isEmpty {
-                    diagnostics.append(LintDiagnostic(
-                        file: file, line: lineNumber, column: 1,
-                        message: "Deeply nested view hierarchy (\(leadingSpaces / 4) levels) may hurt render performance. Consider extracting a sub-component.",
-                        severity: .warning, rule: "deep-nesting"
-                    ))
+                    diagnostics.append(
+                        LintDiagnostic(
+                            file: file, line: lineNumber, column: 1,
+                            message: "Deeply nested view hierarchy (\(leadingSpaces / 4) levels) may hurt render performance. Consider extracting a sub-component.",
+                            severity: .warning, rule: "deep-nesting"
+                        ))
                 }
             }
 
@@ -255,31 +273,34 @@ struct ScoreLinter: Sendable {
             if isEnabled("no-todo") && (trimmed.contains("TODO:") || trimmed.contains("FIXME:")) {
                 let marker = trimmed.contains("TODO:") ? "TODO" : "FIXME"
                 if autoFix {
-                    lines[index] = "" // Remove the line on auto-fix
+                    lines[index] = ""  // Remove the line on auto-fix
                     fixedCount += 1
                 } else {
-                    diagnostics.append(LintDiagnostic(
-                        file: file, line: lineNumber, column: 1,
-                        message: "Unresolved \(marker) marker.",
-                        severity: .warning, rule: "no-todo", fixable: true
-                    ))
+                    diagnostics.append(
+                        LintDiagnostic(
+                            file: file, line: lineNumber, column: 1,
+                            message: "Unresolved \(marker) marker.",
+                            severity: .warning, rule: "no-todo", fixable: true
+                        ))
                 }
             }
 
             // C002: Empty paragraph / text
             if isEnabled("empty-paragraph") && (trimmed == "Text { \"\" }" || trimmed == "Text{ \"\" }") {
-                diagnostics.append(LintDiagnostic(
-                    file: file, line: lineNumber, column: 1,
-                    message: "Empty Text element produces no visible content.",
-                    severity: .warning, rule: "empty-paragraph"
-                ))
+                diagnostics.append(
+                    LintDiagnostic(
+                        file: file, line: lineNumber, column: 1,
+                        message: "Empty Text element produces no visible content.",
+                        severity: .warning, rule: "empty-paragraph"
+                    ))
             }
 
             // MARK: S — State
 
             // S001: @State var that is never mutated — suggest `let`
             if isEnabled("unused-state") && trimmed.hasPrefix("@State var ") && !trimmed.hasPrefix("//") {
-                let varName = trimmed
+                let varName =
+                    trimmed
                     .replacingOccurrences(of: "@State var ", with: "")
                     .split(separator: ":").first.map(String.init)?
                     .trimmingCharacters(in: .whitespaces) ?? ""
@@ -289,11 +310,12 @@ struct ScoreLinter: Sendable {
                         return t.hasPrefix("\(varName) =") || t.hasPrefix("self.\(varName) =")
                     }
                     if !sourceContainsMutation {
-                        diagnostics.append(LintDiagnostic(
-                            file: file, line: lineNumber, column: 1,
-                            message: "`@State var \(varName)` is never mutated; consider using `let` instead.",
-                            severity: .warning, rule: "unused-state"
-                        ))
+                        diagnostics.append(
+                            LintDiagnostic(
+                                file: file, line: lineNumber, column: 1,
+                                message: "`@State var \(varName)` is never mutated; consider using `let` instead.",
+                                severity: .warning, rule: "unused-state"
+                            ))
                     }
                 }
             }
@@ -305,11 +327,12 @@ struct ScoreLinter: Sendable {
                 let haslocalizedKey = trimmed.contains("LocalizedKey") || trimmed.contains("t(") || trimmed.contains("NSLocalizedString")
                 let hasHardcodedString = trimmed.range(of: "Text\\s*\\{\\s*\"[^\"]+\"", options: .regularExpression) != nil
                 if hasHardcodedString && !haslocalizedKey {
-                    diagnostics.append(LintDiagnostic(
-                        file: file, line: lineNumber, column: 1,
-                        message: "Hard-coded string in `Text {}` — use a translation key for localization.",
-                        severity: .warning, rule: "missing-translation-key"
-                    ))
+                    diagnostics.append(
+                        LintDiagnostic(
+                            file: file, line: lineNumber, column: 1,
+                            message: "Hard-coded string in `Text {}` — use a translation key for localization.",
+                            severity: .warning, rule: "missing-translation-key"
+                        ))
                 }
             }
         }

@@ -1,5 +1,5 @@
-import Testing
 import Score
+import Testing
 
 // MARK: - Test Pages
 
@@ -76,7 +76,7 @@ struct RenderPipelineTests {
         let css = renderer.collectCSS(from: StyledPage())
         // StyledPage uses modifiers so CSS should be collected
         // (empty is also valid if no component-level CSS is emitted)
-        _ = css // No crash is the main assertion
+        _ = css  // No crash is the main assertion
     }
 
     @Test("minified HTML is smaller than un-minified")

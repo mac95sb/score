@@ -1,6 +1,7 @@
-import Testing
-@testable import ScoreHTTP
 import Foundation
+import Testing
+
+@testable import ScoreHTTP
 
 @Suite("Response")
 struct ResponseTests {
