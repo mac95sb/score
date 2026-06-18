@@ -34,31 +34,8 @@ struct QueryBuilderTests {
 
         let post = Post(title: "Hello")
         let saved = try await db.insert(post)
-
-        // Diagnostic: verify the row exists at all
-        let allRows = try await db.raw("SELECT id, data FROM \"posts\"")
-        let rowCount = allRows.count
-        let storedId = allRows.first?["id"] as? String ?? "<nil>"
-        let storedData = allRows.first?["data"] as? String ?? "<nil>"
-
-        // Diagnostic: what does json_extract return?
-        let jsonExtractRows = try await db.raw(
-            "SELECT json_extract(data, '$.\"id\"') AS extracted_id FROM \"posts\""
-        )
-        let extractedId = jsonExtractRows.first?["extracted_id"] as? String ?? "<nil>"
-
-        // Diagnostic: what does a string-bound comparison return?
-        let matchRows = try await db.raw(
-            "SELECT id FROM \"posts\" WHERE json_extract(data, '$.\"id\"') = ?",
-            parameters: [saved.id.uuidString]
-        )
-        let matchCount = matchRows.count
-
         let found = try await db.find(Post.self, id: saved.id)
-        #expect(
-            found?.title == "Hello",
-            "rowCount=\(rowCount) storedId=\(storedId) storedData=\(storedData) extractedId=\(extractedId) matchCount=\(matchCount) searchId=\(saved.id.uuidString)"
-        )
+        #expect(found?.title == "Hello")
     }
 
     @Test("query returns all records")

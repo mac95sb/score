@@ -42,7 +42,15 @@ public actor DatabaseContext {
     ///
     /// Returns `nil` when no record with the given `id` exists.
     public func find<R: Record>(_ type: R.Type, id: UUID) async throws -> R? {
-        try await query(type).filter(\R.id == id).first()
+        // Query the dedicated `id` column directly rather than going through
+        // json_extract — KeyPath string descriptions differ across platforms,
+        // so keyPathName(\R.id) is not reliable for generic R.
+        let results = try await connection.query(
+            type,
+            sql: "SELECT * FROM \(R.quotedTableName) WHERE id = ? LIMIT 1",
+            parameters: [id.uuidString]
+        )
+        return results.first
     }
 
     // MARK: - Mutations
