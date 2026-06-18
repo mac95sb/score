@@ -191,8 +191,11 @@ public actor SQLiteConnection {
     }
 
     private func bindValue(stmt: OpaquePointer, index: Int32, value: any Sendable & Codable) {
+        // SQLITE_TRANSIENT (-1) tells SQLite to copy the string immediately,
+        // so the pointer from withCString doesn't need to outlive the call.
+        let transient = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
         if let s = value as? String {
-            sqlite3_bind_text(stmt, index, (s as NSString).utf8String, -1, nil)
+            s.withCString { sqlite3_bind_text(stmt, index, $0, -1, transient) }
         } else if let i = value as? Int {
             sqlite3_bind_int64(stmt, index, Int64(i))
         } else if let i = value as? Int64 {
@@ -210,9 +213,7 @@ public actor SQLiteConnection {
                 _ = sqlite3_bind_blob(stmt, index, ptr.baseAddress, Int32(data.count), nil)
             }
         } else {
-            // Fall back to string representation
-            let s = "\(value)"
-            sqlite3_bind_text(stmt, index, (s as NSString).utf8String, -1, nil)
+            "\(value)".withCString { sqlite3_bind_text(stmt, index, $0, -1, transient) }
         }
     }
 
