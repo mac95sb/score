@@ -25,12 +25,12 @@ public enum PackageManifestPatcher {
         let productEntry = "\n        .library(name: \"\(kitName)\", targets: [\"\(kitName)\"]),"
         let targetEntry = "\n        .target(name: \"\(kitName)\"),"
 
-        guard let targetsRange = text.range(of: "targets: [") else {
+        guard let targetsRange = packageArgumentArrayRange(named: "targets", in: text) else {
             throw PackagingError.manifestPatchFailed(
                 "No `targets:` section found in \(manifestURL.path).")
         }
 
-        if let productsRange = text.range(of: "products: [") {
+        if let productsRange = packageArgumentArrayRange(named: "products", in: text) {
             // Insert into the later section first so the earlier range stays valid.
             if productsRange.lowerBound < targetsRange.lowerBound {
                 text.insert(contentsOf: targetEntry, at: targetsRange.upperBound)
@@ -44,10 +44,10 @@ public enum PackageManifestPatcher {
             // Add a products section after the package name declaration.
             let namePattern = #"name:\s*"[^"]+",\s*\n"#
             guard let regex = try? NSRegularExpression(pattern: namePattern),
-                  let match = regex.firstMatch(
-                      in: text,
-                      range: NSRange(text.startIndex..., in: text)),
-                  let nameRange = Range(match.range, in: text)
+                let match = regex.firstMatch(
+                    in: text,
+                    range: NSRange(text.startIndex..., in: text)),
+                let nameRange = Range(match.range, in: text)
             else {
                 throw PackagingError.manifestPatchFailed(
                     "No package `name:` declaration found in \(manifestURL.path).")
@@ -59,5 +59,35 @@ public enum PackageManifestPatcher {
 
         try text.write(to: manifestURL, atomically: true, encoding: .utf8)
         return true
+    }
+
+    private static func packageArgumentArrayRange(
+        named label: String,
+        in text: String
+    ) -> Range<String.Index>? {
+        var index = text.startIndex
+        var parenDepth = 0
+        let labelPrefix = "\(label):"
+
+        while index < text.endIndex {
+            if parenDepth == 1, text[index...].hasPrefix(labelPrefix),
+                let arrayStart = text[index...].firstIndex(of: "[")
+            {
+                return index..<text.index(after: arrayStart)
+            }
+
+            switch text[index] {
+            case "(":
+                parenDepth += 1
+            case ")":
+                parenDepth = max(0, parenDepth - 1)
+            default:
+                break
+            }
+
+            index = text.index(after: index)
+        }
+
+        return nil
     }
 }
