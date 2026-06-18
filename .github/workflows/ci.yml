@@ -29,4 +29,4 @@ jobs:
         run: swift test --parallel
 
       - name: Format lint
-        run: swift format lint --recursive Sources Tests Package.swift
+        run: swift format lint --recursive Sources Tests Documentation.docc/Resources Package.swift scripts/format-doc-snippets.swift

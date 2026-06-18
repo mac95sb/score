@@ -20,8 +20,8 @@ struct PostsController: RouteCollection {
         }
 
         RouteGroup(api: "/posts") {
-            GET("/",       handle: list)
-            POST("/",      handle: create)
+            GET("/", handle: list)
+            POST("/", handle: create)
             DELETE("/:id", handle: destroy)
         }
     }
@@ -35,7 +35,10 @@ struct PostsController: RouteCollection {
     }
 
     func create(_ req: Request) async throws -> Response {
-        struct CreatePost: Codable { var title: String; var body: String }
+        struct CreatePost: Codable {
+            var title: String
+            var body: String
+        }
         let input = try await req.decode(CreatePost.self)
         let post = try await db.insert(Post(title: input.title, body: input.body))
         return try Response.json(post, status: .created)

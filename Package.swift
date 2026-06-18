@@ -186,6 +186,10 @@ let package = Package(
             dependencies: ["ScoreBuild"]
         ),
         .testTarget(
+            name: "ScorePackagingTests",
+            dependencies: ["ScorePackaging"]
+        ),
+        .testTarget(
             name: "ScoreIntegrationTests",
             dependencies: ["Score"]
         ),

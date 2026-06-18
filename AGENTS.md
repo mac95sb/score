@@ -5,8 +5,8 @@
 ```bash
 swift build            # build all targets
 swift test             # run the full test suite (swift-testing, @Suite/@Test)
-swift format --recursive Sources Tests          # format
-swift format lint --recursive Sources Tests     # check formatting (CI gate)
+swift format format --in-place --recursive Sources Tests Documentation.docc/Resources Package.swift scripts/format-doc-snippets.swift
+swift format lint --recursive Sources Tests Documentation.docc/Resources Package.swift scripts/format-doc-snippets.swift
 ```
 
 The package requires Swift 6 / macOS 15 (Linux is supported; SQLite via
@@ -31,9 +31,9 @@ alike:
    comment. Non-trivial APIs must include a usage code block so that DocC can
    render it as a live example. See existing elements for the expected style.
 
-3. **Sources/Score/Documentation.docc article** — if the feature touches a documented system
+3. **Documentation.docc article** — if the feature touches a documented system
    (modifiers, theming, state, routing, data, animation), update the relevant
-   article in `Sources/Score/Documentation.docc/Articles/`. New systems get a new article.
+   article in `Documentation.docc/Articles/`. New systems get a new article.
 
 4. **Kitchen-sink demo** — add a section or live example to
    `Templates/kitchen-sink/Sources/Application.swift`. The kitchen-sink is the
@@ -87,7 +87,7 @@ Rules when extending:
   accent hues, a `tint` scale that washes secondary/tertiary surfaces, warm
   `stone` or cool `slate`/`zinc` neutrals). Every palette must provide a dark
   variant. Add new ones in `ThemePresets.swift` and list them in `README.md`
-  and `Sources/Score/Documentation.docc`.
+  and `Documentation.docc`.
 - **Presets**: a preset configures radii, shadows, and `components`, and must
   inherit whatever palette it is given (never hard-code colours other than
   true black/white accents like neo-brutalism borders). Presets must enable

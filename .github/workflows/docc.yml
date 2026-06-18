@@ -27,6 +27,7 @@ jobs:
           swift package \
             --allow-writing-to-directory docs-output \
             generate-documentation \
+            Documentation.docc \
             --target Score \
             --disable-indexing \
             --transform-for-static-hosting \

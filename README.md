@@ -68,7 +68,7 @@ it broke something real.
 When adding a new element, modifier, or feature:
 
 1. Add DocC comments to every public API (with a usage code block).
-2. Update the relevant `Sources/Score/Documentation.docc/Articles/` article, or add one.
+2. Update the relevant `Documentation.docc/Articles/` article, or add one.
 3. Add a live demo section to `Templates/kitchen-sink/Sources/Application.swift`.
 4. Add tests in `Tests/ScoreCoreTests/`.
 

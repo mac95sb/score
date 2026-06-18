@@ -49,11 +49,11 @@ test-verbose:
 
 .PHONY: format
 format:
-	$(SWIFT) format --recursive Sources Tests Package.swift
+	$(SWIFT) format format --in-place --recursive Sources Tests Documentation.docc/Resources Package.swift scripts/format-doc-snippets.swift
 
 .PHONY: format-check
 format-check:
-	$(SWIFT) format lint --recursive Sources Tests Package.swift
+	$(SWIFT) format lint --recursive Sources Tests Documentation.docc/Resources Package.swift scripts/format-doc-snippets.swift
 
 # ─── Documentation ────────────────────────────────────────────────────────────
 
@@ -61,6 +61,7 @@ format-check:
 docs:
 	$(SWIFT) package --allow-writing-to-directory .build/docs generate-documentation \
 		--target Score \
+		Documentation.docc \
 		--disable-indexing \
 		--transform-for-static-hosting \
 		--output-path .build/docs
@@ -75,7 +76,7 @@ docs-preview:
 	fi; \
 	echo "Previewing DocC at http://localhost:$$PORT/documentation/score"; \
 	echo "Tutorials will be at http://localhost:$$PORT/tutorials/score"; \
-	$(SWIFT) package --disable-sandbox preview-documentation --target Score --port $$PORT
+	$(SWIFT) package --disable-sandbox preview-documentation --target Score Documentation.docc --port $$PORT
 
 # ─── Clean ────────────────────────────────────────────────────────────────────
 
