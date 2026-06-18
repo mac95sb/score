@@ -8,6 +8,10 @@ Compose web apps in Swift — rendered to vanilla HTML, CSS, and JavaScript.
 ```swift
 struct ArticleCard: View {
     let post: ContentPost
+    @State var saved: Bool = false
+
+    @Action func toggleSaved() { saved.toggle() }
+
     var body: some View {
         VStack {
             Heading(3) {
@@ -17,6 +21,9 @@ struct ArticleCard: View {
                 post.frontmatter.excerpt ?? ""
             }
             .font(color: .muted)
+            Button(.ghost, action: toggleSaved) {
+                saved ? "Saved" : "Save"
+            }
         }
         .padding(6)
         .border(radius: .lg)
