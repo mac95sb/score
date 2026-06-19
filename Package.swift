@@ -42,8 +42,6 @@ let package = Package(
     targets: [
         // MARK: - System SQLite
         // Links the platform's libsqlite3 (macOS SDK; Linux via libsqlite3-dev)
-        // instead of vendoring the amalgamation. ScoreData uses only the core C
-        // API plus built-in JSON functions, both present in every modern SQLite.
         .systemLibrary(
             name: "CSQLite",
             path: "Sources/CSQLite",

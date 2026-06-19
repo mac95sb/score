@@ -18,6 +18,12 @@ struct NewCommand: AsyncParsableCommand {
     @Option(name: .shortAndLong, help: "Template to use: default, static, kitchen-sink.")
     var template: ProjectTemplate = .default
 
+    @Option(
+        name: .long,
+        help: "AI context files to write: default (AGENTS.md + CLAUDE.md), agents, claude, none."
+    )
+    var agents: AgentsMode = .default
+
     @Flag(name: .long, help: "Skip `swift package resolve` after scaffolding.")
     var skipResolve: Bool = false
 
@@ -30,7 +36,7 @@ struct NewCommand: AsyncParsableCommand {
             throw CLIError.directoryExists(name)
         }
 
-        let scaffold = ProjectScaffolder(template: template)
+        let scaffold = ProjectScaffolder(template: template, agentsMode: agents)
         let projectName = name
 
         try await noora.progressStep(

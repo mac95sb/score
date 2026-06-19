@@ -63,6 +63,11 @@ tags. Wiring up fingerprinted `styles.css` output is a pre-launch task.
   `score routes` table).
 - Generated-code templates live next to their generators as Swift string
   literals; keep generated output deterministic (sort dictionary keys).
+- **When adding a new `score generate` type** (`GenerateCommand.swift`), add
+  matching VS Code and Xcode snippet bodies to `SnippetsCommand.swift` so that
+  `score snippets` stays in sync. Both the template in `CodeGenerator` and the
+  snippet tab-stop body in `SnippetsCommand.xcodeSnippets` /
+  `vsCodeSnippetsJSON` should change together.
 
 ## Theming architecture
 

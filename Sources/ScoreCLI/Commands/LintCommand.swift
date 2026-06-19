@@ -5,13 +5,14 @@ import Noora
 /// `score lint` — lint Score views and flag common issues.
 ///
 /// Rule categories:
-/// - A   (Accessibility): image-alt, aria-label, form-label, heading-order, link-text
-/// - SE  (Semantic):      semantic-landmark, no-div-soup
+/// - A   (Accessibility): image-alt, form-label, link-text
+/// - SE  (Semantic):      no-inline-style
 /// - SC  (Scoping):       duplicate-id
 /// - S   (State):         unused-state
 /// - P   (Performance):   deep-nesting
 /// - C   (Content):       empty-heading, empty-paragraph, no-todo
 /// - T   (Translation):   missing-translation-key
+/// - ST  (Structure):     file-structure, score-project, no-async-page
 struct LintCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "lint",
@@ -30,6 +31,9 @@ struct LintCommand: AsyncParsableCommand {
     @Flag(name: .long, help: "Output results as JSON.")
     var json: Bool = false
 
+    @Flag(name: .long, help: "Install `score lint` as a git pre-commit hook in .git/hooks/pre-commit.")
+    var installHook: Bool = false
+
     @Option(name: .long, parsing: .upToNextOption, help: "Only run these rules (comma-separated or repeated).")
     var rule: [String] = []
 
@@ -40,6 +44,11 @@ struct LintCommand: AsyncParsableCommand {
     var paths: [String] = []
 
     mutating func run() async throws {
+        if installHook {
+            try installPreCommitHook()
+            return
+        }
+
         let targetPaths = paths.isEmpty ? ["Sources"] : paths
         let enabledRules = rule.flatMap { $0.split(separator: ",").map(String.init) }
         let skippedRules = skip.flatMap { $0.split(separator: ",").map(String.init) }
@@ -98,6 +107,39 @@ struct LintCommand: AsyncParsableCommand {
                 })
         }
     }
+
+    private func installPreCommitHook() throws {
+        let noora = Noora()
+        let hookDir = URL(fileURLWithPath: ".git/hooks")
+        let hookURL = hookDir.appendingPathComponent("pre-commit")
+
+        guard FileManager.default.fileExists(atPath: ".git") else {
+            noora.error(.alert("No .git directory found. Run this from the root of a git repository."))
+            throw CLIError.lintFailed(1)
+        }
+
+        try FileManager.default.createDirectory(at: hookDir, withIntermediateDirectories: true)
+
+        let script = "#!/bin/sh\nscore lint\n"
+        if FileManager.default.fileExists(atPath: hookURL.path) {
+            let existing = (try? String(contentsOf: hookURL, encoding: .utf8)) ?? ""
+            guard !existing.contains("score lint") else {
+                noora.info(.alert("Pre-commit hook already contains `score lint` — nothing to do."))
+                return
+            }
+            // Append to existing hook rather than overwriting it.
+            let updated = existing.hasSuffix("\n") ? existing + "score lint\n" : existing + "\nscore lint\n"
+            try updated.write(to: hookURL, atomically: true, encoding: .utf8)
+        } else {
+            try script.write(to: hookURL, atomically: true, encoding: .utf8)
+            // Make executable.
+            try FileManager.default.setAttributes(
+                [.posixPermissions: 0o755],
+                ofItemAtPath: hookURL.path
+            )
+        }
+        noora.success(.alert("Installed pre-commit hook.", takeaways: [".git/hooks/pre-commit"]))
+    }
 }
 
 // MARK: - LintDiagnostic
@@ -139,6 +181,21 @@ struct ScoreLinter: Sendable {
 
         guard fm.fileExists(atPath: path.path) else { return ([], 0) }
 
+        // ST001/ST002: detect whether this looks like a Score project
+        if isEnabled("score-project") {
+            let packagePath = URL(fileURLWithPath: "Package.swift")
+            if let pkg = try? String(contentsOf: packagePath, encoding: .utf8) {
+                if !pkg.contains("score") && !pkg.contains("Score") {
+                    diagnostics.append(
+                        LintDiagnostic(
+                            file: "Package.swift", line: 1,
+                            message: "Package.swift does not appear to depend on Score. Run `score lint` from a Score project root.",
+                            severity: .warning, rule: "score-project"
+                        ))
+                }
+            }
+        }
+
         let enumerator = fm.enumerator(
             at: path,
             includingPropertiesForKeys: [.isRegularFileKey],
@@ -146,12 +203,93 @@ struct ScoreLinter: Sendable {
         )
         while let fileURL = enumerator?.nextObject() as? URL {
             guard fileURL.pathExtension == "swift" else { continue }
+
+            // ST002: flag types in the wrong directory
+            if isEnabled("file-structure") {
+                if let diag = checkFileStructure(fileURL) {
+                    diagnostics.append(diag)
+                }
+            }
+
+            // ST003: Page types should not do async work in their body
+            if isEnabled("no-async-page") {
+                if let diag = checkAsyncPage(fileURL) {
+                    diagnostics.append(diag)
+                }
+            }
+
             let (fileDiags, fixed) = try lintFile(fileURL, autoFix: autoFix)
             diagnostics.append(contentsOf: fileDiags)
             fixedCount += fixed
         }
 
         return (diagnostics, fixedCount)
+    }
+
+    /// Warn when a `Page` type performs async work directly in its `body`,
+    /// which should live in the `RouteCollection` controller instead.
+    private func checkAsyncPage(_ url: URL) -> LintDiagnostic? {
+        guard let source = try? String(contentsOf: url, encoding: .utf8) else { return nil }
+        let conformsToPage = source.contains(": Page") || source.contains(":Page")
+        guard conformsToPage else { return nil }
+
+        // Allow `try await` inside `static func instances()` (StaticPage pattern).
+        // Strip that section before checking.
+        let withoutInstances = source.replacingOccurrences(
+            of: #"static func instances\(\)[^}]*\}"#,
+            with: "",
+            options: .regularExpression
+        )
+        guard withoutInstances.contains("try await") else { return nil }
+
+        return LintDiagnostic(
+            file: url.path, line: 1,
+            message: "Page type contains `try await` — move data fetching into the RouteCollection controller and pass data through the Page's initialiser.",
+            severity: .warning, rule: "no-async-page"
+        )
+    }
+
+    /// Warn when a `Page` type lives outside `Sources/Views/Pages/`,
+    /// a `Record` type outside `Sources/Models/`, etc.
+    private func checkFileStructure(_ url: URL) -> LintDiagnostic? {
+        guard let source = try? String(contentsOf: url, encoding: .utf8) else { return nil }
+        let path = url.path
+
+        let conformsToPage = source.contains(": Page") || source.contains(":Page")
+        let conformsToRecord = source.contains(": Record") || source.contains(":Record")
+        let conformsToMiddleware = source.contains(": Middleware") || source.contains(":Middleware")
+        let conformsToRouteCollection =
+            source.contains(": RouteCollection") || source.contains(":RouteCollection")
+
+        if conformsToPage && !path.contains("/Views/Pages/") && !path.contains("/Pages/") {
+            return LintDiagnostic(
+                file: path, line: 1,
+                message: "Page type is outside Sources/Views/Pages/ — move it to match the recommended structure.",
+                severity: .warning, rule: "file-structure"
+            )
+        }
+        if conformsToRecord && !path.contains("/Models/") {
+            return LintDiagnostic(
+                file: path, line: 1,
+                message: "Record type is outside Sources/Models/ — move it to match the recommended structure.",
+                severity: .warning, rule: "file-structure"
+            )
+        }
+        if conformsToMiddleware && !path.contains("/Middleware/") {
+            return LintDiagnostic(
+                file: path, line: 1,
+                message: "Middleware type is outside Sources/Middleware/ — move it to match the recommended structure.",
+                severity: .warning, rule: "file-structure"
+            )
+        }
+        if conformsToRouteCollection && !path.contains("/Controllers/") {
+            return LintDiagnostic(
+                file: path, line: 1,
+                message: "RouteCollection type is outside Sources/Controllers/ — move it to match the recommended structure.",
+                severity: .warning, rule: "file-structure"
+            )
+        }
+        return nil
     }
 
     private func isEnabled(_ rule: String) -> Bool {

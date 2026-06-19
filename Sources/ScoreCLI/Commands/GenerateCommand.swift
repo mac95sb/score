@@ -4,22 +4,24 @@ import Noora
 
 /// `score generate <type> <name>` — generate Score boilerplate code.
 ///
-/// Scaffolds ready-to-use Score types into your project's `Sources/` directory.
+/// Scaffolds ready-to-use Score types into the standard project layout:
 ///
 /// ```
-/// score generate page BlogIndexPage
-/// score generate component ArticleCard
-/// score generate action CreatePostAction
-/// score generate record Post
+/// score generate page BlogIndexPage          → Sources/Views/Pages/BlogIndexPage.swift
+/// score generate component ArticleCard       → Sources/Views/Components/ArticleCard.swift
+/// score generate action CreatePostAction     → Sources/Actions/CreatePostAction.swift
+/// score generate record Post                 → Sources/Models/Post.swift
+/// score generate middleware AuthMiddleware   → Sources/Middleware/AuthMiddleware.swift
+/// score generate controller PostsController → Sources/Controllers/PostsController.swift
 /// ```
 struct GenerateCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "generate",
-        abstract: "Generate Score boilerplate (page, component, action, record).",
+        abstract: "Generate Score boilerplate (page, component, action, record, middleware, controller).",
         aliases: ["g"]
     )
 
-    @Argument(help: "Type to generate: page, component, action, record, middleware.")
+    @Argument(help: "Type to generate: page, component, action, record, middleware, controller.")
     var type: GeneratorType
 
     @Argument(help: "Name of the generated type (PascalCase).")
@@ -54,11 +56,12 @@ struct GenerateCommand: AsyncParsableCommand {
     private func defaultOutputDirectory(for type: GeneratorType) -> URL {
         let base = URL(fileURLWithPath: "Sources")
         switch type {
-        case .page: return base.appendingPathComponent("Pages")
-        case .component: return base.appendingPathComponent("Components")
+        case .page: return base.appendingPathComponent("Views/Pages")
+        case .component: return base.appendingPathComponent("Views/Components")
         case .action: return base.appendingPathComponent("Actions")
         case .record: return base.appendingPathComponent("Models")
         case .middleware: return base.appendingPathComponent("Middleware")
+        case .controller: return base.appendingPathComponent("Controllers")
         }
     }
 }
@@ -71,6 +74,7 @@ enum GeneratorType: String, ExpressibleByArgument, CaseIterable {
     case action
     case record
     case middleware
+    case controller
 }
 
 // MARK: - CodeGenerator
@@ -87,6 +91,7 @@ struct CodeGenerator: Sendable {
         case .action: return generateAction(name)
         case .record: return generateRecord(name)
         case .middleware: return generateMiddleware(name)
+        case .controller: return generateController(name)
         }
     }
 
@@ -193,6 +198,24 @@ struct CodeGenerator: Sendable {
             }
         }
         """
+    }
+
+    private func generateController(_ name: String) -> String {
+        let prefix = name.hasSuffix("Controller") ? String(name.dropLast(10)).lowercased() : name.lowercased()
+        return """
+            import Score
+
+            /// A route collection grouping related page and API routes.
+            struct \(name): RouteCollection {
+                var routes: [Route] {
+                    RouteGroup("/\(prefix)") {
+                        Page("/") { req in
+                            // Return a Page view here
+                        }
+                    }
+                }
+            }
+            """
     }
 
     // MARK: - Helper

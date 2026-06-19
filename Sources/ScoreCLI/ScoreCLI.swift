@@ -22,6 +22,8 @@ struct ScoreCLI: AsyncParsableCommand {
             LintCommand.self,
             TranslationsCommand.self,
             GenerateCommand.self,
+            SnippetsCommand.self,
+            CompletionsCommand.self,
         ],
         defaultSubcommand: nil
     )

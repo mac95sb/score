@@ -8,6 +8,12 @@ let scorePackageURL = "https://github.com/swiftscore/score"
 
 struct ProjectScaffolder: Sendable {
     let template: ProjectTemplate
+    let agentsMode: AgentsMode
+
+    init(template: ProjectTemplate, agentsMode: AgentsMode = .default) {
+        self.template = template
+        self.agentsMode = agentsMode
+    }
 
     func write(to directory: URL, projectName: String) throws {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -15,8 +21,14 @@ struct ProjectScaffolder: Sendable {
         // Shared files
         try writePackageSwift(to: directory, name: projectName)
         try writeGitignore(to: directory)
-        try writeAgentsMD(to: directory, name: projectName, template: template)
         try writeFavicon(to: directory)
+
+        if agentsMode.writesAgents {
+            try writeAgentsMD(to: directory, name: projectName, template: template)
+        }
+        if agentsMode.writesClaude {
+            try writeClaudeMD(to: directory)
+        }
 
         switch template {
         case .default: try writeDefault(to: directory, name: projectName)
@@ -36,6 +48,7 @@ struct ProjectScaffolder: Sendable {
         try mkdir(dir, "Content/posts")
         try mkdir(dir, "Public")
 
+        try writeLocalizableStrings(to: dir, appName: name)
         try write(defaultApplication(name), to: dir, "Sources/Application.swift")
         try write(defaultPostModel, to: dir, "Sources/Models/Post.swift")
         try write(defaultAuthorModel, to: dir, "Sources/Models/Author.swift")
@@ -59,11 +72,13 @@ struct ProjectScaffolder: Sendable {
         try mkdir(dir, "Content/posts")
         try mkdir(dir, "Public")
 
+        try writeLocalizableStrings(to: dir, appName: name)
         try write(staticApplication(name), to: dir, "Sources/Application.swift")
         try write(staticHomePage(name), to: dir, "Sources/Views/Pages/HomePage.swift")
         try write(staticAboutPage, to: dir, "Sources/Views/Pages/AboutPage.swift")
         try write(staticBlogPostPage, to: dir, "Sources/Views/Pages/Blog/BlogPostPage.swift")
         try write(staticSiteNavigation(name), to: dir, "Sources/Views/Components/SiteNavigation.swift")
+        try write(staticContentTheme, to: dir, "Sources/Views/ContentThemes.swift")
         try write(helloWorldPost(name), to: dir, "Content/posts/hello-world.md")
     }
 
@@ -500,7 +515,7 @@ struct ProjectScaffolder: Sendable {
                 )
             }
 
-            var contentTheme: ContentTheme { .default }
+            var contentTheme: ContentTheme { .prose }
             var path: String { "/blog/\\(post.slug)" }
 
             var body: some View {
@@ -556,6 +571,42 @@ struct ProjectScaffolder: Sendable {
                 .position(.sticky, top: 0)
                 .position(zIndex: 10)
             }
+        }
+        """
+    }
+
+    private var staticContentTheme: String {
+        """
+        import Score
+
+        extension ContentTheme {
+            /// Site-specific prose style. Customise any closure to override
+            /// how that markdown element is rendered — other elements fall back
+            /// to their default rendering.
+            static let prose = ContentTheme(
+                heading: { level, v in
+                    let size: FontSize = level <= 2 ? .threeXL : .twoXL
+                    return v.erased().font(size: size, weight: .bold).margin(top: 8, bottom: 2)
+                },
+                paragraph: { v in
+                    v.erased().font(leading: .relaxed)
+                },
+                code: { v in
+                    v.erased().font(family: .systemMono)
+                        .padding(.px(2), .px(6))
+                        .border(radius: .sm)
+                        .background(color: .surface)
+                },
+                blockquote: { v in
+                    v.erased()
+                        .border(color: .accent, width: 4, edge: .left)
+                        .padding(x: .rem(1.5), y: .rem(1))
+                        .font(color: .muted, style: .italic)
+                },
+                link: { v in
+                    v.erased().font(color: .primary, decoration: .underline)
+                }
+            )
         }
         """
     }
@@ -631,27 +682,27 @@ struct ProjectScaffolder: Sendable {
         switch template {
         case .default:
             structure = """
-                - `Sources/Models/` — Record-conforming data models
-                - `Sources/Views/Pages/` — Page views rendered by routes
-                - `Sources/Views/Components/` — Reusable view components
-                - `Sources/Controllers/` — RouteCollection controllers (pages + API)
-                - `Sources/Application.swift` — App entry point and configuration
-                - `Content/posts/` — Markdown content files with YAML frontmatter
-                - `Public/` — Static assets copied verbatim to the build output
+                - `Sources/Application.swift` — `@main` entry point: metadata, theme, routes, database
+                - `Sources/Models/` — `Record`-conforming data models (one file per model)
+                - `Sources/Views/Pages/` — `Page` views rendered by routes
+                - `Sources/Views/Components/` — Reusable `View` components
+                - `Sources/Controllers/` — `RouteCollection` grouping related page and API routes
+                - `Content/posts/` — Markdown files with YAML frontmatter (`published`, `title`, `excerpt`, `date`)
+                - `Public/` — Static assets copied verbatim to build output
                 """
         case .static:
             structure = """
-                - `Sources/Views/Pages/` — Page views
-                - `Sources/Views/Components/` — Reusable components
-                - `Sources/Application.swift` — App entry point
-                - `Content/posts/` — Markdown content
+                - `Sources/Application.swift` — `@main` entry point: metadata, theme, routes
+                - `Sources/Views/Pages/` — `Page` / `StaticPage` views
+                - `Sources/Views/Components/` — Reusable `View` components
+                - `Content/posts/` — Markdown content with YAML frontmatter
                 - `Public/` — Static assets
                 """
         case .kitchenSink:
             structure = """
+                - `Sources/Application.swift` — `@main` entry point
                 - `Sources/Views/Pages/` — Demo pages for each Score feature area
                 - `Sources/Views/Components/` — Shared navigation component
-                - `Sources/Application.swift` — App entry point
                 - `Public/` — Static assets
                 """
         }
@@ -659,24 +710,212 @@ struct ProjectScaffolder: Sendable {
             """
             # \(name)
 
-            A Score web application.
+            A Score web application. Score is a Swift-first full-stack web framework.
+            Documentation: https://swiftscore.github.io/score/documentation/score
 
             ## Project structure
 
             \(structure)
 
-            ## Running locally
+            ## Commands
 
             ```sh
-            score dev
+            score dev              # development server with hot-reload on :8080
+            score build            # production build → .score/build/
+            score lint             # accessibility, semantic, and structure checks
+            score lint --fix       # auto-fix fixable lint issues
+            score generate page MyPage         # → Sources/Views/Pages/MyPage.swift
+            score generate component MyCard    # → Sources/Views/Components/MyCard.swift
+            score generate controller MyCtrl  # → Sources/Controllers/MyCtrl.swift
+            score generate record MyModel     # → Sources/Models/MyModel.swift
+            score routes           # print registered route table
             ```
 
-            ## Building for production
+            ## Score quick reference
 
-            ```sh
-            score build
+            ### Layout elements
+
+            | Element | Description |
+            | ------- | ----------- |
+            | `Stack` | Block flex container (vertical by default) |
+            | `HStack` | Horizontal flex container |
+            | `VStack` | Vertical flex container |
+            | `ZStack` | Layered (position: relative) container |
+            | `Grid(columns:)` | CSS grid container |
+            | `Spacer` | Flexible-space filler |
+            | `Divider` | Horizontal or vertical rule |
+            | `ScrollView` | Scrollable container |
+
+            ### Content elements
+
+            `Heading(1…6)`, `Text`, `Text(inline: true)`, `Blockquote`,
+            `Code`, `CodeBlock(language:)`, `RichText(markdown:)`,
+            `Badge(.primary/.secondary/.success/.destructive/.neutral)`,
+            `Abbreviation`, `Highlight`, `Subscript`, `Superscript`,
+            `DateElement`, `NumberElement`, `TimeElement`
+
+            ### Semantic elements
+
+            `Main`, `Section`, `Article`, `Aside`, `Header`, `Footer`, `Nav`,
+            `Details`, `Summary`
+
+            ### Navigation elements
+
+            `Link(to:)`, `NavLink(to:)` (adds `.active` when route matches),
+            `Button(.primary/.secondary/.ghost/.outline/.destructive/.submit)`
+
+            ### Form elements
+
+            `Form(action:method:)`, `Fieldset`, `Legend`, `Label(for:)`,
+            `Input(type:id:name:placeholder:)` — types: `.text .email .password .number
+            .tel .url .search .textarea .checkbox .radio .file .hidden .date .select`,
+            `Option(value:)`, `OptionGroup`
+
+            ### Media and native
+
+            `Image(src:alt:)`, `Audio(src:)`, `Video(src:)`,
+            `Dialog(id:)`, `Popover(id:)`, `Progress(value:max:)`,
+            `Meter(value:min:max:)`, `ThemeSelector`
+
+            ### Lists and tables
+
+            `List`, `ListItem`, `DescriptionList`, `Term`, `Description`
+            `Table`, `TableHeader`, `TableBody`, `TableFooter`, `TableRow`, `TableCell`
+
+            ### Key modifiers
+
+            ```swift
+            // Spacing
+            .padding(4)                  // uniform
+            .padding(x: 6, y: 2)        // axes
+            .margin(x: .auto)           // centering
+            .frame(maxWidth: .px(720))
+
+            // Typography
+            .font(size: .xl, weight: .semibold, color: .muted)
+            // sizes: .xs .sm .base .lg .xl .twoXL .threeXL .fourXL .fiveXL .sixXL
+            // weights: .thin .light .normal .medium .semibold .bold .extrabold .black
+
+            // Visual
+            .background(color: .surface)
+            .border(color: .muted.opacity(0.2), width: 1, radius: .lg)
+            .shadow(.md)
+            .opacity(0.5)
+
+            // Layout
+            .flex(direction: .horizontal, gap: 4, justify: .between, align: .center)
+            .grid(columns: 3, gap: 4)
+            .display(.none)
+            .overflow(.hidden)
+            .position(.sticky, top: 0)
+            .position(zIndex: 10)
+
+            // Responsive (any modifier accepts `, at:`)
+            .padding(4, at: .mobile)
+            .padding(8, at: .desktop)
+
+            // Hover / focus / active state
+            .on(.hover) { $0.shadow(.lg).translate(y: .px(-2)) }
+
+            // Animation
+            .animate(.all, duration: 150.ms)
             ```
-            """, to: dir, "AGENTS.md")
+
+            ### State and interactivity
+
+            ```swift
+            @State var count: Int = 0          // reactive local state → re-renders on change
+            @Binding var text: String          // two-way binding from parent
+            @Action var submit: (Input) async throws -> Response  // server action
+            ```
+
+            ### Routing
+
+            ```swift
+            // In Application.swift
+            var routes: some RouteCollection {
+                Page("/") { HomePage() }
+                Page("/blog/:slug") { req in BlogPostPage(slug: req.pathParameters["slug"]!) }
+                PostsController()
+            }
+
+            // RouteCollection
+            struct PostsController: RouteCollection {
+                var routes: [Route] {
+                    RouteGroup("/blog") {
+                        Page("/") { req in BlogIndexPage() }
+                    }
+                    RouteGroup(api: "/posts") {
+                        GET("/")  { req in try Response.json(posts) }
+                        POST("/") { req in
+                            let body = try req.decode(CreatePost.self)
+                            return try Response.json(body)
+                        }
+                    }
+                }
+            }
+            ```
+
+            ### Data layer
+
+            ```swift
+            // Query
+            let posts = try await db.query(Post.self)
+                .filter(\\.published == true)
+                .orderBy(\\.createdAt, .descending)
+                .limit(10)
+                .all()
+
+            // CRUD
+            let post = try await db.find(Post.self, id: id)
+            try await db.insert(post)
+            try await db.update(post)
+            try await db.delete(Post.self, id: id)
+            ```
+
+            ### Theming
+
+            ```swift
+            var theme: SiteTheme { .default }
+
+            // Preset + palette
+            var theme: SiteTheme { .preset(.modern, palette: .violet) }
+
+            // With component styles enabled
+            var theme: SiteTheme {
+                var t = SiteTheme.preset(.soft, palette: .indigo)
+                t.components = .default
+                return t
+            }
+            ```
+
+            Presets: `.minimal` `.modern` `.soft` `.neoBrutalism`
+            Palettes: `.slate` `.zinc` `.stone` `.rose` `.pink` `.fuchsia` `.violet`
+            `.indigo` `.blue` `.sky` `.cyan` `.teal` `.green` `.lime` `.yellow` `.amber` `.orange` `.red`
+            """,
+            to: dir,
+            "AGENTS.md"
+        )
+    }
+
+    private func writeClaudeMD(to dir: URL) throws {
+        try write(
+            """
+            # Claude guidance
+
+            See `AGENTS.md` for full project structure, Score API reference, and build/run instructions.
+
+            ## Working in this Score project
+
+            - Pages go in `Sources/Views/Pages/`, shared components in `Sources/Views/Components/`
+            - Data models go in `Sources/Models/`, route controllers in `Sources/Controllers/`
+            - Keep `Application.swift` thin — only `metadata`, `theme`, `routes`, and `database`
+            - Avoid raw `style`, `class`, or inline event attributes — use Score modifiers and `@State`/`@Action`
+            - Run `score lint` before committing to catch accessibility and structure issues
+            """,
+            to: dir,
+            "CLAUDE.md"
+        )
     }
 
     // MARK: - Kitchen-sink template
@@ -952,6 +1191,70 @@ struct ProjectScaffolder: Sendable {
     private func writeFavicon(to dir: URL) throws {
         try mkdir(dir, "Public")
         try write(faviconSVG, to: dir, "Public/favicon.svg")
+    }
+
+    /// Write a `Localizable.xcstrings` file pre-seeded with the app name and
+    /// a handful of common UI strings, translated into EN, ES, DE, RU, and ZH.
+    private func writeLocalizableStrings(to dir: URL, appName: String) throws {
+        let catalog = """
+            {
+              "sourceLanguage" : "en",
+              "strings" : {
+                "app.name" : {
+                  "comment" : "The application name shown in the navigation and browser title.",
+                  "localizations" : {
+                    "de" : { "stringUnit" : { "state" : "translated", "value" : "\(appName)" } },
+                    "en" : { "stringUnit" : { "state" : "new",        "value" : "\(appName)" } },
+                    "es" : { "stringUnit" : { "state" : "translated", "value" : "\(appName)" } },
+                    "ru" : { "stringUnit" : { "state" : "translated", "value" : "\(appName)" } },
+                    "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "\(appName)" } }
+                  }
+                },
+                "nav.home" : {
+                  "comment" : "Home link in the main navigation.",
+                  "localizations" : {
+                    "de" : { "stringUnit" : { "state" : "translated", "value" : "Startseite" } },
+                    "en" : { "stringUnit" : { "state" : "new",        "value" : "Home" } },
+                    "es" : { "stringUnit" : { "state" : "translated", "value" : "Inicio" } },
+                    "ru" : { "stringUnit" : { "state" : "translated", "value" : "Главная" } },
+                    "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "首页" } }
+                  }
+                },
+                "nav.blog" : {
+                  "comment" : "Blog link in the main navigation.",
+                  "localizations" : {
+                    "de" : { "stringUnit" : { "state" : "translated", "value" : "Blog" } },
+                    "en" : { "stringUnit" : { "state" : "new",        "value" : "Blog" } },
+                    "es" : { "stringUnit" : { "state" : "translated", "value" : "Blog" } },
+                    "ru" : { "stringUnit" : { "state" : "translated", "value" : "Блог" } },
+                    "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "博客" } }
+                  }
+                },
+                "action.read_more" : {
+                  "comment" : "Call-to-action label on article cards.",
+                  "localizations" : {
+                    "de" : { "stringUnit" : { "state" : "translated", "value" : "Weiterlesen" } },
+                    "en" : { "stringUnit" : { "state" : "new",        "value" : "Read more" } },
+                    "es" : { "stringUnit" : { "state" : "translated", "value" : "Leer más" } },
+                    "ru" : { "stringUnit" : { "state" : "translated", "value" : "Читать далее" } },
+                    "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "阅读更多" } }
+                  }
+                },
+                "footer.built_with" : {
+                  "comment" : "Footer attribution text.",
+                  "localizations" : {
+                    "de" : { "stringUnit" : { "state" : "translated", "value" : "Erstellt mit Score." } },
+                    "en" : { "stringUnit" : { "state" : "new",        "value" : "Built with Score." } },
+                    "es" : { "stringUnit" : { "state" : "translated", "value" : "Creado con Score." } },
+                    "ru" : { "stringUnit" : { "state" : "translated", "value" : "Создано на Score." } },
+                    "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "由 Score 构建。" } }
+                  }
+                }
+              },
+              "version" : "1.0"
+            }
+            """
+        try write(catalog, to: dir, "Localizable.xcstrings")
     }
 
     // MARK: - Utilities

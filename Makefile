@@ -60,7 +60,7 @@ format-check:
 .PHONY: docs
 docs:
 	$(SWIFT) package --allow-writing-to-directory .build/docs generate-documentation \
-		--target Score \
+		--target ScoreCore \
 		Documentation.docc \
 		--disable-indexing \
 		--transform-for-static-hosting \
@@ -74,9 +74,9 @@ docs-preview:
 			PORT=$$((PORT + 1)); \
 		done; \
 	fi; \
-	echo "Previewing DocC at http://localhost:$$PORT/documentation/score"; \
-	echo "Tutorials will be at http://localhost:$$PORT/tutorials/score"; \
-	$(SWIFT) package --disable-sandbox preview-documentation --target Score Documentation.docc --port $$PORT
+	echo "Previewing DocC at http://localhost:$$PORT/documentation/scorecore"; \
+	echo "Tutorials will be at http://localhost:$$PORT/tutorials/scorecore"; \
+	$(SWIFT) package --disable-sandbox preview-documentation --target ScoreCore Documentation.docc --port $$PORT
 
 # ─── Clean ────────────────────────────────────────────────────────────────────
 
@@ -109,6 +109,34 @@ show-deps:
 .PHONY: reset
 reset:
 	$(SWIFT) package reset
+
+# ─── Generate ─────────────────────────────────────────────────────────────────
+
+.PHONY: page component action record middleware controller
+
+page:
+	@test -n "$(NAME)" || (echo "Usage: make page NAME=MyPage" && exit 1)
+	score generate page $(NAME)
+
+component:
+	@test -n "$(NAME)" || (echo "Usage: make component NAME=MyComponent" && exit 1)
+	score generate component $(NAME)
+
+action:
+	@test -n "$(NAME)" || (echo "Usage: make action NAME=MyAction" && exit 1)
+	score generate action $(NAME)
+
+record:
+	@test -n "$(NAME)" || (echo "Usage: make record NAME=MyRecord" && exit 1)
+	score generate record $(NAME)
+
+middleware:
+	@test -n "$(NAME)" || (echo "Usage: make middleware NAME=MyMiddleware" && exit 1)
+	score generate middleware $(NAME)
+
+controller:
+	@test -n "$(NAME)" || (echo "Usage: make controller NAME=MyController" && exit 1)
+	score generate controller $(NAME)
 
 # ─── Kitchen Sink ─────────────────────────────────────────────────────────────
 
@@ -143,6 +171,14 @@ help:
 	@echo "  Documentation:"
 	@echo "    docs            Build DocC static site to .build/docs"
 	@echo "    docs-preview    Preview DocC in browser"
+	@echo ""
+	@echo "  Generate (pass NAME=<TypeName>):"
+	@echo "    page            score generate page <NAME>"
+	@echo "    component       score generate component <NAME>"
+	@echo "    action          score generate action <NAME>"
+	@echo "    record          score generate record <NAME>"
+	@echo "    middleware      score generate middleware <NAME>"
+	@echo "    controller      score generate controller <NAME>"
 	@echo ""
 	@echo "  Kitchen Sink:"
 	@echo "    ks-build        Build score CLI into .build/ks (isolated from docs-preview)"

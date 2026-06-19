@@ -1,4 +1,5 @@
 import Foundation
+import Noora
 
 // MARK: - CLIError
 
@@ -60,19 +61,44 @@ func validateName(_ name: String) throws {
 
 /// Run `swift build` with the given configuration.
 ///
+/// Captures stderr so that SwiftPM resolution errors (stale git cache, missing
+/// repository directory) can be detected and surfaced as actionable hints.
+///
 /// - Returns: `true` on success, `false` on build failure.
 func buildPackage(configuration: String, verbose: Bool) async throws -> Bool {
     let process = Process()
     process.executableURL = URL(fileURLWithPath: "/usr/bin/xcrun")
     process.arguments = ["swift", "build", "-c", configuration]
 
+    let stderrPipe = Pipe()
     if !verbose {
         process.standardOutput = FileHandle.nullDevice
-        process.standardError = FileHandle.standardError
+        process.standardError = stderrPipe
     }
 
     try process.run()
     process.waitUntilExit()
+
+    if process.terminationStatus != 0, !verbose {
+        let stderrData = stderrPipe.fileHandleForReading.readDataToEndOfFile()
+        let stderrText = String(data: stderrData, encoding: .utf8) ?? ""
+
+        // Print the raw compiler/resolver output so the user can see what failed.
+        FileHandle.standardError.write(stderrData)
+
+        // Detect a stale SwiftPM git cache and give an actionable hint.
+        if stderrText.contains("cannot change to") || stderrText.contains("No such file or directory")
+            && stderrText.contains("git")
+        {
+            Noora().warning(
+                WarningAlert.alert(
+                    "SwiftPM package cache appears stale.",
+                    takeaway: "Run `swift package reset` then retry."
+                ))
+        }
+        return false
+    }
+
     return process.terminationStatus == 0
 }
 
