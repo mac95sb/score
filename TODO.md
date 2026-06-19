@@ -52,8 +52,10 @@
       symbol they are referring to. → Fixed double-backtick symbol links across
       GettingStarted, ThemeAndTokens, ViewHierarchy, DataLayer, APIRoutes.
 - [x] The default and static template should include a Localizable.xcstrings →
-      added with EN, ES, DE, RU, ZH-Hans seeds for app.name, nav._, action._,
-      footer.* keys.
+      written to `Sources/Localizable.xcstrings` with EN, ES, DE, RU, ZH-Hans
+      seeds for app.name, nav._, action._, footer.* keys; Package.swift
+      declares `.process("Localizable.xcstrings")` so `Bundle.module` can load
+      it. A `t()` / `L()` Score API is Task 7 below.
 - [ ] Score as a library in the same way it provides theme dropdown building
       helpers needs to do the same for translations.
 - [ ] We need to build out tooling for translated Content, perhaps if a Content

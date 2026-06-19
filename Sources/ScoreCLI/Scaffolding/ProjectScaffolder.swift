@@ -659,7 +659,10 @@ struct ProjectScaffolder: Sendable {
                         dependencies: [
                             .product(name: "Score", package: "score"),
                         ],
-                        path: "Sources"
+                        path: "Sources",
+                        resources: [
+                            .process("Localizable.xcstrings"),
+                        ]
                     ),
                 ]
             )
@@ -1254,7 +1257,7 @@ struct ProjectScaffolder: Sendable {
               "version" : "1.0"
             }
             """
-        try write(catalog, to: dir, "Localizable.xcstrings")
+        try write(catalog, to: dir, "Sources/Localizable.xcstrings")
     }
 
     // MARK: - Utilities
