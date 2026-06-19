@@ -5,13 +5,13 @@ Define models, query the database, and manage the key-value cache.
 ## Overview
 
 Score's data layer provides a minimal ORM backed by SQLite (default), with a
-``QueryBuilder`` for common operations and a raw SQL interface for queries the
+`QueryBuilder` for common operations and a raw SQL interface for queries the
 builder does not cover. The cache layer defaults to in-memory storage, with Redis
 available as a drop-in replacement.
 
 ## Defining Models
 
-Conform a struct to ``Record`` to make it a database entity:
+Conform a struct to `Record` to make it a database entity:
 
 ```swift
 struct Post: Record {
@@ -111,7 +111,7 @@ try await db.transaction { tx in
 
 ## Raw SQL
 
-For complex queries not covered by ``QueryBuilder``:
+For complex queries not covered by `QueryBuilder`:
 
 ```swift
 let rows = try await db.raw(
@@ -143,7 +143,7 @@ try await cache.flush(prefix: "featured-")
 
 ## Configuration
 
-Declare the database on ``Application``. The in-memory cache is available via
+Declare the database on `Application`. The in-memory cache is available via
 `InMemoryCacheConfig` and can be instantiated directly in route handlers or
 stored as a property on your application type:
 

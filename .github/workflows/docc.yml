@@ -28,7 +28,7 @@ jobs:
             --allow-writing-to-directory docs-output \
             generate-documentation \
             Documentation.docc \
-            --target Score \
+            --target ScoreCore \
             --disable-indexing \
             --transform-for-static-hosting \
             --hosting-base-path score \

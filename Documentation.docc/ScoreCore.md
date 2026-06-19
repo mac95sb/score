@@ -1,4 +1,4 @@
-# ``Score``
+# ``ScoreCore``
 
 A Swift-first full-stack web framework.
 
@@ -50,24 +50,25 @@ HTML, CSS, and JS — deployable to any static host or run as a NIO server.
 
 - <doc:GettingStarted>
 
-### Tutorials
-
-- <doc:BuildingYourFirstApp>
-- <doc:AddingABlog>
-
 ### Core Concepts
 
 - <doc:ViewHierarchy>
 - <doc:ModifierSystem>
 - <doc:ThemeAndTokens>
 - <doc:ComponentTheming>
-- <doc:RichTextContent>
 
 ### Building Applications
 
+- <doc:RichTextContent>
 - <doc:ReactiveState>
 - <doc:DataLayer>
 - <doc:APIRoutes>
+
+### Shipping
+
+- <doc:CodeQuality>
+- <doc:Plugins>
+- <doc:NativeApps>
 
 ### Community
 

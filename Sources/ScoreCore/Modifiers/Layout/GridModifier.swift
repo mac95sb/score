@@ -2,8 +2,7 @@
 
 /// A modifier that applies CSS Grid properties to an element.
 ///
-/// Use ``View/grid(columns:gap:columnGap:rowGap:autoFlow:placeItems:at:)`` and the
-/// ``View/gridItem(span:rowSpan:spanFull:area:alignSelf:justifySelf:at:)`` family
+/// Use ``View/grid(columns:rows:gap:columnGap:rowGap:span:rowSpan:spanFull:area:autoFlow:placeItems:alignSelf:justifySelf:at:)``
 /// rather than constructing `GridModifier` directly.
 ///
 /// ```swift
@@ -16,7 +15,7 @@
 /// .grid(columns: 1, at: .mobile)
 /// ```
 ///
-/// - SeeAlso: ``View/grid(columns:gap:columnGap:rowGap:autoFlow:placeItems:at:)``, ``FlexModifier``
+/// - SeeAlso: ``View/grid(columns:rows:gap:columnGap:rowGap:span:rowSpan:spanFull:area:autoFlow:placeItems:alignSelf:justifySelf:at:)``, ``FlexModifier``
 public struct GridModifier: ThemeAwareModifier {
     let columns: Int?
     let columnsTemplate: String?

@@ -140,10 +140,10 @@ public struct SkewModifier: ThemeAwareModifier {
 
 /// A modifier that sets the CSS `transform-origin` property.
 ///
-/// Use ``View/transformOrigin(_:on:)`` rather than constructing
+/// Use ``View/transformOrigin(_:)`` rather than constructing
 /// `TransformOriginModifier` directly.
 ///
-/// - SeeAlso: ``View/transformOrigin(_:on:)``, ``TranslateModifier``
+/// - SeeAlso: ``View/transformOrigin(_:)``, ``TranslateModifier``
 public struct TransformOriginModifier: ThemeAwareModifier {
     let origin: TransformOrigin
     let condition: ModifierCondition?

@@ -1,22 +1,22 @@
 # Theme and Design Tokens
 
-Configure colours, typography, spacing, and dark mode from a single `SiteTheme`.
+Configure colours, typography, spacing, and dark mode from a single ``SiteTheme``.
 
 ## Overview
 
-Score's design token system flows from `SiteTheme` declared on your
+Score's design token system flows from ``SiteTheme`` declared on your
 `Application`. Every modifier references the theme —
 `.background(color: .primary)` resolves through the token system to an `oklch()`
 value in the final CSS. Changing a token in one place updates every component
 that references it.
 
-All colours are stored and output in `oklch`. The `Color` type accepts any input
+All colours are stored and output in `oklch`. The ``Color`` type accepts any input
 format and normalises internally.
 
 ## Semantic Colour Aliases
 
 Favor semantic aliases rather than raw palette values. Components stay
-theme-agnostic — change the alias once in `SiteTheme` and every component
+theme-agnostic — change the alias once in ``SiteTheme`` and every component
 updates:
 
 ```swift
@@ -58,8 +58,8 @@ Color.accent.darken(0.15)  // 15% darker
 
 ### Custom Colour Scales
 
-To use a brand colour not in the built-in palette, pass an explicit `Color`
-value and register a named `customPalette` on `SiteTheme`:
+To use a brand colour not in the built-in palette, pass an explicit ``Color``
+value and register a named `customPalette` on ``SiteTheme``:
 
 ```swift
 var theme: SiteTheme {
@@ -133,7 +133,7 @@ struct MySite: Application {
 }
 ```
 
-For most apps, `SiteTheme.preset(_:palette:)` is simpler — it fills in all the defaults from the chosen palette and preset:
+For most apps, ``SiteTheme/preset(_:palette:)`` is simpler — it fills in all the defaults from the chosen palette and preset:
 
 ```swift
 var theme: SiteTheme { .preset(.modern, palette: .violet) }
@@ -215,7 +215,7 @@ Score emits:
 }
 ```
 
-Add a `ThemeSelector` to let users toggle manually — Score writes the
+Add a ``ThemeSelector`` to let users toggle manually — Score writes the
 `data-theme` attribute to `<html>` and persists the selection in `localStorage`.
 
 ## Spacing Scale
@@ -254,8 +254,8 @@ Score's theming system has three distinct layers:
 use them anywhere a `Color` is accepted, including token definitions, modifier
 arguments, and component parameters.
 
-**`ThemePalette`** is a paired light + dark `ThemeColors` bundle. Pass one to
-`SiteTheme.preset(_:palette:)` to drive the entire site's colour tokens from a
+``ThemePalette`` is a paired light + dark ``ThemeColors`` bundle. Pass one to
+``SiteTheme/preset(_:palette:)`` to drive the entire site's colour tokens from a
 single named choice.
 
 | Palette | Character |
@@ -279,19 +279,19 @@ single named choice.
 var theme: SiteTheme { .preset(.modern, palette: .indigo) }
 ```
 
-**`ThemePreset`** configures shape tokens (radii, shadows) and enables component
+``ThemePreset`` configures shape tokens (radii, shadows) and enables component
 styles. Available presets: `.minimal`, `.modern`, `.soft`, `.neoBrutalism`.
 
-**Colour Schemes** (`ThemeColors` extensions — `.rosePine`, `.tokyoNight`, etc.)
+**Colour Schemes** (``ThemeColors`` extensions — `.rosePine`, `.tokyoNight`, etc.)
 are hand-tuned full colour overrides for dark mode or named custom themes. Unlike
-`ThemePalette`, which generates light and dark from hue functions, colour schemes
+``ThemePalette``, which generates light and dark from hue functions, colour schemes
 are crafted for specific aesthetics. Register them as `darkColors` or
-`customThemes` on `SiteTheme`.
+`customThemes` on ``SiteTheme``.
 
 ## Colour Schemes
 
 Score ships curated colour schemes based on popular editor themes. Use them as
-a dark-mode palette or as named custom themes on `SiteTheme`:
+a dark-mode palette or as named custom themes on ``SiteTheme``:
 
 ```swift
 var theme: SiteTheme {
@@ -307,7 +307,7 @@ var theme: SiteTheme {
 }
 ```
 
-Available presets (all on `ThemeColors`):
+Available presets (all on ``ThemeColors``):
 
 | Name               | Style                        |
 | ------------------ | ---------------------------- |
@@ -322,7 +322,7 @@ Available presets (all on `ThemeColors`):
 
 ## Theme Selector Component
 
-`ThemeSelector` renders a `<select>` dropdown that switches themes at runtime by
+``ThemeSelector`` renders a `<select>` dropdown that switches themes at runtime by
 writing a `data-theme` attribute to `<html>`. Selection is persisted in
 `localStorage`.
 
@@ -354,7 +354,7 @@ ThemeSelector(palette: [
 Shadows are referenced through semantic tokens — use `.shadow(.sm)`,
 `.shadow(.md)`, `.shadow(.lg)`, `.shadow(.xl)`, `.shadow(.twoXL)`, or
 `.shadow(ring:)`. The token values are emitted as CSS custom properties by
-`SiteTheme`:
+``SiteTheme``:
 
 ```swift
 .shadow(.md)  // var(--shadow-md)

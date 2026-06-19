@@ -33,7 +33,7 @@
 /// }
 /// ```
 ///
-/// > Note: Prefer the built-in ``View/on(_:_:)`` closure form over creating a
+/// > Note: Prefer the built-in ``View/on(_:content:)`` closure form over creating a
 /// > custom modifier for simple conditional overrides.
 ///
 /// - SeeAlso: ``ThemeAwareModifier``, ``CSSCondition``, ``ModifiedContent``

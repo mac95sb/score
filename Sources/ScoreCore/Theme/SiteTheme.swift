@@ -4,7 +4,7 @@ import Foundation
 
 /// The complete visual design system for a Score application.
 ///
-/// Override in your ``Application`` conformance to customise colours, fonts, spacing, and more.
+/// Override in your `Application` conformance to customise colours, fonts, spacing, and more.
 public struct SiteTheme: Sendable {
     public var colors: ThemeColors
     public var fonts: ThemeFonts

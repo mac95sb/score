@@ -2,7 +2,7 @@
 
 /// A modifier that sets the CSS `display` property of an element.
 ///
-/// Use ``View/display(_:on:)`` rather than constructing `DisplayModifier` directly.
+/// Use ``View/display(_:at:)`` rather than constructing `DisplayModifier` directly.
 ///
 /// ```swift
 /// Sidebar { ... }
@@ -10,7 +10,7 @@
 ///     .display(.block, at: .tablet)
 /// ```
 ///
-/// - SeeAlso: ``View/display(_:on:)``, ``VisibilityModifier``
+/// - SeeAlso: ``View/display(_:at:)``, ``VisibilityModifier``
 public struct DisplayModifier: ThemeAwareModifier {
     let value: DisplayValue
     let condition: ModifierCondition?
@@ -29,10 +29,10 @@ public struct DisplayModifier: ThemeAwareModifier {
 
 /// A modifier that sets the CSS `visibility` property.
 ///
-/// Use ``View/hidden(_:on:)`` rather than constructing `VisibilityModifier` directly.
+/// Use ``View/visibility(_:at:)`` rather than constructing `VisibilityModifier` directly.
 /// Unlike `display: none`, `visibility: hidden` keeps the element in the layout flow.
 ///
-/// - SeeAlso: ``View/hidden(_:on:)``, ``DisplayModifier``
+/// - SeeAlso: ``View/visibility(_:at:)``, ``DisplayModifier``
 public struct VisibilityModifier: ThemeAwareModifier {
     let hidden: Bool
     let condition: ModifierCondition?

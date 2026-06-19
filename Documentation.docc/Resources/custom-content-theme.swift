@@ -1,5 +1,5 @@
 extension ContentTheme {
-    static var blog: ContentTheme {
+    static var prose: ContentTheme {
         ContentTheme(
             heading: { level, v in
                 let size: FontSize = level <= 2 ? .threeXL : .twoXL

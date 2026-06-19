@@ -42,7 +42,7 @@ Score infers whether state is ephemeral or persistent from the type and app conf
 |------|-----------|
 | `Bool`, `Int`, `String`… | Always ephemeral UI state |
 | `Codable` struct (not Record) | Persistent when `stateMode: .localFirst` |
-| ``Record`` conformer | Always persistent, always CRDT-synced |
+| `Record` conformer | Always persistent, always CRDT-synced |
 
 ```swift
 // Ephemeral — in-memory, resets on navigation
@@ -108,7 +108,7 @@ struct SearchInput: View {
 
 ## @Fetch — Server Data in Views
 
-Fetch data from a typed ``APIEndpoint`` and use it directly in a view. The
+Fetch data from a typed `APIEndpoint` and use it directly in a view. The
 endpoint descriptor (defined alongside your routes) acts as the shared contract
 between server and client:
 

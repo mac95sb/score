@@ -31,7 +31,7 @@
 /// ])
 /// ```
 ///
-/// Wire up `customThemes` in your ``Application``:
+/// Wire up `customThemes` in your `Application` type:
 ///
 /// ```swift
 /// var theme: SiteTheme {

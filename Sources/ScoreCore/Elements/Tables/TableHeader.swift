@@ -10,7 +10,7 @@
 /// CSS can pin `<thead>` at the top while `<tbody>` scrolls beneath it.
 ///
 /// - Parameters:
-///   - content: ``TableRow`` child elements containing ``TableCell(.header)`` cells.
+///   - content: ``TableRow`` child elements containing `TableCell(.header)` cells.
 ///
 /// ## Example
 ///

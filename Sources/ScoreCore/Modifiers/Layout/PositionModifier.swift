@@ -2,7 +2,7 @@
 
 /// A modifier that applies CSS `position`, inset, and `z-index` properties.
 ///
-/// Use ``View/position(_:top:right:bottom:left:at:)`` and its overloads rather
+/// Use ``View/position(_:top:right:bottom:left:inset:zIndex:)`` and its overloads rather
 /// than constructing `PositionModifier` directly.
 ///
 /// ```swift
@@ -14,7 +14,7 @@
 ///     .position(zIndex: 10)
 /// ```
 ///
-/// - SeeAlso: ``View/position(_:top:right:bottom:left:at:)``
+/// - SeeAlso: ``View/position(_:top:right:bottom:left:inset:zIndex:)``
 public struct PositionModifier: ThemeAwareModifier {
     let type: PositionType?
     let top: SpacingValue?

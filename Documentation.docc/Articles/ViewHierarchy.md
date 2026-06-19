@@ -24,7 +24,7 @@ Score renders the tree to HTML at build time (static) or request time
 
 ### Layout and Alignment
 
-`HStack` and `VStack` are direction shorthands — they pre-apply
+``HStack`` and ``VStack`` are direction shorthands — they pre-apply
 `display: flex; flex-direction: row` (or `column`) but carry no alignment
 defaults. Alignment, gap, wrapping, and justification are all modifier-driven:
 
@@ -37,7 +37,7 @@ HStack {
 .flex(align: .center, justify: .spaceBetween, gap: 4)
 ```
 
-Use `Stack` when the flex direction needs to change at a breakpoint:
+Use ``Stack`` when the flex direction needs to change at a breakpoint:
 
 ```swift
 Stack {
@@ -48,7 +48,7 @@ Stack {
 .flex(direction: .vertical, gap: 4, at: .phone)
 ```
 
-`Grid` pre-applies `display: grid`; column count and gap are set via
+``Grid`` pre-applies `display: grid`; column count and gap are set via
 `.grid(columns:gap:)`:
 
 ```swift

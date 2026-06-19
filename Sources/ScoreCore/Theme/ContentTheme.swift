@@ -24,6 +24,47 @@ public struct ContentTheme: Sendable {
     public var emphasis: ElementStyle
     public var strikethrough: ElementStyle
 
+    /// A content theme for long-form editorial and magazine articles.
+    ///
+    /// Uses generous line height, a tighter heading rhythm, and accent-coloured
+    /// links. Suitable for dense, text-heavy pages where readability is paramount.
+    public static let article = ContentTheme(
+        heading: { level, v in
+            let size: FontSize = level == 1 ? .fiveXL : level == 2 ? .fourXL : level == 3 ? .threeXL : .twoXL
+            return v.erased().font(size: size, weight: .bold, wrap: .balance).margin(top: .rem(2), bottom: .rem(0.5))
+        },
+        paragraph: { v in
+            v.erased().font(leading: .loose).margin(y: .rem(1))
+        },
+        code: { v in
+            v.erased().font(family: .systemMono).padding(.px(2), .px(6)).border(radius: .sm).background(color: .surface)
+        },
+        codeBlock: { _, v in
+            v.erased().font(family: .systemMono).padding(.rem(1.5)).border(radius: .md).background(color: .surface).overflow(.scroll)
+        },
+        blockquote: { v in
+            v.erased()
+                .border(color: .accent, width: 4, edge: .left)
+                .padding(x: .rem(1.5), y: .rem(1))
+                .font(size: .lg, style: .italic)
+                .background(color: .secondary)
+                .border(radius: .sm)
+        },
+        list: { _, v in
+            v.erased().margin(y: .rem(1)).padding(left: .rem(1.75))
+        },
+        listItem: { v in
+            v.erased().margin(y: .rem(0.375))
+        },
+        table: { v in v.erased().overflow(.scroll) },
+        link: { v in v.erased().font(color: .primary, decoration: .underline) },
+        image: { v in v.erased().border(radius: .md).overflow(.hidden) },
+        divider: { v in v.erased().margin(y: .rem(2.5)) },
+        strong: { v in v.erased().font(weight: .semibold) },
+        emphasis: { v in v.erased().font(style: .italic) },
+        strikethrough: { v in v }
+    )
+
     public static let `default` = ContentTheme(
         heading: { _, v in v },
         paragraph: { v in v },

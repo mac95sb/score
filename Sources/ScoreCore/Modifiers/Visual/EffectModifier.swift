@@ -3,7 +3,7 @@
 /// A modifier that applies visual effect properties such as opacity, CSS filters,
 /// blend modes, cursor, and pointer-events.
 ///
-/// Use ``View/opacity(_:on:)``, ``View/blur(_:on:)``, ``View/cursor(_:)``, and
+/// Use ``View/effect(opacity:on:)``, ``View/effect(blur:on:)``, ``View/effect(cursor:on:)``, and
 /// related methods rather than constructing `EffectModifier` directly.
 ///
 /// ```swift
@@ -16,7 +16,7 @@
 ///     .cursor(.notAllowed)
 /// ```
 ///
-/// - SeeAlso: ``View/opacity(_:on:)``, ``View/blur(_:on:)``, ``View/cursor(_:)``
+/// - SeeAlso: ``View/effect(opacity:on:)``, ``View/effect(blur:on:)``, ``View/effect(cursor:on:)``
 public struct EffectModifier: ThemeAwareModifier {
     let opacity: Double?
     let blur: SpacingValue?

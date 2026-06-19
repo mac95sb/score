@@ -5,9 +5,9 @@ Declare page routes and API endpoints with type-safe route collections.
 ## Overview
 
 Routes live in `Sources/Controllers/`. Each controller is a struct conforming
-to ``RouteCollection`` and owns all routes — both page-rendering and API — for
+to `RouteCollection` and owns all routes — both page-rendering and API — for
 a given feature. Score infers intent from the return type: a handler returning
-a ``View`` renders HTML; one returning ``Response`` serves data.
+a ``View`` renders HTML; one returning `Response` serves data.
 
 Collocate page routes and their API endpoints in the same controller file.
 `PostsController.swift` owns `/blog` page routes and `/api/v1/posts` data
@@ -42,6 +42,37 @@ struct PostsController: RouteCollection {
     }
 }
 ```
+
+## Pages Are Pure Views
+
+Keep ``Page`` types as pure, synchronous structs that receive data through
+their initialiser — all data fetching belongs in the `RouteCollection`
+controller that constructs them.
+
+```swift
+// ✅ Correct — controller fetches, page just renders
+struct PostsController: RouteCollection {
+    var routes: [Route] {
+        RouteGroup("/blog") {
+            Page("/") { req in
+                let posts = try await db.query(Post.self)
+                    .filter(\.published == true)
+                    .all()
+                return BlogIndexPage(posts: posts)   // pure struct, receives data
+            }
+        }
+    }
+}
+
+struct BlogIndexPage: Page {
+    let posts: [Post]   // injected by the controller
+    var body: some View { ... }
+}
+```
+
+This separation keeps page views testable with mock data, makes render-time
+errors easier to trace, and keeps the mental model clear: views are frontend,
+controllers are backend.
 
 ## Page Routes vs API Routes
 
@@ -157,7 +188,7 @@ usage — mismatches are compiler errors.
 
 ### Single Active Version
 
-Declare the prefix once on ``Application``; all `RouteGroup(api:)` groups
+Declare the prefix once on `Application`; all `RouteGroup` `(api:)` groups
 resolve it automatically:
 
 ```swift
@@ -251,7 +282,7 @@ Response.badRequest("Missing required field.")  // 400
 Response.noContent()  // 204
 ```
 
-Throw ``HTTPError`` to return any HTTP status code, including `500`:
+Throw `HTTPError` to return any HTTP status code, including `500`:
 
 ```swift
 GET("/posts/:id") { req in
@@ -267,7 +298,7 @@ GET("/posts/:id") { req in
 }
 ```
 
-Uncaught `Error` values that are not ``HTTPError`` are intercepted by Score's
+Uncaught `Error` values that are not `HTTPError` are intercepted by Score's
 error middleware and returned as `500 Internal Server Error`. The error detail
 is logged server-side and never sent to the client.
 
@@ -283,7 +314,7 @@ RouteGroup("/admin") {
 .middleware(AuthMiddleware())
 ```
 
-Define custom middleware by conforming to ``Middleware``:
+Define custom middleware by conforming to `Middleware`:
 
 ```swift
 struct RateLimitMiddleware: Middleware {
@@ -321,7 +352,7 @@ WS("/live/notifications") { socket, req in
 
 ## Composing Controllers
 
-Register controllers on ``Application``:
+Register controllers on `Application`:
 
 ```swift
 @main
